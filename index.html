@@ -57,31 +57,23 @@
       overflow: hidden;
     }
 
-    /* --- SCALED SPLASH SCREEN ENGINE --- */
+    /* --- FIXED SPLASH SCREEN LAYOUT --- */
     #splashScreen {
       position: fixed;
       inset: 0;
-      background-color: #c8102e;
       background-image: url('splash_background.png');
-      background-size: contain;
-      background-position: center top;
+      /* Cover ensures the art stretches perfectly to fill the screen without leaving split background lines */
+      background-size: cover;
+      background-position: center center;
       background-repeat: no-repeat;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       align-items: center;
-      padding-bottom: calc(60px + env(safe-area-inset-bottom));
+      /* Positions the button perfectly over the image base, factoring in safe areas */
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
       z-index: 9999;
       transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-
-    #splashScreen::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, #300003 0%, rgba(48, 0, 3, 0.8) 35%, rgba(0,0,0,0) 70%);
-      z-index: 1;
-      pointer-events: none;
     }
 
     .splash-interaction-zone {
@@ -107,7 +99,8 @@
       text-transform: uppercase;
       padding: 16px 42px;
       border-radius: 999px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 2px 2px rgba(255, 255, 255, 0.4);
+      /* Soft golden glow effect matching your screenshot */
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4);
       cursor: pointer;
       display: block;
       transition: transform 0.1s ease, background 0.1s ease;
@@ -115,8 +108,8 @@
     }
 
     @keyframes pulseButton {
-      0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6); }
-      50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4); }
+      0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 6px 20px rgba(0, 0, 0, 0.4); }
+      50% { transform: scale(1.04); box-shadow: 0 0 28px rgba(255, 215, 0, 0.7), 0 8px 25px rgba(0, 0, 0, 0.5); }
     }
 
     .progress-bar-container {
@@ -778,7 +771,7 @@
   </div>
 
   <script>
-    /* --- INTERACTIVE SPLASH ENGINE & TIMED AUDIO GATE CONTROLLERS --- */
+    /* --- INTERACTIVE SPLASH ENGINE & SYNCHRONIZED TIMINGS --- */
     let audioCtx = null;
     let applicationHasStarted = false;
 
@@ -824,14 +817,12 @@
       if (applicationHasStarted) return;
       applicationHasStarted = true;
       
-      // 1. UNLOCK TIMING GATES VIA THE SILENT TRACKER WHISPER
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') {
           audioCtx.resume();
         }
         
-        // Emits structural silent node into frame cycle to preserve background permissions
         const silentOsc = audioCtx.createOscillator();
         const silentGain = audioCtx.createGain();
         silentGain.gain.setValueAtTime(0, audioCtx.currentTime); 
@@ -843,7 +834,6 @@
         console.log("Audio pipeline failed to hook framework permissions: ", err);
       }
       
-      // 2. BEGIN GRAPHICAL STEPS
       splashActionButton.style.background = "linear-gradient(180deg, #e6c200, #cc9300)";
       splashActionButton.style.transform = "scale(0.95)";
       splashActionButton.textContent = "Loading...";
@@ -854,25 +844,21 @@
         progressBarContainer.style.display = "block";
         progressBarInner.classList.add('animate-loading');
 
-        // 3. SYNCHRONOUS HOOK: TRIGGER CHIPTUNE JINGLE WHEN PROGRESS METERS HIT 100%
         setTimeout(() => {
-          
           playRetroStartupJingle(audioCtx);
 
-          // Render app visible
           setTimeout(() => {
             splashScreen.style.opacity = '0';
             splashScreen.style.transform = 'scale(1.04)';
             shell.style.opacity = '1';
             
             setTimeout(() => splashScreen.remove(), 400); 
-          }, 400); 
+          }, 1430); 
 
-        }, 1700); // Perfect 1700ms alignment with loading animation
+        }, 1700); 
       }, 300); 
     }
 
-    // Capture standard touch channels explicitly
     splashActionButton.addEventListener('pointerdown', executeStartupSequence, { passive: false });
     splashActionButton.addEventListener('click', executeStartupSequence);
 
@@ -1175,7 +1161,7 @@
     function buildFailList() {
       const list = [];
       document.querySelectorAll("[data-critical]").forEach(g => {
-        if (g.dataset.state === "fail") list.push({ q: g.closest(".item-row").querySelector(".item-label").textContent, r: g.dataset.reason || "N/A", p: g.dataset.photo || null });
+        if (g.dataset.state === "fail") list.push({ q: g.closest(".item-row").querySelector(".item-label").textContent, r: g.dataset.reason || "N/A", p: f.p || null });
       });
       document.querySelectorAll(".check-box").forEach(b => {
         if (b.dataset.state === "fail" && b.dataset.reason) {
