@@ -57,34 +57,44 @@
       overflow: hidden;
     }
 
-    /* --- SPLASH SCREEN CONTAINER --- */
+    /* --- FIXED & SCALED SPLASH SCREEN LAYER --- */
     #splashScreen {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #a70000;
+      inset: 0;
+      background-color: #c8102e;
       background-image: url('splash_background.png');
-      background-size: cover;
-      background-position: center;
+      background-size: contain;
+      background-position: center top;
       background-repeat: no-repeat;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: flex-end;
-      padding-bottom: calc(40px + env(safe-area-inset-bottom));
+      align-items: center;
+      padding-bottom: calc(60px + env(safe-area-inset-bottom));
       z-index: 9999;
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
+    /* Shading overlay to make text readable regardless of aspect ratio cropping */
+    #splashScreen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, #300003 0%, rgba(48, 0, 3, 0.8) 35%, rgba(0,0,0,0) 70%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
     .splash-interaction-zone {
+      position: relative;
+      z-index: 2;
       width: 100%;
+      max-width: 320px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
+      gap: 20px;
     }
 
     .splash-action-button {
@@ -96,9 +106,9 @@
       font-weight: 800;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      padding: 14px 36px;
+      padding: 16px 42px;
       border-radius: 999px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 2px 2px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 2px 2px rgba(255, 255, 255, 0.4);
       cursor: pointer;
       display: block;
       transition: transform 0.1s ease, background 0.1s ease;
@@ -106,25 +116,25 @@
     }
 
     @keyframes pulseButton {
-      0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
-      50% { transform: scale(1.04); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3); }
+      0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6); }
+      50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4); }
     }
 
     .progress-bar-container {
-      width: 78%;
+      width: 100%;
       height: 22px;
-      background-color: rgba(40, 0, 0, 0.65);
+      background-color: rgba(20, 0, 2, 0.85);
       border-radius: 99px;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
       display: none;
     }
 
     .progress-bar-inner {
       height: 100%;
       width: 0%;
-      background: linear-gradient(to right, #ffd700, #fff);
+      background: linear-gradient(to right, #ffd700, #ffffff);
       border-radius: 99px;
       box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4), 0 0 8px #ffd700;
     }
@@ -135,16 +145,16 @@
 
     @keyframes fillBar {
       0% { width: 0%; }
-      100% { width: 98.5%; }
+      100% { width: 100%; }
     }
 
     .loading-text {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.08em;
       color: var(--mc-yellow);
       text-transform: uppercase;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+      text-shadow: 0 2px 5px rgba(0,0,0,0.9);
       text-align: center;
       display: none;
     }
@@ -773,12 +783,6 @@
     let audioCtx = null;
     let applicationHasStarted = false;
 
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-    }
-
     const splashScreen = document.getElementById('splashScreen');
     const splashActionButton = document.getElementById('splashActionButton');
     const splashStatusText = document.getElementById('splashStatusText');
@@ -786,22 +790,55 @@
     const progressBarInner = document.getElementById('progressBarInner');
     const shell = document.getElementById('appShell');
 
-    // IRON-CLAD STARTUP SEQUENCE FOR IMMEDATE AUDIO RESUMPTION
+    // EXPLICIT RETRO ARCADE CHIPTUNE SCRIPT SEQUENCE (INLINE TO FORCE FRAME COMPLIANCE)
+    function playRetroStartupJingle(ctx) {
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const rhythmSpeed = 1.0; 
+      const notes = [
+        { freq: 440.00, start: 0.00 * rhythmSpeed, duration: 0.16 },
+        { freq: 493.88, start: 0.18 * rhythmSpeed, duration: 0.16 },
+        { freq: 554.37, start: 0.36 * rhythmSpeed, duration: 0.22 },
+        { freq: 659.25, start: 0.62 * rhythmSpeed, duration: 0.24 },
+        { freq: 554.37, start: 0.88 * rhythmSpeed, duration: 0.55 }
+      ];
+      notes.forEach((note, index) => {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        osc.type = (index === 4) ? 'square' : 'triangle';
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        const noteStart = now + note.start;
+        const noteEnd = noteStart + note.duration;
+        osc.frequency.setValueAtTime(note.freq * 0.97, noteStart);
+        osc.frequency.linearRampToValueAtTime(note.freq, noteStart + 0.04);
+        gainNode.gain.setValueAtTime(0, noteStart);
+        gainNode.gain.linearRampToValueAtTime(0.12, noteStart + 0.015);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+        osc.start(noteStart);
+        osc.stop(noteEnd);
+      });
+    }
+
+    // SYNCHRONOUS HARDWARE LEVEL INTERCEPTOR FOR TOUCH EVENTS
     function executeStartupSequence(e) {
       if (applicationHasStarted) return;
       
-      // Force Audio Context setup immediately on the touch event frame
-      initAudio();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
+      // Instantly generate context inside the event execution cycle
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        // Force-fire sound directly inside this click thread block 
+        playRetroStartupJingle(audioCtx);
+      } catch (err) {
+        console.log("Audio failed to ignite: ", err);
       }
       
       applicationHasStarted = true;
-      
-      // Fire the retro jingle immediately now that hardware is hot
-      playRetroStartupJingle();
 
-      // Fire UI Animations
+      // Begin UI Sequence
       splashActionButton.style.background = "linear-gradient(180deg, #e6c200, #cc9300)";
       splashActionButton.style.transform = "scale(0.95)";
       splashActionButton.textContent = "Loading...";
@@ -819,11 +856,12 @@
           
           setTimeout(() => splashScreen.remove(), 400); 
         }, 1700);
-      }, 800); 
+      }, 400); 
     }
 
+    // Bind execution explicitly to capture both input channels natively
+    splashActionButton.addEventListener('touchstart', executeStartupSequence, { passive: false });
     splashActionButton.addEventListener('click', executeStartupSequence);
-    splashActionButton.addEventListener('touchstart', executeStartupSequence, { passive: true });
 
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
     let lastTouchTime = 0;
@@ -838,39 +876,11 @@
       event.preventDefault();
     }, { passive: false });
 
-    /* --- RETRO ARCADE BOOT-UP CHIPTUNE JINGLE --- */
-    function playRetroStartupJingle() {
-      if (!audioCtx) return;
-      const now = audioCtx.currentTime;
-      const rhythmSpeed = 1.3; 
-      const notes = [
-        { freq: 440.00, start: 0.00 * rhythmSpeed, duration: 0.16 },
-        { freq: 493.88, start: 0.18 * rhythmSpeed, duration: 0.16 },
-        { freq: 554.37, start: 0.36 * rhythmSpeed, duration: 0.22 },
-        { freq: 659.25, start: 0.62 * rhythmSpeed, duration: 0.24 },
-        { freq: 554.37, start: 0.88 * rhythmSpeed, duration: 0.55 }
-      ];
-      notes.forEach((note, index) => {
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.type = (index === 4) ? 'square' : 'triangle';
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        const noteStart = now + note.start;
-        const noteEnd = noteStart + note.duration;
-        osc.frequency.setValueAtTime(note.freq * 0.97, noteStart);
-        osc.frequency.linearRampToValueAtTime(note.freq, noteStart + 0.04);
-        gainNode.gain.setValueAtTime(0, noteStart);
-        gainNode.gain.linearRampToValueAtTime(0.12, noteStart + 0.015);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
-        osc.start(noteStart);
-        osc.stop(noteEnd);
-      });
-    }
-
+    /* --- APPLICATION RUNTIME AUDIO ENGINE --- */
     function playSound(type) {
-      initAudio();
-      if (!audioCtx) return;
+      if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return; }
+      }
       if (audioCtx.state === 'suspended') audioCtx.resume();
       
       const now = audioCtx.currentTime;
@@ -900,7 +910,6 @@
         osc.start(now);
         osc.stop(now + 0.018);
       } else if (type === 'camera') {
-        // Subtle crisp camera snapshot audio generation
         const clickOsc = audioCtx.createOscillator();
         const clickGain = audioCtx.createGain();
         clickOsc.type = 'triangle';
@@ -969,7 +978,7 @@
       box.innerHTML = `<span style="color:${color || ''}; font-weight:900;">${symbol}</span>`;
     }
 
-    /* --- LIGHTWEIGHT HARDWARE COMPRESSION ENGINE --- */
+    /* --- PHOTO COMPRESSION ENGINE --- */
     const reasonDialogEl = document.getElementById("reasonDialog");
     const reasonInput = document.getElementById("reasonInput");
     const cameraInput = document.getElementById("cameraInput");
@@ -991,12 +1000,10 @@
       reasonInput.focus();
     }
 
-    // Capture and squash phone photos down to a fast thumbnail boundary
     cameraInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      // Play the camera shutter click audio effect directly
       playSound('camera');
 
       const reader = new FileReader();
@@ -1180,7 +1187,7 @@
       document.getElementById("metaAuditor").value = "";
     });
 
-    document.getElementById("metaCancel").addEventListener("click", () => metaDialog.style.none);
+    document.getElementById("metaCancel").addEventListener("click", () => metaDialog.style.display = "none");
     
     document.getElementById("metaSubmit").addEventListener("click", () => {
       auditMetadata.store = document.getElementById("metaStore").value.trim() || "Default Store";
