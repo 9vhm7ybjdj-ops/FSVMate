@@ -23,7 +23,7 @@
       --mc-yellow-soft: #ffe766;
       --bg-dark: #101010;
       --text-main: #ffffff;
-      --text-muted: #f5f5f5; /* Lightened for enhanced contrast against dark red */
+      --text-muted: #f5f5f5;
       --yes-bg: #ffd700;
       --yes-text: #5a3b00;
       --no-bg: #c8102e;
@@ -31,7 +31,7 @@
       --check-bg: rgba(0, 0, 0, 0.4);
       --check-border: #ffd700;
       --score-bg: #ffd700;
-      --score-text: #8f0c21;
+      --score-text: #100002; /* High contrast near-black for readability on yellow */
       --tab-inactive: #f0f0f0;
       --tab-inactive-text: #555555;
       --tab-active-text: #ffffff;
@@ -131,7 +131,7 @@
       overflow: hidden;
       position: relative;
       padding-top: env(safe-area-inset-top);
-      opacity: 0; /* Hidden initially behind splash screen */
+      opacity: 0;
       transition: opacity 0.4s ease;
     }
 
@@ -202,7 +202,6 @@
 
     .content {
       flex: 1;
-      /* CUSTOM GRADIENT: Emulates the radial lighting of the splash screen backdrop */
       background: radial-gradient(circle at top, #df162e 0%, #70000a 65%, #300003 100%);
       padding: 12px 12px 110px;
       overflow-y: auto;
@@ -219,7 +218,6 @@
     }
 
     .card {
-      /* Deep semi-translucent backings to preserve clear text readability over the bright red background */
       background: rgba(20, 2, 4, 0.78);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
@@ -256,6 +254,13 @@
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.03);
       margin-bottom: 6px;
+    }
+
+    .item-column {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0;
+      min-width: 0;
     }
 
     .item-label {
@@ -295,9 +300,10 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
-    .check-with-score { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .check-with-score { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; flex-shrink: 0; }
     .score-badge { color: rgba(255, 255, 255, 0.7); font-size: 11px; font-weight: 600; text-shadow: 0 1px 1px #000; }
 
     .check-box span {
@@ -339,6 +345,21 @@
       font-size: 13px;
       font-weight: 800;
       flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Solid high-contrast backing pill */
+    .pass { 
+      margin-left: auto; 
+      padding: 3px 10px; 
+      border-radius: 999px; 
+      font-size: 11px; 
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      background: #100002;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     .finish-btn {
@@ -355,7 +376,6 @@
     }
 
     .finish-btn.show { display: inline-flex; }
-    .pass { margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: rgba(0, 0, 0, 0.12); font-size: 11px; }
     .swipe-hint { font-size: 10px; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.12em; }
 
     /* --- DIALOGS AND OVERLAYS --- */
@@ -417,7 +437,7 @@
       cursor: pointer;
     }
 
-    #exportPNG { background: var(--mc-yellow); color: var(--yes-text); }
+    #exportPNG { background: var(--mc-yellow); color: #100002; }
     #viewLogBtn { background: #ffffff; color: #000000; }
     #newAudit { background: var(--mc-red); color: #fff; }
     .dialog-btn.cancel { background: transparent; color: #c7c7c7; border: 1px solid rgba(255, 255, 255, 0.2); }
@@ -583,7 +603,11 @@
 
     <div class="score-bar">
       <div class="score-inner" id="scoreBar">
-        <span class="label">Score:</span><span class="value" id="scoreText">0 / 120 — 0.0%</span><span class="pass" id="passText">PENDING</span>
+        <div>
+          <span class="label" style="font-weight: 500; opacity: 0.88;">Score: </span>
+          <span class="value" id="scoreText" style="font-weight: 800;">0 / 120 — 0.0%</span>
+        </div>
+        <span class="pass" id="passText">PENDING</span>
       </div>
       <button class="finish-btn" id="finishBtn">Finish</button>
     </div>
@@ -811,9 +835,16 @@
       auditMetadata.scoreStr = `${total} / ${max} — ${pct.toFixed(1)}% ${criticalFail ? '[CRITICAL FAILED]' : ''}`;
       scoreText.textContent = `${total} / ${max} — ${pct.toFixed(1)}%`;
 
-      if (criticalFail) { passText.textContent = "CRITICAL FAIL"; passText.style.color = "#ffb3c0"; }
-      else if (pct >= 90) { passText.textContent = "PASS"; passText.style.color = "#4be34b"; }
-      else { passText.textContent = "PENDING"; passText.style.color = "#ffd700"; }
+      if (criticalFail) { 
+        passText.textContent = "CRITICAL FAIL"; 
+        passText.style.color = "#ffb3c0"; 
+      } else if (pct >= 90) { 
+        passText.textContent = "PASS"; 
+        passText.style.color = "#85ff85"; 
+      } else { 
+        passText.textContent = "PENDING"; 
+        passText.style.color = "#ffd700"; 
+      }
 
       const allAns = Array.from(document.querySelectorAll(".btn-group[data-critical]")).every(g => g.querySelector(".btn-yes").classList.contains("active") || g.querySelector(".btn-no").classList.contains("active")) &&
                      Array.from(document.querySelectorAll(".check-box:not(.secondary-sub-box)")).every(b => b.dataset.state && b.dataset.state !== "blank");
