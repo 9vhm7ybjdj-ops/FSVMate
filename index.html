@@ -403,6 +403,35 @@
       padding: 6px;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
+
+    /* Fullscreen Photo Library Save Preview */
+    .photo-preview-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .photo-preview-image {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      -webkit-user-select: element;
+      user-select: element;
+    }
+    .photo-instruction {
+      color: #fff;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 16px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -534,7 +563,7 @@
       <!-- Live Reason List Viewer Node -->
       <div id="logViewer" class="log-viewer-container" style="display:none;"></div>
 
-      <button class="dialog-btn" id="viewLogBtn">View Reason Log</button>
+      <button class="dialog-btn" id="viewLogBtn">View Opportunity Log</button>
       <button class="dialog-btn" id="exportPNG">Export PNG Report</button>
       <button class="dialog-btn" id="newAudit">Start New Audit</button>
       <button class="dialog-btn cancel" id="closeDialog">Cancel</button>
@@ -544,13 +573,20 @@
   <!-- Quick Reason Input Popup -->
   <div id="reasonDialog" class="reason-dialog-overlay" style="display:none;">
     <div class="reason-dialog-box">
-      <div class="reason-dialog-title" style="color:var(--mc-yellow); font-weight:700; margin-bottom:8px;">Enter Reason:</div>
-      <textarea id="reasonInput" class="reason-dialog-input" rows="3" placeholder="Describe deficiency..."></textarea>
+      <div class="reason-dialog-title" style="color:var(--mc-yellow); font-weight:700; margin-bottom:8px;">Enter Opportunity:</div>
+      <textarea id="reasonInput" class="reason-dialog-input" rows="3" placeholder="Describe opportunity..."></textarea>
       <div style="display:flex; gap:8px;">
         <button class="dialog-btn" id="reasonSubmit" style="background:var(--mc-yellow); color:#000; margin:0;">Submit</button>
         <button class="dialog-btn cancel" id="reasonCancel" style="margin:0;">Cancel</button>
       </div>
     </div>
+  </div>
+
+  <!-- Photo Library Save Overlay (iPhone Optimized) -->
+  <div id="photoPreviewOverlay" class="photo-preview-overlay" style="display:none;">
+    <img id="photoPreviewImg" class="photo-preview-image" src="" alt="Report Preview">
+    <div class="photo-instruction">Press and hold the image above,<br>then select <strong>"Save to Photos"</strong>.</div>
+    <button class="dialog-btn cancel" id="closePhotoPreview" style="max-width:200px;">Close Preview</button>
   </div>
 
   <script>
@@ -573,7 +609,6 @@
       const now = audioCtx.currentTime;
 
       if (type === 'swipe') {
-        // Optimized SWOOSH Mechanics: Rapid pitch slide upward with smooth ease-out gain curve
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(200, now);
         osc.frequency.exponentialRampToValueAtTime(600, now + 0.18);
@@ -648,11 +683,11 @@
 
     document.getElementById("reasonSubmit").addEventListener("click", () => {
       reasonDialogEl.style.display = "none";
-      if (reasonCallback) { reasonCallback(reasonInput.value.trim() || "No reason logged"); reasonCallback = null; }
+      if (reasonCallback) { reasonCallback(reasonInput.value.trim() || "No details logged"); reasonCallback = null; }
     });
     document.getElementById("reasonCancel").addEventListener("click", () => {
       reasonDialogEl.style.display = "none";
-      if (reasonCallback) { reasonCallback("No reason logged"); reasonCallback = null; }
+      if (reasonCallback) { reasonCallback("No details logged"); reasonCallback = null; }
     });
 
     function getSecondarySubBoxes(group) { return Array.from(document.querySelectorAll(`.secondary-sub-box[data-secondary-group="${group}"]`)); }
@@ -773,11 +808,12 @@
       return list;
     }
 
-    // --- Interactive Dialogue State Control ---
     const finishBtn = document.getElementById("finishBtn");
     const metaDialog = document.getElementById("metaDialog");
     const completeDialog = document.getElementById("completeDialog");
     const logViewer = document.getElementById("logViewer");
+    const photoPreviewOverlay = document.getElementById("photoPreviewOverlay");
+    const photoPreviewImg = document.getElementById("photoPreviewImg");
 
     finishBtn.addEventListener("click", () => {
       metaDialog.style.display = "flex";
@@ -795,20 +831,20 @@
       metaDialog.style.display = "none";
       completeDialog.style.display = "flex";
       logViewer.style.display = "none";
-      document.getElementById("viewLogBtn").textContent = "View Reason Log";
+      document.getElementById("viewLogBtn").textContent = "View Opportunity Log";
     });
 
     document.getElementById("viewLogBtn").addEventListener("click", () => {
       if (logViewer.style.display === "block") {
         logViewer.style.display = "none";
-        document.getElementById("viewLogBtn").textContent = "View Reason Log";
+        document.getElementById("viewLogBtn").textContent = "View Opportunity Log";
       } else {
         logViewer.innerHTML = `
           <div class="log-header-block">
             <strong>Store:</strong> ${auditMetadata.store}<br>
             <strong>Auditor:</strong> ${auditMetadata.auditor}<br>
             <strong>Date/Time:</strong> ${auditMetadata.timestamp}<br>
-            <strong>Performance Metric:</strong> ${auditMetadata.scoreStr}
+            <strong>Overall Score:</strong> <span style="color:#ffd700;">${auditMetadata.scoreStr}</span>
           </div>
         `;
         const fails = buildFailList();
@@ -818,18 +854,19 @@
           fails.forEach(f => {
             logViewer.innerHTML += `
               <div class="log-item">
-                <span style="color:#ffb3c0; font-weight:600;">Deficiency:</span> ${f.q}<br>
-                <span style="color:var(--mc-yellow-soft);">Reason:</span> ${f.r}
+                <span style="color:#ffb3c0; font-weight:600;">Opportunity:</span> ${f.q}<br>
+                <span style="color:var(--mc-yellow-soft);">Action Detail:</span> ${f.r}
               </div>`;
           });
         }
         logViewer.style.display = "block";
-        document.getElementById("viewLogBtn").textContent = "Hide Reason Log";
+        document.getElementById("viewLogBtn").textContent = "Hide Opportunity Log";
       }
     });
 
     document.getElementById("closeDialog").addEventListener("click", () => completeDialog.style.display = "none");
     document.getElementById("newAudit").addEventListener("click", () => location.reload());
+    document.getElementById("closePhotoPreview").addEventListener("click", () => photoPreviewOverlay.style.display = "none");
 
     document.getElementById("exportPNG").addEventListener("click", () => {
       const box = document.createElement("div");
@@ -841,26 +878,27 @@
           <strong>Store Profile:</strong> ${auditMetadata.store}<br>
           <strong>Inspected By:</strong> ${auditMetadata.auditor}<br>
           <strong>Timestamp:</strong> ${auditMetadata.timestamp}<br>
-          <strong>Performance Summary Score:</strong> <span style="color:#ffd700; font-weight:700;">${auditMetadata.scoreStr}</span>
+          <strong>Overall Score:</strong> <span style="color:#ffd700; font-weight:700;">${auditMetadata.scoreStr}</span>
         </div>
       `;
 
       const fails = buildFailList();
       if (fails.length === 0) {
-        box.innerHTML += `<div style="color:#85ff85; font-size:14px; font-weight:600;">✓ All standards logged successfully compliant. No actions required.</div>`;
+        box.innerHTML += `<div style="color:#85ff85; font-size:14px; font-weight:600;">✓ All standards logged successfully compliant. No operational action required.</div>`;
       } else {
         fails.forEach(f => {
           box.innerHTML += `
             <div style="margin-bottom:12px; padding:12px; background:rgba(255,255,255,0.03); border-left:4px solid #c8102e; border-radius:4px;">
               <div style="font-size:13px; font-weight:700; color:#fff6a0; margin-bottom:4px;">${f.q}</div>
-              <div style="font-size:12px; color:#e0e0e0;"><span style="color:#ffb3c0; font-weight:600;">Reason for Action:</span> ${f.r}</div>
+              <div style="font-size:12px; color:#e0e0e0;"><span style="color:#ffb3c0; font-weight:600;">Opportunity Detail:</span> ${f.r}</div>
             </div>`;
         });
       }
 
       document.body.appendChild(box);
       html2canvas(box, { scale: 2, backgroundColor: "#0b0205" }).then(canvas => {
-        const a = document.createElement("a"); a.download = `FSV_Report_${auditMetadata.store.replace(/\s+/g, '_')}.png`; a.href = canvas.toDataURL(); a.click();
+        photoPreviewImg.src = canvas.toDataURL("image/png");
+        photoPreviewOverlay.style.display = "flex";
         box.remove();
       });
     });
