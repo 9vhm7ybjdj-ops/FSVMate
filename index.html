@@ -60,7 +60,10 @@
     /* --- SPLASH SCREEN CONTAINER --- */
     #splashScreen {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-color: #a70000;
       background-image: url('splash_background.png');
       background-size: cover;
@@ -69,21 +72,42 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
+      justify-content: flex-end;
+      padding-bottom: calc(40px + env(safe-area-inset-bottom));
       z-index: 9999;
       transition: opacity 0.4s ease, transform 0.4s ease;
-      cursor: pointer;
     }
 
-    .loading-zone {
+    .splash-interaction-zone {
       width: 100%;
-      height: 25vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 16px;
+    }
+
+    /* Standardized HTML Action Button to force iOS Audio Context Unlock */
+    .splash-action-button {
+      background: linear-gradient(180deg, #ffd700, #ffb700);
+      color: #5a3b00;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      border-radius: 999px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 2px 2px rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      display: block;
+      animation: pulseButton 1.6s infinite ease-in-out;
+    }
+
+    @keyframes pulseButton {
+      0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
+      50% { transform: scale(1.04); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3); }
     }
 
     .progress-bar-container {
@@ -105,7 +129,6 @@
       box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4), 0 0 8px #ffd700;
     }
 
-    /* Animation speed tracks the audio jingle runtime duration exactly */
     .animate-loading {
       animation: fillBar 1.7s linear forwards;
     }
@@ -116,7 +139,6 @@
     }
 
     .loading-text {
-      margin-top: 14px;
       font-size: 14px;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -124,16 +146,7 @@
       text-transform: uppercase;
       text-shadow: 0 2px 5px rgba(0,0,0,0.8);
       text-align: center;
-    }
-
-    .pulse-text {
-      animation: pulseText 1.4s infinite ease-in-out;
-      color: #ffffff;
-    }
-
-    @keyframes pulseText {
-      0%, 100% { opacity: 0.6; transform: scale(0.98); }
-      50% { opacity: 1; transform: scale(1.02); }
+      display: none;
     }
 
     /* --- CORE SYSTEM APPLICATION CONTAINER --- */
@@ -185,7 +198,6 @@
       flex-shrink: 0;
     }
 
-    /* Transparent Backdrop Glassmorphism Tab Strip - Fixed Layout */
     .tabs {
       display: flex;
       align-items: center;
@@ -550,13 +562,12 @@
 <body>
 
   <div id="splashScreen">
-    <div></div>
-    <div></div>
-    <div class="loading-zone">
+    <div class="splash-interaction-zone">
+      <button class="splash-action-button" id="splashActionButton">Tap to Start</button>
       <div class="progress-bar-container" id="progressBarContainer">
         <div class="progress-bar-inner" id="progressBarInner"></div>
       </div>
-      <div class="loading-text pulse-text" id="splashStatusText">Tap anywhere to start</div>
+      <div class="loading-text" id="splashStatusText">Loading Application...</div>
     </div>
   </div>
 
@@ -722,6 +733,7 @@
     }
 
     const splashScreen = document.getElementById('splashScreen');
+    const splashActionButton = document.getElementById('splashActionButton');
     const splashStatusText = document.getElementById('splashStatusText');
     const progressBarContainer = document.getElementById('progressBarContainer');
     const progressBarInner = document.getElementById('progressBarInner');
@@ -736,7 +748,7 @@
         e.stopPropagation();
       }
 
-      // 1. Synchronous iOS Audio Context Unfreeze
+      // 1. Direct Synchronous Native Interaction Window Audio Context Unfreeze
       initAudio();
       if (audioCtx) {
         const buffer = audioCtx.createBuffer(1, 1, 22050);
@@ -753,8 +765,9 @@
       // 2. Play the intro track sequence 
       playRetroStartupJingle();
 
-      splashStatusText.classList.remove('pulse-text');
-      splashStatusText.textContent = "Loading Application...";
+      // 3. Swap button out for progress sequence bars
+      splashActionButton.style.display = "none";
+      splashStatusText.style.display = "block";
       progressBarContainer.style.display = "block";
       progressBarInner.classList.add('animate-loading');
 
@@ -767,8 +780,9 @@
       }, 1700);
     }
 
-    splashScreen.addEventListener('touchstart', executeStartupSequence, { passive: false });
-    splashScreen.addEventListener('click', executeStartupSequence);
+    // Direct binding to button component to address explicit user interaction rules
+    splashActionButton.addEventListener('click', executeStartupSequence);
+    splashActionButton.addEventListener('touchstart', executeStartupSequence, { passive: false });
 
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
     let lastTouchTime = 0;
