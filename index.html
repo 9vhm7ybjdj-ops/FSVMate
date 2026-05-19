@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FSV Mate">
   
-  <link rel="apple-touch-icon" href="icon-512.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c8102e">
 
@@ -147,16 +147,16 @@
       flex-shrink: 0;
     }
 
-    /* Top Left Header Icon Integration - Slightly wider frame size for 512px visibility */
+    /* Top Left Header Icon Integration */
     .header-icon {
       position: absolute;
       left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       object-fit: contain;
-      border-radius: 8px;
+      border-radius: 6px;
     }
 
     .header-title {
@@ -165,35 +165,36 @@
       letter-spacing: 0.02em;
     }
 
-    /* Transparent Backdrop Glassmorphism Tab Strip */
+    /* Transparent Backdrop Glassmorphism Tab Strip - Fixed Layout */
     .tabs {
       display: flex;
       align-items: center;
-      overflow-x: auto;
-      background: rgba(20, 2, 4, 0.45);
+      width: 100%;
+      background: rgba(20, 2, 4, 0.25); /* Increased translucency from 0.45 */
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      padding: 12px 8px 10px;
-      gap: 6px;
-      scrollbar-width: none;
+      padding: 12px 6px 10px;
+      gap: 4px;
       flex-shrink: 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .tabs::-webkit-scrollbar { display: none; }
-
     .tab {
-      flex: 0 0 auto;
-      padding: 6px 12px 8px;
+      flex: 1 1 0; /* Auto-resizes perfectly to occupy equal screen width bounds */
+      min-width: 0;
+      padding: 6px 4px 8px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 11px; /* Scaled down 1px to perfectly hold longer headers */
       font-weight: 600;
       background: var(--tab-inactive);
       color: var(--tab-inactive-text);
       border: 1px solid transparent;
       position: relative;
       cursor: pointer;
+      text-align: center;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       transition: background 0.18s ease, color 0.18s ease;
     }
 
@@ -306,17 +307,17 @@
     .btn-yes.active { background: var(--yes-bg); color: var(--yes-text); box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.9); }
     .btn-no.active { background: var(--no-bg); box-shadow: 0 0 0 2px rgba(255, 120, 120, 0.9); }
 
-    /* LAYOUT RESTRUCTURING FIX: Structural Grid stops point variations from throwing layout columns out of sync */
+    /* Fix: Forced structural grid layout locks checkbox at 28px width, stopping alignment shifts */
     .check-with-score { 
       display: inline-grid; 
-      grid-template-columns: 28px 36px; /* Explicit structural tracks to keep alignment static */
+      grid-template-columns: 28px 36px; /* Strict grid columns keep checkbox tracking stable */
       align-items: center; 
       gap: 6px; 
       flex-shrink: 0; 
       justify-content: flex-end;
     }
 
-    /* Part of Alignment Fix: Keeps checkbox absolute as item 1 in grid tracking rules */
+    /* Fix: Setup box nodes strictly to column position one */
     .check-box {
       grid-column: 1;
       width: 28px;
@@ -346,7 +347,7 @@
 
     .check-box.active span { opacity: 1; transform: scale(1); }
 
-    /* Part of Alignment Fix: Ensures text track elements grow out rightwards, not pulling inwards left */
+    /* Fix: Double digits expand cleanly out rightward without bleeding into checkbox zone */
     .score-badge { 
       grid-column: 2;
       color: rgba(255, 255, 255, 0.7); 
@@ -386,7 +387,6 @@
       justify-content: space-between;
     }
 
-    /* Solid high-contrast backing pill */
     .pass { 
       margin-left: auto; 
       padding: 3px 10px; 
@@ -545,7 +545,7 @@
 
   <div class="app-shell" id="appShell">
     <div class="header">
-      <img src="icon-512.png" class="header-icon" alt="FSV Logo">
+      <img src="icon-192.png" class="header-icon" alt="FSV Logo">
       <div class="header-title">Food Safety Visit</div>
     </div>
 
@@ -693,12 +693,42 @@
   </div>
 
   <script>
-    /* --- AUDIO ENGINE SYNAPSES --- */
+    /* --- SPLASH TIMING ENGINE --- */
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        const shell = document.getElementById('appShell');
+        
+        // Fired instantly on runtime load finish
+        playRetroStartupJingle();
+        
+        splash.style.opacity = '0';
+        splash.style.transform = 'scale(1.04)';
+        shell.style.opacity = '1';
+        
+        setTimeout(() => splash.remove(), 500); 
+      }, 3000);
+    });
+
+    /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
+    let lastTouchTime = 0;
+    document.addEventListener('touchstart', function (event) {
+      const now = new Date().getTime();
+      if (now - lastTouchTime <= 300) event.preventDefault();
+      lastTouchTime = now;
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
+    /* --- RETRO ARCADE BOOT-UP CHIPTUNE JINGLE --- */
     let audioCtx = null;
-    let auditMetadata = { store: "", auditor: "", timestamp: "", scoreStr: "" };
 
     function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
     }
 
     function playRetroStartupJingle() {
@@ -708,32 +738,31 @@
 
       const now = audioCtx.currentTime;
       
-      // Arcade Web Audio Sequence matching the 5-note melodic progression
+      // Retro 5-note "ba-da-ba-ba-ba" scale sequence
       const notes = [
-        { freq: 523.25, start: 0.00, duration: 0.11 }, // ba
-        { freq: 587.33, start: 0.13, duration: 0.11 }, // da
-        { freq: 659.25, start: 0.26, duration: 0.14 }, // ba
-        { freq: 784.00, start: 0.42, duration: 0.16 }, // ba
-        { freq: 659.25, start: 0.60, duration: 0.45 }  // baaa
+        { freq: 523.25, start: 0.00, duration: 0.12 }, // ba
+        { freq: 587.33, start: 0.14, duration: 0.12 }, // da
+        { freq: 659.25, start: 0.28, duration: 0.15 }, // ba
+        { freq: 784.00, start: 0.45, duration: 0.18 }, // ba
+        { freq: 659.25, start: 0.65, duration: 0.40 }  // baaa
       ];
 
       notes.forEach(note => {
         const osc = audioCtx.createOscillator();
-        osc.type = 'square'; // Nostalgic 8-bit chip signature
-        
+        osc.type = 'square'; 
         const gainNode = audioCtx.createGain();
+        
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
 
         const noteStart = now + note.start;
         const noteEnd = noteStart + note.duration;
 
-        // Vintage 8-bit micro pitch curve attack setup
         osc.frequency.setValueAtTime(note.freq * 0.96, noteStart);
         osc.frequency.linearRampToValueAtTime(note.freq, noteStart + 0.02);
 
         gainNode.gain.setValueAtTime(0, noteStart);
-        gainNode.gain.linearRampToValueAtTime(0.06, noteStart + 0.01);
+        gainNode.gain.linearRampToValueAtTime(0.08, noteStart + 0.01);
         gainNode.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
 
         osc.start(noteStart);
@@ -771,38 +800,6 @@
       }
     }
 
-    /* --- SPLASH & MATCHED AUDIO SYNCHRONIZATION --- */
-    window.addEventListener('DOMContentLoaded', () => {
-      // Fires the jingle at 2.5s (perfectly aligning notes with the final loading bar swell)
-      setTimeout(() => {
-        playRetroStartupJingle();
-      }, 2500);
-
-      // Shell interface displays instantly at 3.0 seconds as loop wraps up
-      setTimeout(() => {
-        const splash = document.getElementById('splashScreen');
-        const shell = document.getElementById('appShell');
-        
-        splash.style.opacity = '0';
-        splash.style.transform = 'scale(1.04)';
-        shell.style.opacity = '1';
-        
-        setTimeout(() => splash.remove(), 500); 
-      }, 3000);
-    });
-
-    /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
-    let lastTouchTime = 0;
-    document.addEventListener('touchstart', function (event) {
-      const now = new Date().getTime();
-      if (now - lastTouchTime <= 300) event.preventDefault();
-      lastTouchTime = now;
-    }, { passive: false });
-
-    document.addEventListener('gesturestart', function (event) {
-      event.preventDefault();
-    }, { passive: false });
-
     /* --- RUNTIME INTERACTION CONTROL SYSTEMS --- */
     const tabs = document.querySelectorAll(".tab");
     const sections = document.querySelectorAll(".section");
@@ -810,6 +807,7 @@
     const passText = document.getElementById("passText");
     const contentEl = document.getElementById("content");
     const tabOrder = ["critical", "back", "kitchen", "service", "storewide"];
+    let auditMetadata = { store: "", auditor: "", timestamp: "", scoreStr: "" };
 
     function setActiveTab(targetId, source) {
       const activeTab = document.querySelector(".tab.active");
@@ -817,9 +815,6 @@
 
       tabs.forEach(t => t.classList.toggle("active", t.dataset.target === targetId));
       sections.forEach(s => s.classList.toggle("active", s.id === targetId));
-      
-      const newActiveTab = document.querySelector(".tab.active");
-      if (newActiveTab) newActiveTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
 
       if (source === 'swipe') playSound('swipe');
       else if (source === 'click') playSound('click');
@@ -936,7 +931,7 @@
       document.getElementById("finishBtn").classList.toggle("show", allAns);
     }
 
-    /* DOM Badge Wrapper injection optimized for static CSS Grid Column definitions */
+    /* Fix: Maps components explicitly within the newly injected CSS Grid matrix rules */
     document.querySelectorAll('.check-box:not(.secondary-sub-box)').forEach(box => {
       const wrapper = document.createElement('div');
       wrapper.className = 'check-with-score';
