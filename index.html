@@ -57,7 +57,7 @@
       overflow: hidden;
     }
 
-    /* --- FIXED & SCALED SPLASH SCREEN LAYER --- */
+    /* --- SCALED SPLASH SCREEN ENGINE --- */
     #splashScreen {
       position: fixed;
       inset: 0;
@@ -75,7 +75,6 @@
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
-    /* Shading overlay to make text readable regardless of aspect ratio cropping */
     #splashScreen::before {
       content: '';
       position: absolute;
@@ -779,7 +778,7 @@
   </div>
 
   <script>
-    /* --- INTERACTIVE SPLASH ENGINE & DIRECT HARDWARE AUDIO IGNITION --- */
+    /* --- INTERACTIVE SPLASH ENGINE & TIMED AUDIO GATE CONTROLLERS --- */
     let audioCtx = null;
     let applicationHasStarted = false;
 
@@ -790,7 +789,7 @@
     const progressBarInner = document.getElementById('progressBarInner');
     const shell = document.getElementById('appShell');
 
-    // EXPLICIT RETRO ARCADE CHIPTUNE SCRIPT SEQUENCE (INLINE TO FORCE FRAME COMPLIANCE)
+    // EXPLICIT RETRO ARCADE CHIPTUNE SCRIPT SEQUENCE (RUNS ON SYSTEM TRANSITION TIME)
     function playRetroStartupJingle(ctx) {
       if (!ctx) return;
       const now = ctx.currentTime;
@@ -820,25 +819,31 @@
       });
     }
 
-    // SYNCHRONOUS HARDWARE LEVEL INTERCEPTOR FOR TOUCH EVENTS
+    // SYSTEM LOAD HOOK TRIGGERED ON SCREEN DEPRESSION
     function executeStartupSequence(e) {
       if (applicationHasStarted) return;
+      applicationHasStarted = true;
       
-      // Instantly generate context inside the event execution cycle
+      // 1. UNLOCK TIMING GATES VIA THE SILENT TRACKER WHISPER
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') {
           audioCtx.resume();
         }
-        // Force-fire sound directly inside this click thread block 
-        playRetroStartupJingle(audioCtx);
+        
+        // Emits structural silent node into frame cycle to preserve background permissions
+        const silentOsc = audioCtx.createOscillator();
+        const silentGain = audioCtx.createGain();
+        silentGain.gain.setValueAtTime(0, audioCtx.currentTime); 
+        silentOsc.connect(silentGain);
+        silentGain.connect(audioCtx.destination);
+        silentOsc.start();
+        silentOsc.stop(audioCtx.currentTime + 0.1); 
       } catch (err) {
-        console.log("Audio failed to ignite: ", err);
+        console.log("Audio pipeline failed to hook framework permissions: ", err);
       }
       
-      applicationHasStarted = true;
-
-      // Begin UI Sequence
+      // 2. BEGIN GRAPHICAL STEPS
       splashActionButton.style.background = "linear-gradient(180deg, #e6c200, #cc9300)";
       splashActionButton.style.transform = "scale(0.95)";
       splashActionButton.textContent = "Loading...";
@@ -849,18 +854,26 @@
         progressBarContainer.style.display = "block";
         progressBarInner.classList.add('animate-loading');
 
+        // 3. SYNCHRONOUS HOOK: TRIGGER CHIPTUNE JINGLE WHEN PROGRESS METERS HIT 100%
         setTimeout(() => {
-          splashScreen.style.opacity = '0';
-          splashScreen.style.transform = 'scale(1.04)';
-          shell.style.opacity = '1';
           
-          setTimeout(() => splashScreen.remove(), 400); 
-        }, 1700);
-      }, 400); 
+          playRetroStartupJingle(audioCtx);
+
+          // Render app visible
+          setTimeout(() => {
+            splashScreen.style.opacity = '0';
+            splashScreen.style.transform = 'scale(1.04)';
+            shell.style.opacity = '1';
+            
+            setTimeout(() => splashScreen.remove(), 400); 
+          }, 400); 
+
+        }, 1700); // Perfect 1700ms alignment with loading animation
+      }, 300); 
     }
 
-    // Bind execution explicitly to capture both input channels natively
-    splashActionButton.addEventListener('touchstart', executeStartupSequence, { passive: false });
+    // Capture standard touch channels explicitly
+    splashActionButton.addEventListener('pointerdown', executeStartupSequence, { passive: false });
     splashActionButton.addEventListener('click', executeStartupSequence);
 
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
@@ -978,7 +991,7 @@
       box.innerHTML = `<span style="color:${color || ''}; font-weight:900;">${symbol}</span>`;
     }
 
-    /* --- PHOTO COMPRESSION ENGINE --- */
+    /* --- COMPRESSION ENGINE --- */
     const reasonDialogEl = document.getElementById("reasonDialog");
     const reasonInput = document.getElementById("reasonInput");
     const cameraInput = document.getElementById("cameraInput");
