@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FSV Mate">
   
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link class="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c8102e">
 
@@ -73,7 +73,7 @@
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
       z-index: 9999;
-      transition: opacity 0.5s ease, transform 0.5s ease;
+      transition: opacity 0.4s ease, transform 0.4s ease;
       cursor: pointer;
     }
 
@@ -94,7 +94,7 @@
       overflow: hidden;
       position: relative;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.4);
-      display: none; /* Hidden until tap occurs */
+      display: none;
     }
 
     .progress-bar-inner {
@@ -105,9 +105,9 @@
       box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4), 0 0 8px #ffd700;
     }
 
-    /* Active utility class triggered programmatically on user gesture */
+    /* Animation speed tracks the audio jingle runtime duration exactly */
     .animate-loading {
-      animation: fillBar 3s linear forwards;
+      animation: fillBar 1.7s linear forwards;
     }
 
     @keyframes fillBar {
@@ -163,7 +163,6 @@
       flex-shrink: 0;
     }
 
-    /* FIX: Scaled up burger logo icon significantly to 56px for absolute branding dominance */
     .header-icon {
       position: absolute;
       left: 16px;
@@ -179,7 +178,7 @@
       font-weight: 700;
       font-size: 19px;
       letter-spacing: 0.02em;
-      margin-left: 48px; /* Safe clearing buffer for the larger logo icon */
+      margin-left: 48px;
     }
 
     /* Transparent Backdrop Glassmorphism Tab Strip - Fixed Layout */
@@ -723,40 +722,51 @@
     const progressBarInner = document.getElementById('progressBarInner');
     const shell = document.getElementById('appShell');
 
-    function executeStartupSequence() {
+    function executeStartupSequence(e) {
       if (applicationHasStarted) return;
       applicationHasStarted = true;
 
-      // 1. Instantly context-resume and trigger hardware audio pipelines
-      initAudio();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
+      // Prevent the event from turning into an unhandled ghost click or confusing the context
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
       }
-      playRetroStartupJingle();
 
-      // 2. Adjust splash display labels and trigger layout animations
+      // Explicitly handle and force resume audio context on this raw user tap event
+      initAudio();
+      if (audioCtx) {
+        audioCtx.resume().then(() => {
+          playRetroStartupJingle();
+        }).catch(() => {
+          // Fallback if promise resolution handles strict parameters
+          playRetroStartupJingle();
+        });
+      }
+
+      // Adjust text layout and instantly map progress bar triggers
       splashStatusText.classList.remove('pulse-text');
       splashStatusText.textContent = "Loading Application...";
       progressBarContainer.style.display = "block";
       progressBarInner.classList.add('animate-loading');
 
-      // 3. Keep splash alive for exactly 3 seconds during bar fill before transition
+      // Handover matches 1700ms audio sequence length precisely
       setTimeout(() => {
         splashScreen.style.opacity = '0';
         splashScreen.style.transform = 'scale(1.04)';
         shell.style.opacity = '1';
         
-        setTimeout(() => splashScreen.remove(), 500); 
-      }, 3000);
+        setTimeout(() => splashScreen.remove(), 400); 
+      }, 1700);
     }
 
-    // Attach unlock execution logic directly onto user gesture inputs
-    splashScreen.addEventListener('touchstart', executeStartupSequence, { once: true });
-    splashScreen.addEventListener('click', executeStartupSequence, { once: true });
+    // Single unified target handling to safely unfreeze web audio frameworks cleanly
+    splashScreen.addEventListener('touchstart', executeStartupSequence, { passive: false });
+    splashScreen.addEventListener('click', executeStartupSequence);
 
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
     let lastTouchTime = 0;
     document.addEventListener('touchstart', function (event) {
+      if (event.target.closest('#splashScreen')) return; // let splash screen handle its own touch
       const now = new Date().getTime();
       if (now - lastTouchTime <= 300) event.preventDefault();
       lastTouchTime = now;
@@ -770,7 +780,6 @@
     function playRetroStartupJingle() {
       initAudio();
       if (!audioCtx) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
 
       const now = audioCtx.currentTime;
       const rhythmSpeed = 1.3; 
