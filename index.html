@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FSV Mate">
   
-  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c8102e">
 
@@ -32,8 +32,8 @@
       --check-border: #ffd700;
       --score-bg: #ffd700;
       --score-text: #100002; /* High contrast near-black for readability on yellow */
-      --tab-inactive: #f0f0f0;
-      --tab-inactive-text: #555555;
+      --tab-inactive: rgba(240, 240, 240, 0.85);
+      --tab-inactive-text: #333333;
       --tab-active-text: #ffffff;
       --load-time: 3s;
     }
@@ -147,21 +147,37 @@
       flex-shrink: 0;
     }
 
+    /* Top Left Header Icon Integration */
+    .header-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
     .header-title {
       font-weight: 700;
       font-size: 18px;
       letter-spacing: 0.02em;
     }
 
+    /* Transparent Backdrop Glassmorphism Tab Strip */
     .tabs {
       display: flex;
       align-items: center;
       overflow-x: auto;
-      background: #200003;
-      padding: 10px 8px 6px;
+      background: rgba(20, 2, 4, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 12px 8px 10px;
       gap: 6px;
       scrollbar-width: none;
       flex-shrink: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .tabs::-webkit-scrollbar { display: none; }
@@ -182,7 +198,7 @@
     }
 
     .tab.active {
-      background: rgba(255, 215, 0, 0.15);
+      background: rgba(255, 215, 0, 0.22);
       color: var(--tab-active-text);
       border-color: rgba(255, 215, 0, 0.6);
       box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.4), 0 6px 14px rgba(0, 0, 0, 0.6);
@@ -290,7 +306,19 @@
     .btn-yes.active { background: var(--yes-bg); color: var(--yes-text); box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.9); }
     .btn-no.active { background: var(--no-bg); box-shadow: 0 0 0 2px rgba(255, 120, 120, 0.9); }
 
+    /* FIX: Forced structural grid layout locks checkbox at 28px width, stopping shifts */
+    .check-with-score { 
+      display: inline-grid; 
+      grid-template-columns: 28px 36px; /* Static strict sizing boundaries for box and label */
+      align-items: center; 
+      gap: 6px; 
+      flex-shrink: 0; 
+      justify-content: flex-end;
+    }
+
+    /* FIX: Configured block layout as item one inside the container grid */
     .check-box {
+      grid-column: 1;
       width: 28px;
       height: 28px;
       border-radius: 9px;
@@ -302,9 +330,6 @@
       cursor: pointer;
       flex-shrink: 0;
     }
-
-    .check-with-score { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; flex-shrink: 0; }
-    .score-badge { color: rgba(255, 255, 255, 0.7); font-size: 11px; font-weight: 600; text-shadow: 0 1px 1px #000; }
 
     .check-box span {
       font-size: 16px;
@@ -320,6 +345,17 @@
     }
 
     .check-box.active span { opacity: 1; transform: scale(1); }
+
+    /* FIX: Aligned left within tracking track 2. Appended text scales rightwards cleanly */
+    .score-badge { 
+      grid-column: 2;
+      color: rgba(255, 255, 255, 0.7); 
+      font-size: 11px; 
+      font-weight: 600; 
+      text-shadow: 0 1px 1px #000; 
+      text-align: left;
+      white-space: nowrap;
+    }
 
     .secondary-sub-row { display: none; flex-direction: row; flex-wrap: wrap; margin: 8px 0 0 0; gap: 6px; }
 
@@ -508,7 +544,10 @@
   </div>
 
   <div class="app-shell" id="appShell">
-    <div class="header"><div class="header-title">Food Safety Visit</div></div>
+    <div class="header">
+      <img src="icon-192.png" class="header-icon" alt="FSV Logo">
+      <div class="header-title">Food Safety Visit</div>
+    </div>
 
     <div class="tabs" id="tabs">
       <button class="tab active" data-target="critical">Critical Minimums</button>
@@ -851,11 +890,18 @@
       document.getElementById("finishBtn").classList.toggle("show", allAns);
     }
 
+    /* FIX: Enhanced DOM wrapper engine building proper Grid relationships */
     document.querySelectorAll('.check-box:not(.secondary-sub-box)').forEach(box => {
       const wrapper = document.createElement('div');
       wrapper.className = 'check-with-score';
-      box.parentNode.insertBefore(wrapper, box); wrapper.appendChild(box);
-      const b = document.createElement('span'); b.className = 'score-badge'; b.textContent = `(+${box.dataset.score})`; wrapper.appendChild(b);
+      box.parentNode.insertBefore(wrapper, box); 
+      
+      // Forces correct column arrangement inside the dynamic grid layout
+      wrapper.appendChild(box); 
+      const b = document.createElement('span'); 
+      b.className = 'score-badge'; 
+      b.textContent = `(+${box.dataset.score})`; 
+      wrapper.appendChild(b);
     });
 
     document.querySelectorAll(".btn-group[data-critical]").forEach(g => {
