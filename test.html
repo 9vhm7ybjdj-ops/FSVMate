@@ -1,4 +1,67 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>POS+KVS</title><style>body{margin:0;background:#000;color:#fff;font-family:system-ui}.screen{display:none;padding:1rem}.active{display:block}.nav-buttons{position:fixed;top:10px;left:10px;z-index:9999;display:flex;gap:.5rem}.nav-btn{background:#444;color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;font-size:.9rem;cursor:pointer}#pos,#payment{background:#111;min-height:100vh}.pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:1rem}.pos-btn{background:#333;border:1px solid #555;padding:1rem;border-radius:8px;text-align:center;font-size:1rem;cursor:pointer}#orderList{margin-top:1rem;font-size:1rem;border:1px solid #333;padding:.5rem;min-height:2rem}#storeBtn,#clearPosBtn,#voidItemBtn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}#storeBtn{background:#1fb64b}#clearPosBtn{background:#444;color:#fff;margin-left:.5rem}#voidItemBtn{background:#b61f1f;margin-left:.5rem}.mod-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}.mod-btn{background:#222;border:1px solid #555;padding:.4rem .7rem;border-radius:6px;font-size:.85rem;cursor:pointer}.cash-grid button,.pay-btn,.cancel-btn{background:#333;color:#fff;border:1px solid #555;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer}.cash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem}.preset-row{display:flex;justify-content:space-between;margin-top:.75rem;gap:.5rem}.preset-btn{flex:1;background:#555;border:1px solid #777;padding:.6rem;border-radius:6px;font-size:1rem;cursor:pointer;text-align:center}.pay-btn{background:#1fb64b;width:100%;margin-top:1rem}.cancel-btn{background:#b61f1f;width:100%;margin-top:.5rem}.kvs{background:#000;min-height:100vh}.kvs-list{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem}.tile{background:#000;border:2px solid #333;border-radius:8px;width:calc(25% - .75rem);min-width:160px;aspect-ratio:1/1;padding:.5rem;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;transition:transform .25s ease,opacity .25s ease}.tile.bump{transform:translateY(40px) scale(.8);opacity:0}.order-id{font-weight:700}.items{font-size:.85rem;flex:1;overflow:hidden}.timer{font-family:monospace;font-size:1rem;color:#ffd447}.serve-btn{background:#1fb64b;color:#fff;border:none;padding:.4rem;border-radius:6px;cursor:pointer}#cashDrawer{position:fixed;bottom:-260px;left:0;right:0;height:260px;background:#222;border-top:4px solid #555;transition:bottom .3s ease;z-index:9998;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:2rem;color:#fff;padding:1rem}#drawerChange{font-size:2rem;margin-bottom:1rem}#closeDrawerBtn{background:#1fb64b;padding:.7rem 1.2rem;border:none;border-radius:8px;font-size:1.2rem;cursor:pointer}</style></head><body>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>POS+KVS</title><style>
+body{margin:0;background:#000;color:#fff;font-family:system-ui}
+.screen{display:none;padding:1rem}.active{display:block}
+.nav-buttons{position:fixed;top:10px;left:10px;z-index:9999;display:flex;gap:.5rem}
+.nav-btn{background:#444;color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;font-size:.9rem;cursor:pointer}
+#pos,#payment{background:#111;min-height:100vh}
+.pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:1rem}
+.pos-btn{background:#333;border:1px solid #555;padding:1rem;border-radius:8px;text-align:center;font-size:1rem;cursor:pointer}
+#orderList{margin-top:1rem;font-size:1rem;border:1px solid #333;padding:.5rem;min-height:2rem}
+#storeBtn,#clearPosBtn,#voidItemBtn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
+#storeBtn{background:#1fb64b}#clearPosBtn{background:#444;color:#fff;margin-left:.5rem}#voidItemBtn{background:#b61f1f;margin-left:.5rem}
+.mod-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
+.mod-btn{background:#222;border:1px solid #555;padding:.4rem .7rem;border-radius:6px;font-size:.85rem;cursor:pointer}
+.cash-grid button,.pay-btn,.cancel-btn{background:#333;color:#fff;border:1px solid #555;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer}
+.cash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem}
+.preset-row{display:flex;justify-content:space-between;margin-top:.75rem;gap:.5rem}
+.preset-btn{flex:1;background:#555;border:1px solid #777;padding:.6rem;border-radius:6px;font-size:1rem;cursor:pointer;text-align:center}
+.pay-btn{background:#1fb64b;width:100%;margin-top:1rem}.cancel-btn{background:#b61f1f;width:100%;margin-top:.5rem}
+.kvs{background:#000;min-height:100vh}
+.kvs-list{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem}
+.tile{background:#000;border:2px solid #333;border-radius:8px;width:calc(25% - .75rem);min-width:160px;aspect-ratio:1/1;padding:.5rem;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;transition:transform .25s ease,opacity .25s ease}
+.tile.bump{transform:translateY(40px) scale(.8);opacity:0}
+.order-id{font-weight:700}.items{font-size:.85rem;flex:1;overflow:hidden}
+.timer{font-family:monospace;font-size:1rem;color:#ffd447}
+.serve-btn{background:#1fb64b;color:#fff;border:none;padding:.4rem;border-radius:6px;cursor:pointer}
+
+#cashDrawer{position:fixed;bottom:-260px;left:0;right:0;height:260px;background:#222;border-top:4px solid #555;transition:bottom .3s ease;z-index:9998;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:2rem;color:#fff;padding:1rem}
+#drawerChange{font-size:2rem;margin-bottom:1rem}
+#closeDrawerBtn{background:#1fb64b;padding:.7rem 1.2rem;border:none;border-radius:8px;font-size:1.2rem;cursor:pointer}
+
+/* McCafé Dashboard Modal */
+#dashboardModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;justify-content:center;align-items:center;z-index:99999}
+#dashboardContent{width:90%;height:85%;background:#3b2f2f;border:3px solid #d4a857;border-radius:12px;padding:1rem;display:flex;flex-direction:column;color:#f3e9d2;position:relative}
+#dashboardTabs{display:flex;gap:.5rem;margin-bottom:1rem}
+.db-tab{flex:1;background:#5a4634;color:#f3e9d2;border:none;padding:.7rem;border-radius:6px;font-size:1rem;cursor:pointer;text-align:center}
+.db-tab.active{background:#d4a857;color:#3b2f2f;font-weight:700}
+.db-panel{display:none;flex:1;overflow-y:auto}
+.db-panel.active{display:block}
+
+/* Sales Summary Cards */
+.db-card{background:#5a4634;padding:1rem;border-radius:8px;margin-bottom:.75rem;border:1px solid #d4a857}
+
+/* Product Mix Bars */
+.mix-row{margin-bottom:.75rem}
+.mix-label{font-size:1rem;margin-bottom:.25rem;color:#f3e9d2}
+.mix-bar-bg{width:100%;height:18px;background:#2a1f1f;border-radius:10px;overflow:hidden}
+.mix-bar-fill{height:100%;background:#d4a857;width:0%;transition:width .6s ease}
+
+/* Dashboard Close Button */
+#closeDashboard{position:absolute;top:10px;right:10px;background:#d4a857;color:#3b2f2f;border:none;padding:.5rem 1rem;border-radius:6px;font-weight:700;cursor:pointer}
+
+/* Clear All Data Button */
+#clearDataBtn{position:absolute;bottom:10px;left:10px;background:#b61f1f;color:#fff;border:none;padding:.6rem 1rem;border-radius:6px;font-weight:700;cursor:pointer}
+
+/* Floating Dashboard FAB */
+#dashboardFab{position:fixed;bottom:20px;right:20px;background:#d4a857;color:#3b2f2f;border:none;padding:1rem 1.2rem;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;z-index:9999;box-shadow:0 0 10px #000}
+
+/* Reset Confirmation Modal */
+#resetConfirm{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:100000}
+#resetBox{background:#f3e9d2;color:#3b2f2f;padding:1.5rem;border-radius:10px;width:80%;max-width:350px;text-align:center;border:3px solid #d4a857}
+.reset-btn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
+#resetYes{background:#b61f1f;color:#fff}
+#resetNo{background:#5a4634;color:#f3e9d2;margin-left:.5rem}
+</style></head><body>
 
 <div class="nav-buttons">
 <button class="nav-btn" id="btnPOS">POS</button>
@@ -6,37 +69,437 @@
 <button class="nav-btn" id="btnKVS2">KVS 2</button>
 </div>
 
-<div id="pos" class="screen active"><h1>POS Register</h1><div class="pos-grid"><div class="pos-btn" data-item="Latte">Latte</div><div class="pos-btn" data-item="Cappuccino">Cappuccino</div><div class="pos-btn" data-item="Mocha">Mocha</div><div class="pos-btn" data-item="Iced Coffee">Iced Coffee</div><div class="pos-btn" data-item="Caramel Frappe">Caramel Frappe</div><div class="pos-btn" data-item="Blueberry Muffin">Blueberry Muffin</div></div><h2>Current Order</h2><div id="orderList">(empty)</div><div class="mod-grid"><button class="mod-btn" data-mod="Extra Shot">Extra Shot</button><button class="mod-btn" data-mod="Soy">Soy</button><button class="mod-btn" data-mod="Almond">Almond</button><button class="mod-btn" data-mod="No Sugar">No Sugar</button><button class="mod-btn" data-mod="Decaf">Decaf</button></div><button id="storeBtn">Store Order</button><button id="clearPosBtn">Clear</button><button id="voidItemBtn">Void Item</button><h2>Sales Totals</h2><div id="salesTotals"></div></div>
+<button id="dashboardFab">Dashboard</button>
 
-<div id="payment" class="screen"><h1>Payment</h1><div id="payItems"></div><div id="payTotalExact" style="margin-top:1rem;font-size:1.3rem"></div><div id="payTotalRounded" style="margin-top:.3rem;font-size:1.3rem;color:#ffd447"></div><h2>Cash Received</h2><div id="cashEntered" style="font-size:2rem;margin:.5rem 0">0.00</div><div class="cash-grid"><button class="cash-key" data-key="1">1</button><button class="cash-key" data-key="2">2</button><button class="cash-key" data-key="3">3</button><button class="cash-key" data-key="4">4</button><button class="cash-key" data-key="5">5</button><button class="cash-key" data-key="6">6</button><button class="cash-key" data-key="7">7</button><button class="cash-key" data-key="8">8</button><button class="cash-key" data-key="9">9</button><button class="cash-key" data-key="0">0</button><button class="cash-key" data-key=".">.</button><button class="cash-key" data-key="clear">Clear</button></div><div class="preset-row"><button class="preset-btn" data-cash="5">5</button><button class="preset-btn" data-cash="10">10</button><button class="preset-btn" data-cash="20">20</button><button class="preset-btn" data-cash="50">50</button><button class="preset-btn" data-cash="100">100</button></div><button class="pay-btn" id="amountTenderedBtn">Amount Tendered</button><button class="pay-btn" id="payCard">Card Payment</button><button class="cancel-btn" id="cancelPay">Cancel Order</button></div>
+<div id="pos" class="screen active"><h1>POS Register</h1>
+<div class="pos-grid">
+<div class="pos-btn" data-item="Latte">Latte</div>
+<div class="pos-btn" data-item="Cappuccino">Cappuccino</div>
+<div class="pos-btn" data-item="Mocha">Mocha</div>
+<div class="pos-btn" data-item="Iced Coffee">Iced Coffee</div>
+<div class="pos-btn" data-item="Caramel Frappe">Caramel Frappe</div>
+<div class="pos-btn" data-item="Blueberry Muffin">Blueberry Muffin</div>
+</div>
+<h2>Current Order</h2>
+<div id="orderList">(empty)</div>
+<div class="mod-grid">
+<button class="mod-btn" data-mod="Extra Shot">Extra Shot</button>
+<button class="mod-btn" data-mod="Soy">Soy</button>
+<button class="mod-btn" data-mod="Almond">Almond</button>
+<button class="mod-btn" data-mod="No Sugar">No Sugar</button>
+<button class="mod-btn" data-mod="Decaf">Decaf</button>
+</div>
+<button id="storeBtn">Store Order</button>
+<button id="clearPosBtn">Clear</button>
+<button id="voidItemBtn">Void Item</button>
+<h2>Sales Totals</h2>
+<div id="salesTotals"></div>
+</div>
+
+<div id="payment" class="screen"><h1>Payment</h1>
+<div id="payItems"></div>
+<div id="payTotalExact" style="margin-top:1rem;font-size:1.3rem"></div>
+<div id="payTotalRounded" style="margin-top:.3rem;font-size:1.3rem;color:#ffd447"></div>
+<div id="cashEntered" style="font-size:2rem;margin:.5rem 0">0.00</div>
+<div class="cash-grid">
+<button class="cash-key" data-key="1">1</button><button class="cash-key" data-key="2">2</button><button class="cash-key" data-key="3">3</button>
+<button class="cash-key" data-key="4">4</button><button class="cash-key" data-key="5">5</button><button class="cash-key" data-key="6">6</button>
+<button class="cash-key" data-key="7">7</button><button class="cash-key" data-key="8">8</button><button class="cash-key" data-key="9">9</button>
+<button class="cash-key" data-key="0">0</button><button class="cash-key" data-key=".">.</button><button class="cash-key" data-key="clear">Clear</button>
+</div>
+<div class="preset-row">
+<button class="preset-btn" data-cash="5">5</button><button class="preset-btn" data-cash="10">10</button><button class="preset-btn" data-cash="20">20</button><button class="preset-btn" data-cash="50">50</button><button class="preset-btn" data-cash="100">100</button>
+</div>
+<button class="pay-btn" id="amountTenderedBtn">Amount Tendered</button>
+<button class="pay-btn" id="payCard">Card Payment</button>
+<button class="cancel-btn" id="cancelPay">Cancel Order</button>
+</div>
 
 <div id="kvs1" class="screen kvs"><h1>KVS – Side 1</h1><div class="kvs-list" id="kvsList1"></div></div>
 <div id="kvs2" class="screen kvs"><h1>KVS – Side 2</h1><div class="kvs-list" id="kvsList2"></div></div>
 
 <div id="cashDrawer"><div id="drawerChange">Change: $0.00</div><button id="closeDrawerBtn">Close Drawer</button></div>
 
+<!-- Dashboard Modal -->
+<div id="dashboardModal">
+<div id="dashboardContent">
+<div id="dashboardTabs">
+<button class="db-tab active" data-tab="salesTab">Sales Summary</button>
+<button class="db-tab" data-tab="mixTab">Product Mix</button>
+</div>
+
+<div id="salesTab" class="db-panel active">
+<div class="db-card" id="dbCash"></div>
+<div class="db-card" id="dbCard"></div>
+<div class="db-card" id="dbGrand"></div>
+<div class="db-card" id="dbOrdersToday"></div>
+<div class="db-card" id="dbAvgOrder"></div>
+</div>
+
+<div id="mixTab" class="db-panel">
+<div class="mix-row"><div class="mix-label">Latte</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixLatte"></div></div></div>
+<div class="mix-row"><div class="mix-label">Cappuccino</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixCappuccino"></div></div></div>
+<div class="mix-row"><div class="mix-label">Mocha</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixMocha"></div></div></div>
+<div class="mix-row"><div class="mix-label">Iced Coffee</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixIcedCoffee"></div></div></div>
+<div class="mix-row"><div class="mix-label">Caramel Frappe</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixCaramelFrappe"></div></div></div>
+<div class="mix-row"><div class="mix-label">Blueberry Muffin</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixBlueberryMuffin"></div></div></div>
+</div>
+
+<button id="closeDashboard">Close</button>
+<button id="clearDataBtn">Clear All Data</button>
+</div>
+</div>
+
+<!-- Reset Confirmation Modal -->
+<div id="resetConfirm">
+<div id="resetBox">
+<h3>Clear ALL data?</h3>
+<p>This will wipe orders, sales totals, and product counts.</p>
+<button class="reset-btn" id="resetYes">Yes, Clear Everything</button>
+<button class="reset-btn" id="resetNo">Cancel</button>
+</div>
+</div>
+
 <script>
-const BACKEND_URL="https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec",audioCtx=new(window.AudioContext||window.webkitAudioContext),tone=(e,t,o,r="sine")=>{let n=audioCtx.createOscillator(),a=audioCtx.createGain();n.frequency.value=e,n.type=r,n.connect(a),a.connect(audioCtx.destination),a.gain.setValueAtTime(1,audioCtx.currentTime+t),a.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+t+o),n.start(audioCtx.currentTime+t),n.stop(audioCtx.currentTime+t+o)},playDingDongSide1=()=>{audioCtx.state==="suspended"&&audioCtx.resume(),tone(880,0,.15),tone(660,.18,.25)},playDingDongSide2=()=>{audioCtx.state==="suspended"&&audioCtx.resume(),tone(500,0,.15,"square"),tone(900,.18,.25,"square")},playDrawerSound=()=>{audioCtx.state==="suspended"&&audioCtx.resume(),tone(120,0,.15,"square"),tone(800,.1,.08,"square")},roundToFiveCents=e=>Math.round(20*e)/20;let totalCashSales=0,totalCardSales=0;function updateSalesDisplay(){document.getElementById("salesTotals").innerHTML=`Cash: $${totalCashSales.toFixed(2)}<br>Card: $${totalCardSales.toFixed(2)}<br>Total: $${(totalCashSales+totalCardSales).toFixed(2)}`}const menuPrices={Latte:5,Cappuccino:5,Mocha:5.5,"Iced Coffee":5.5,"Caramel Frappe":6,"Blueberry Muffin":4};let currentOrder=[],selectedIndex=null,lastSideUsed=2,currentPaymentOrder=null;function formatItem(e){return e.modifiers.length?`${e.name} (${e.modifiers.join(", ")})`:e.name}document.querySelectorAll(".pos-btn").forEach(e=>{e.onclick=()=>{let t=e.dataset.item;currentOrder.push({name:t,modifiers:[],price:menuPrices[t]||5}),selectedIndex=currentOrder.length-1,updateOrderList()}});function updateOrderList(){let e=document.getElementById("orderList");currentOrder.length?(e.innerHTML=currentOrder.map((t,o)=>`<div class="order-line" data-index="${o}" style="padding:4px;cursor:pointer;${selectedIndex===o?"background:#333;":""}">${formatItem(t)}</div>`).join(""),document.querySelectorAll(".order-line").forEach(t=>{t.onclick=()=>{selectedIndex=parseInt(t.dataset.index),updateOrderList()}})):(e.innerHTML="(empty)",selectedIndex=null)}document.getElementById("clearPosBtn").onclick=()=>{currentOrder=[],selectedIndex=null,updateOrderList()},document.getElementById("voidItemBtn").onclick=()=>{selectedIndex!==null&&(currentOrder.splice(selectedIndex,1),selectedIndex=null,updateOrderList())},document.querySelectorAll(".mod-btn").forEach(e=>{e.onclick=()=>{if(selectedIndex===null)return;let t=e.dataset.mod,o=currentOrder[selectedIndex];o.modifiers.includes(t)||(o.modifiers.push(t),updateOrderList())}});function buildOrder(){let e=currentOrder.reduce((t,o)=>t+o.price,0);return{id:"ORD-"+(1e3+Math.floor(9e3*Math.random())),items:currentOrder.map(formatItem),createdAt:Date.now(),total:e}}let kvs1Orders=[],kvs2Orders=[];function addKvsOrderAuto(e){let t;kvs1Orders.length<kvs2Orders.length?t=1:kvs2Orders.length<kvs1Orders.length?t=2:t=lastSideUsed===1?2:1,lastSideUsed=t,t===1?kvs1Orders.push(e):kvs2Orders.push(e),t===1?playDingDongSide1():playDingDongSide2(),renderKvs();let o=e.total,r=roundToFiveCents(e.total);fetch(BACKEND_URL,{method:"POST",contentType:"application/json",body:JSON.stringify({action:"add",id:e.id,side:t,items:e.items,totalExact:o,totalRounded:r})}).catch(n=>console.error("Failed to send order",n))}document.getElementById("storeBtn").onclick=()=>{if(!currentOrder.length)return;let e=buildOrder();currentPaymentOrder=e,addKvsOrderAuto(e),document.getElementById("pos").classList.remove("active"),document.getElementById("payment").classList.add("active"),document.getElementById("payItems").textContent=e.items.join(", ");let t=e.total,o=roundToFiveCents(e.total);document.getElementById("payTotalExact").textContent=`Exact Total: $${t.toFixed(2)}`,document.getElementById("payTotalRounded").textContent=`Cash Total (Rounded): $${o.toFixed(2)}`,currentOrder=[],selectedIndex=null,updateOrderList()};let cashInput="";function updateCashDisplay(){document.getElementById("cashEntered").style.color="#fff",document.getElementById("cashEntered").textContent=cashInput||"0.00"}document.querySelectorAll(".cash-key").forEach(e=>{e.onclick=()=>{let t=e.dataset.key;t==="clear"?cashInput="":t==="."?cashInput.includes(".")||(cashInput+="."):cashInput+=t,updateCashDisplay()}}),document.querySelectorAll(".preset-btn").forEach(e=>{e.onclick=()=>{cashInput=parseFloat(e.dataset.cash).toFixed(2),updateCashDisplay()}});function openCashDrawer(e){let t=document.getElementById("cashDrawer");document.getElementById("drawerChange").textContent=`Change: $${e.toFixed(2)}`,t.style.bottom="0px",playDrawerSound()}document.getElementById("closeDrawerBtn").onclick=()=>{document.getElementById("cashDrawer").style.bottom="-260px",resetToPOS()},document.getElementById("amountTenderedBtn").onclick=()=>{if(!currentPaymentOrder)return;let e=parseFloat(cashInput);if(isNaN(e))return;let t=currentPaymentOrder.total,o=roundToFiveCents(t),r=e-o;if(r<0)return document.getElementById("cashEntered").style.color="red",void(document.getElementById("cashEntered").textContent=`Short by $${Math.abs(r).toFixed(2)}`);totalCashSales+=o,updateSalesDisplay(),openCashDrawer(r)},document.getElementById("payCard").onclick=()=>{currentPaymentOrder&&(totalCardSales+=currentPaymentOrder.total,updateSalesDisplay(),resetToPOS())},document.getElementById("cancelPay").onclick=resetToPOS;function resetToPOS(){cashInput="",updateCashDisplay(),currentPaymentOrder=null,document.getElementById("payment").classList.remove("active"),document.getElementById("pos").classList.add("active")}function removeKvsOrder(e,t){let o=document.querySelector(`.tile[data-id="${t}"]`);o&&(o.classList.add("bump"),setTimeout(()=>{e===1?kvs1Orders=kvs1Orders.filter(r=>r.id!==t):kvs2Orders=kvs2Orders.filter(r=>r.id!==t),renderKvs()},250))}function renderKvs(){renderSide(1,kvs1Orders,document.getElementById("kvsList1")),renderSide(2,kvs2Orders,document.getElementById("kvsList2"))}function renderSide(e,t,o){o.innerHTML="",t.forEach(r=>{let n=document.createElement("div");n.className="tile",n.dataset.id=r.id,n.innerHTML=`<div class="order-id">${r.id}</div><div class="items">${r.items.join(", ")}</div><div class="timer" data-id="${r.id}"></div><button class="serve-btn">SERVE</button>`,n.querySelector(".serve-btn").onclick=()=>{removeKvsOrder(e,r.id),fetch(BACKEND_URL,{method:"POST",contentType:"application/json",body:JSON.stringify({action:"serve",id:r.id})})},o.appendChild(n)})}setInterval(()=>{let e=Date.now();[...kvs1Orders,...kvs2Orders].forEach(t=>{let o=document.querySelector(`.timer[data-id="${t.id}"]`);if(o){let r=Math.floor((e-t.createdAt)/1e3),n=String(Math.floor(r/60)).padStart(2,"0"),a=String(r%60).padStart(2,"0");o.textContent=`${n}:${a}`}})},500);
+const BACKEND_URL="https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec";
+
+const audioCtx=new(window.AudioContext||window.webkitAudioContext);
+const tone=(f,t,d,type="sine")=>{
+ let o=audioCtx.createOscillator(),g=audioCtx.createGain();
+ o.frequency.value=f;o.type=type;
+ o.connect(g);g.connect(audioCtx.destination);
+ g.gain.setValueAtTime(1,audioCtx.currentTime+t);
+ g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+t+d);
+ o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+d);
+};
+const playDing1=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(880,0,.15);tone(660,.18,.25)};
+const playDing2=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(500,0,.15,"square");tone(900,.18,.25,"square")};
+const playDrawer=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(120,0,.15,"square");tone(800,.1,.08,"square")};
+
+const round5=e=>Math.round(e*20)/20;
+
+let totalCashSales=0,totalCardSales=0;
+function updateSalesDisplay(){
+ document.getElementById("salesTotals").innerHTML=
+ `Cash: $${totalCashSales.toFixed(2)}<br>Card: $${totalCardSales.toFixed(2)}<br>Total: $${(totalCashSales+totalCardSales).toFixed(2)}`;
+}
+
+const menuPrices={Latte:5,Cappuccino:5,Mocha:5.5,"Iced Coffee":5.5,"Caramel Frappe":6,"Blueberry Muffin":4};
+let currentOrder=[],selectedIndex=null,lastSideUsed=2,currentPaymentOrder=null;
+
+function formatItem(i){return i.modifiers.length?`${i.name} (${i.modifiers.join(", ")})`:i.name}
+
+document.querySelectorAll(".pos-btn").forEach(b=>{
+ b.onclick=()=>{
+  let item=b.dataset.item;
+  currentOrder.push({name:item,modifiers:[],price:menuPrices[item]||5});
+  selectedIndex=currentOrder.length-1;
+  updateOrderList();
+ };
+});
+
+function updateOrderList(){
+ let box=document.getElementById("orderList");
+ if(!currentOrder.length){box.innerHTML="(empty)";selectedIndex=null;return}
+ box.innerHTML=currentOrder.map((o,i)=>
+  `<div class="order-line" data-index="${i}" style="padding:4px;cursor:pointer;${selectedIndex===i?"background:#333;":""}">${formatItem(o)}</div>`
+ ).join("");
+ document.querySelectorAll(".order-line").forEach(l=>{
+  l.onclick=()=>{selectedIndex=parseInt(l.dataset.index);updateOrderList()};
+ });
+}
+
+document.getElementById("clearPosBtn").onclick=()=>{currentOrder=[];selectedIndex=null;updateOrderList()};
+document.getElementById("voidItemBtn").onclick=()=>{if(selectedIndex!==null){currentOrder.splice(selectedIndex,1);selectedIndex=null;updateOrderList()}};
+
+document.querySelectorAll(".mod-btn").forEach(m=>{
+ m.onclick=()=>{
+  if(selectedIndex===null)return;
+  let mod=m.dataset.mod;
+  let item=currentOrder[selectedIndex];
+  if(!item.modifiers.includes(mod)){item.modifiers.push(mod);updateOrderList()}
+ };
+});
+
+function buildOrder(){
+ let total=currentOrder.reduce((a,b)=>a+b.price,0);
+ return{
+  id:"ORD-"+(1000+Math.floor(Math.random()*9000)),
+  items:currentOrder.map(formatItem),
+  createdAt:Date.now(),
+  total
+ };
+}
+
+let kvs1Orders=[],kvs2Orders=[];
+
+function addKvsOrderAuto(order){
+ let side;
+ if(kvs1Orders.length<kvs2Orders.length)side=1;
+ else if(kvs2Orders.length<kvs1Orders.length)side=2;
+ else side=lastSideUsed===1?2:1;
+ lastSideUsed=side;
+
+ side===1?kvs1Orders.push(order):kvs2Orders.push(order);
+ side===1?playDing1():playDing2();
+ renderKvs();
+
+ fetch(BACKEND_URL,{
+  method:"POST",
+  contentType:"application/json",
+  body:JSON.stringify({
+   action:"add",
+   id:order.id,
+   side,
+   items:order.items,
+   totalExact:order.total,
+   totalRounded:round5(order.total)
+  })
+ });
+}
+
+document.getElementById("storeBtn").onclick=()=>{
+ if(!currentOrder.length)return;
+ let order=buildOrder();
+ currentPaymentOrder=order;
+ addKvsOrderAuto(order);
+
+ document.getElementById("pos").classList.remove("active");
+ document.getElementById("payment").classList.add("active");
+
+ document.getElementById("payItems").textContent=order.items.join(", ");
+ document.getElementById("payTotalExact").textContent=`Exact Total: $${order.total.toFixed(2)}`;
+ document.getElementById("payTotalRounded").textContent=`Cash Total (Rounded): $${round5(order.total).toFixed(2)}`;
+
+ currentOrder=[];selectedIndex=null;updateOrderList();
+};
+
+let cashInput="";
+function updateCashDisplay(){
+ document.getElementById("cashEntered").style.color="#fff";
+ document.getElementById("cashEntered").textContent=cashInput||"0.00";
+}
+
+document.querySelectorAll(".cash-key").forEach(k=>{
+ k.onclick=()=>{
+  let key=k.dataset.key;
+  if(key==="clear")cashInput="";
+  else if(key==="."&&!cashInput.includes("."))cashInput+=".";
+  else if(key!=="." )cashInput+=key;
+  updateCashDisplay();
+ };
+});
+
+document.querySelectorAll(".preset-btn").forEach(p=>{
+ p.onclick=()=>{cashInput=parseFloat(p.dataset.cash).toFixed(2);updateCashDisplay()};
+});
+
+function openCashDrawer(change){
+ let d=document.getElementById("cashDrawer");
+ document.getElementById("drawerChange").textContent=`Change: $${change.toFixed(2)}`;
+ d.style.bottom="0px";playDrawer();
+}
+
+document.getElementById("closeDrawerBtn").onclick=()=>{
+ document.getElementById("cashDrawer").style.bottom="-260px";
+ resetToPOS();
+};
+
+document.getElementById("amountTenderedBtn").onclick=()=>{
+ if(!currentPaymentOrder)return;
+ let paid=parseFloat(cashInput);
+ if(isNaN(paid))return;
+ let exact=currentPaymentOrder.total;
+ let rounded=round5(exact);
+ let change=paid-rounded;
+ if(change<0){
+  document.getElementById("cashEntered").style.color="red";
+  document.getElementById("cashEntered").textContent=`Short by $${Math.abs(change).toFixed(2)}`;
+  return;
+ }
+ totalCashSales+=rounded;updateSalesDisplay();
+ openCashDrawer(change);
+};
+
+document.getElementById("payCard").onclick=()=>{
+ if(currentPaymentOrder){
+  totalCardSales+=currentPaymentOrder.total;
+  updateSalesDisplay();
+  resetToPOS();
+ }
+};
+
+document.getElementById("cancelPay").onclick=resetToPOS;
+
+function resetToPOS(){
+ cashInput="";updateCashDisplay();
+ currentPaymentOrder=null;
+ document.getElementById("payment").classList.remove("active");
+ document.getElementById("pos").classList.add("active");
+}
+
+function removeKvsOrder(side,id){
+ let tile=document.querySelector(`.tile[data-id="${id}"]`);
+ if(tile){
+  tile.classList.add("bump");
+  setTimeout(()=>{
+   if(side===1)kvs1Orders=kvs1Orders.filter(o=>o.id!==id);
+   else kvs2Orders=kvs2Orders.filter(o=>o.id!==id);
+   renderKvs();
+  },250);
+ }
+}
+
+function renderKvs(){
+ renderSide(1,kvs1Orders,document.getElementById("kvsList1"));
+ renderSide(2,kvs2Orders,document.getElementById("kvsList2"));
+}
+
+function renderSide(side,list,box){
+ box.innerHTML="";
+ list.forEach(o=>{
+  let t=document.createElement("div");
+  t.className="tile";t.dataset.id=o.id;
+  t.innerHTML=
+   `<div class="order-id">${o.id}</div>
+    <div class="items">${o.items.join(", ")}</div>
+    <div class="timer" data-id="${o.id}"></div>
+    <button class="serve-btn">SERVE</button>`;
+  t.querySelector(".serve-btn").onclick=()=>{
+   removeKvsOrder(side,o.id);
+   fetch(BACKEND_URL,{
+    method:"POST",
+    contentType:"application/json",
+    body:JSON.stringify({action:"serve",id:o.id})
+   });
+  };
+  box.appendChild(t);
+ });
+}
+
+setInterval(()=>{
+ let now=Date.now();
+ [...kvs1Orders,...kvs2Orders].forEach(o=>{
+  let el=document.querySelector(`.timer[data-id="${o.id}"]`);
+  if(el){
+   let s=Math.floor((now-o.createdAt)/1000);
+   let m=String(Math.floor(s/60)).padStart(2,"0");
+   let ss=String(s%60).padStart(2,"0");
+   el.textContent=`${m}:${ss}`;
+  }
+ });
+},500);
 
 function syncKvsFromBackend(){
-fetch(BACKEND_URL)
-.then(r=>r.json())
-.then(data=>{
-let open=data.orders.filter(o=>o.status==="OPEN");
-kvs1Orders=[];kvs2Orders=[];
-open.forEach(o=>{
-let order={id:o.id,items:o.items.split(", "),createdAt:new Date(o.createdAt).getTime(),total:o.totalExact};
-(o.side==1?kvs1Orders:kvs2Orders).push(order);
-});
-renderKvs();
-});
+ fetch(BACKEND_URL).then(r=>r.json()).then(data=>{
+  let open=data.orders.filter(o=>o.status==="OPEN");
+  kvs1Orders=[];kvs2Orders=[];
+  open.forEach(o=>{
+   let obj={
+    id:o.id,
+    items:o.items.split(", "),
+    createdAt:new Date(o.createdAt).getTime(),
+    total:o.totalExact
+   };
+   (o.side==1?kvs1Orders:kvs2Orders).push(obj);
+  });
+  renderKvs();
+ });
 }
-setInterval(syncKvsFromBackend,3000);
+setInterval(syncKvsFromBackend,500);
 
-document.getElementById("btnPOS").onclick=()=>{document.getElementById("pos").classList.add("active"),document.getElementById("payment").classList.remove("active"),document.getElementById("kvs1").classList.remove("active"),document.getElementById("kvs2").classList.remove("active")};
-document.getElementById("btnKVS1").onclick=()=>{document.getElementById("pos").classList.remove("active"),document.getElementById("payment").classList.remove("active"),document.getElementById("kvs1").classList.add("active"),document.getElementById("kvs2").classList.remove("active")};
-document.getElementById("btnKVS2").onclick=()=>{document.getElementById("pos").classList.remove("active"),document.getElementById("payment").classList.remove("active"),document.getElementById("kvs1").classList.remove("active"),document.getElementById("kvs2").classList.add("active")};
+/* Screen Switching */
+document.getElementById("btnPOS").onclick=()=>{
+ document.getElementById("pos").classList.add("active");
+ document.getElementById("payment").classList.remove("active");
+ document.getElementById("kvs1").classList.remove("active");
+ document.getElementById("kvs2").classList.remove("active");
+};
+document.getElementById("btnKVS1").onclick=()=>{
+ document.getElementById("pos").classList.remove("active");
+ document.getElementById("payment").classList.remove("active");
+ document.getElementById("kvs1").classList.add("active");
+ document.getElementById("kvs2").classList.remove("active");
+};
+document.getElementById("btnKVS2").onclick=()=>{
+ document.getElementById("pos").classList.remove("active");
+ document.getElementById("payment").classList.remove("active");
+ document.getElementById("kvs1").classList.remove("active");
+ document.getElementById("kvs2").classList.add("active");
+};
+
+/* Dashboard Modal */
+const dashModal=document.getElementById("dashboardModal");
+document.getElementById("dashboardFab").onclick=()=>{dashModal.style.display="flex";refreshDashboard()};
+document.getElementById("closeDashboard").onclick=()=>{dashModal.style.display="none"};
+
+/* Dashboard Tabs */
+document.querySelectorAll(".db-tab").forEach(t=>{
+ t.onclick=()=>{
+  document.querySelectorAll(".db-tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  document.querySelectorAll(".db-panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById(t.dataset.tab).classList.add("active");
+ };
+});
+
+/* Dashboard Refresh */
+function refreshDashboard(){
+ fetch(BACKEND_URL+"?summary=1").then(r=>r.json()).then(data=>{
+  let cash=data.cash||0,card=data.card||0,grand=data.grand||0;
+  let orders=data.ordersToday||0;
+  let avg=orders?grand/orders:0;
+
+  document.getElementById("dbCash").textContent=`Cash Sales: $${cash.toFixed(2)}`;
+  document.getElementById("dbCard").textContent=`Card Sales: $${card.toFixed(2)}`;
+  document.getElementById("dbGrand").textContent=`Grand Total: $${grand.toFixed(2)}`;
+  document.getElementById("dbOrdersToday").textContent=`Orders Today: ${orders}`;
+  document.getElementById("dbAvgOrder").textContent=`Avg Order Value: $${avg.toFixed(2)}`;
+
+  let totals=data.productTotals||{};
+  let max=Math.max(...Object.values(totals),1);
+
+  const bars={
+   Latte:"mixLatte",
+   Cappuccino:"mixCappuccino",
+   Mocha:"mixMocha",
+   "Iced Coffee":"mixIcedCoffee",
+   "Caramel Frappe":"mixCaramelFrappe",
+   "Blueberry Muffin":"mixBlueberryMuffin"
+  };
+
+  Object.keys(bars).forEach(p=>{
+   let val=totals[p]||0;
+   let pct=(val/max)*100;
+   document.getElementById(bars[p]).style.width=pct+"%";
+  });
+ });
+}
+
+setInterval(()=>{
+ if(dashModal.style.display==="flex")refreshDashboard();
+},2000);
+
+/* Reset Confirmation */
+document.getElementById("clearDataBtn").onclick=()=>{
+ document.getElementById("resetConfirm").style.display="flex";
+};
+document.getElementById("resetNo").onclick=()=>{
+ document.getElementById("resetConfirm").style.display="none";
+};
+document.getElementById("resetYes").onclick=()=>{
+ fetch(BACKEND_URL,{
+  method:"POST",
+  contentType:"application/json",
+  body:JSON.stringify({action:"reset"})
+ }).then(()=>{
+  document.getElementById("resetConfirm").style.display="none";
+  refreshDashboard();
+  syncKvsFromBackend();
+ });
+};
 
 updateSalesDisplay();updateOrderList();updateCashDisplay();
 </script></body></html>
+
 
