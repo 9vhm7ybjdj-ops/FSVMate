@@ -87,27 +87,41 @@
       gap: 16px;
     }
 
-    /* Standardized HTML Action Button to force iOS Audio Context Unlock */
+    /* Standardized Action Button styled to look exactly like the classic text layout */
     .splash-action-button {
-      background: linear-gradient(180deg, #ffd700, #ffb700);
-      color: #5a3b00;
+      background: none;
       border: none;
       outline: none;
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 14px 36px;
-      border-radius: 999px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 2px 2px rgba(255, 255, 255, 0.4);
+      padding: 20px;
+      margin: 0;
+      width: 100%;
       cursor: pointer;
       display: block;
-      animation: pulseButton 1.6s infinite ease-in-out;
+      
+      /* Reapplied your original text style requirements */
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 0 3px 8px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.4);
+      text-align: center;
+      
+      /* Pulsing logic directly tied to the interactive element */
+      animation: pulseText 2.0s infinite ease-in-out;
     }
 
-    @keyframes pulseButton {
-      0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
-      50% { transform: scale(1.04); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3); }
+    @keyframes pulseText {
+      0%, 100% { 
+        transform: scale(1); 
+        opacity: 0.85;
+        text-shadow: 0 3px 8px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+      50% { 
+        transform: scale(1.03); 
+        opacity: 1;
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 215, 0, 0.7);
+      }
     }
 
     .progress-bar-container {
@@ -563,7 +577,7 @@
 
   <div id="splashScreen">
     <div class="splash-interaction-zone">
-      <button class="splash-action-button" id="splashActionButton">Tap to Start</button>
+      <button class="splash-action-button" id="splashActionButton">Tap anywhere to start</button>
       <div class="progress-bar-container" id="progressBarContainer">
         <div class="progress-bar-inner" id="progressBarInner"></div>
       </div>
@@ -765,7 +779,7 @@
       // 2. Play the intro track sequence 
       playRetroStartupJingle();
 
-      // 3. Swap button out for progress sequence bars
+      // 3. Swap text/button out for progress sequence bars
       splashActionButton.style.display = "none";
       splashStatusText.style.display = "block";
       progressBarContainer.style.display = "block";
