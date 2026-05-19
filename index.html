@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FSV Mate">
   
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-512.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c8102e">
 
@@ -147,16 +147,16 @@
       flex-shrink: 0;
     }
 
-    /* Top Left Header Icon Integration */
+    /* Top Left Header Icon Integration - Slightly wider frame size for 512px visibility */
     .header-icon {
       position: absolute;
       left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       object-fit: contain;
-      border-radius: 6px;
+      border-radius: 8px;
     }
 
     .header-title {
@@ -306,17 +306,17 @@
     .btn-yes.active { background: var(--yes-bg); color: var(--yes-text); box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.9); }
     .btn-no.active { background: var(--no-bg); box-shadow: 0 0 0 2px rgba(255, 120, 120, 0.9); }
 
-    /* FIX: Forced structural grid layout locks checkbox at 28px width, stopping shifts */
+    /* LAYOUT RESTRUCTURING FIX: Structural Grid stops point variations from throwing layout columns out of sync */
     .check-with-score { 
       display: inline-grid; 
-      grid-template-columns: 28px 36px; /* Static strict sizing boundaries for box and label */
+      grid-template-columns: 28px 36px; /* Explicit structural tracks to keep alignment static */
       align-items: center; 
       gap: 6px; 
       flex-shrink: 0; 
       justify-content: flex-end;
     }
 
-    /* FIX: Configured block layout as item one inside the container grid */
+    /* Part of Alignment Fix: Keeps checkbox absolute as item 1 in grid tracking rules */
     .check-box {
       grid-column: 1;
       width: 28px;
@@ -346,7 +346,7 @@
 
     .check-box.active span { opacity: 1; transform: scale(1); }
 
-    /* FIX: Aligned left within tracking track 2. Appended text scales rightwards cleanly */
+    /* Part of Alignment Fix: Ensures text track elements grow out rightwards, not pulling inwards left */
     .score-badge { 
       grid-column: 2;
       color: rgba(255, 255, 255, 0.7); 
@@ -545,7 +545,7 @@
 
   <div class="app-shell" id="appShell">
     <div class="header">
-      <img src="icon-192.png" class="header-icon" alt="FSV Logo">
+      <img src="icon-512.png" class="header-icon" alt="FSV Logo">
       <div class="header-title">Food Safety Visit</div>
     </div>
 
@@ -693,38 +693,52 @@
   </div>
 
   <script>
-    /* --- SPLASH TIMING ENGINE --- */
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        const splash = document.getElementById('splashScreen');
-        const shell = document.getElementById('appShell');
-        
-        splash.style.opacity = '0';
-        splash.style.transform = 'scale(1.04)';
-        shell.style.opacity = '1';
-        
-        setTimeout(() => splash.remove(), 500); 
-      }, 3000);
-    });
-
-    /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
-    let lastTouchTime = 0;
-    document.addEventListener('touchstart', function (event) {
-      const now = new Date().getTime();
-      if (now - lastTouchTime <= 300) event.preventDefault();
-      lastTouchTime = now;
-    }, { passive: false });
-
-    document.addEventListener('gesturestart', function (event) {
-      event.preventDefault();
-    }, { passive: false });
-
-    /* --- SYNTHESIZED CLICK SYNAPSES ENGINE --- */
+    /* --- AUDIO ENGINE SYNAPSES --- */
     let audioCtx = null;
     let auditMetadata = { store: "", auditor: "", timestamp: "", scoreStr: "" };
 
     function initAudio() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playRetroStartupJingle() {
+      initAudio();
+      if (!audioCtx) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const now = audioCtx.currentTime;
+      
+      // Arcade Web Audio Sequence matching the 5-note melodic progression
+      const notes = [
+        { freq: 523.25, start: 0.00, duration: 0.11 }, // ba
+        { freq: 587.33, start: 0.13, duration: 0.11 }, // da
+        { freq: 659.25, start: 0.26, duration: 0.14 }, // ba
+        { freq: 784.00, start: 0.42, duration: 0.16 }, // ba
+        { freq: 659.25, start: 0.60, duration: 0.45 }  // baaa
+      ];
+
+      notes.forEach(note => {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'square'; // Nostalgic 8-bit chip signature
+        
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        const noteStart = now + note.start;
+        const noteEnd = noteStart + note.duration;
+
+        // Vintage 8-bit micro pitch curve attack setup
+        osc.frequency.setValueAtTime(note.freq * 0.96, noteStart);
+        osc.frequency.linearRampToValueAtTime(note.freq, noteStart + 0.02);
+
+        gainNode.gain.setValueAtTime(0, noteStart);
+        gainNode.gain.linearRampToValueAtTime(0.06, noteStart + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+
+        osc.start(noteStart);
+        osc.stop(noteEnd);
+      });
     }
 
     function playSound(type) {
@@ -756,6 +770,38 @@
         osc.stop(now + 0.018);
       }
     }
+
+    /* --- SPLASH & MATCHED AUDIO SYNCHRONIZATION --- */
+    window.addEventListener('DOMContentLoaded', () => {
+      // Fires the jingle at 2.5s (perfectly aligning notes with the final loading bar swell)
+      setTimeout(() => {
+        playRetroStartupJingle();
+      }, 2500);
+
+      // Shell interface displays instantly at 3.0 seconds as loop wraps up
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        const shell = document.getElementById('appShell');
+        
+        splash.style.opacity = '0';
+        splash.style.transform = 'scale(1.04)';
+        shell.style.opacity = '1';
+        
+        setTimeout(() => splash.remove(), 500); 
+      }, 3000);
+    });
+
+    /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
+    let lastTouchTime = 0;
+    document.addEventListener('touchstart', function (event) {
+      const now = new Date().getTime();
+      if (now - lastTouchTime <= 300) event.preventDefault();
+      lastTouchTime = now;
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function (event) {
+      event.preventDefault();
+    }, { passive: false });
 
     /* --- RUNTIME INTERACTION CONTROL SYSTEMS --- */
     const tabs = document.querySelectorAll(".tab");
@@ -890,13 +936,12 @@
       document.getElementById("finishBtn").classList.toggle("show", allAns);
     }
 
-    /* FIX: Enhanced DOM wrapper engine building proper Grid relationships */
+    /* DOM Badge Wrapper injection optimized for static CSS Grid Column definitions */
     document.querySelectorAll('.check-box:not(.secondary-sub-box)').forEach(box => {
       const wrapper = document.createElement('div');
       wrapper.className = 'check-with-score';
       box.parentNode.insertBefore(wrapper, box); 
       
-      // Forces correct column arrangement inside the dynamic grid layout
       wrapper.appendChild(box); 
       const b = document.createElement('span'); 
       b.className = 'score-badge'; 
