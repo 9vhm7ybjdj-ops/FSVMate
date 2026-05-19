@@ -96,6 +96,25 @@
     margin-top:0.5rem;
   }
 
+  /* PRESET CASH BUTTONS */
+  .preset-row {
+    display:flex;
+    justify-content:space-between;
+    margin-top:0.75rem;
+    gap:0.5rem;
+  }
+
+  .preset-btn {
+    flex:1;
+    background:#555;
+    border:1px solid #777;
+    padding:0.6rem;
+    border-radius:6px;
+    font-size:1rem;
+    cursor:pointer;
+    text-align:center;
+  }
+
   .pay-btn {
     background:#1fb64b;
     width:100%;
@@ -235,12 +254,15 @@
 <div id="payment" class="screen">
   <h1>Payment</h1>
 
+  <!-- Exact + Rounded totals -->
   <div id="payItems"></div>
-  <div id="payTotal" style="margin-top:1rem; font-size:1.3rem;"></div>
+  <div id="payTotalExact" style="margin-top:1rem; font-size:1.3rem;"></div>
+  <div id="payTotalRounded" style="margin-top:0.3rem; font-size:1.3rem; color:#ffd447;"></div>
 
   <h2>Cash Received</h2>
   <div id="cashEntered" style="font-size:2rem; margin:0.5rem 0;">0.00</div>
 
+  <!-- KEYPAD -->
   <div class="cash-grid">
     <button class="cash-key" data-key="1">1</button>
     <button class="cash-key" data-key="2">2</button>
@@ -254,6 +276,15 @@
     <button class="cash-key" data-key="0">0</button>
     <button class="cash-key" data-key=".">.</button>
     <button class="cash-key" data-key="clear">Clear</button>
+  </div>
+
+  <!-- PRESET CASH BUTTONS (Option C) -->
+  <div class="preset-row">
+    <button class="preset-btn" data-cash="5">5</button>
+    <button class="preset-btn" data-cash="10">10</button>
+    <button class="preset-btn" data-cash="20">20</button>
+    <button class="preset-btn" data-cash="50">50</button>
+    <button class="preset-btn" data-cash="100">100</button>
   </div>
 
   <button class="pay-btn" id="amountTenderedBtn">Amount Tendered</button>
@@ -379,19 +410,12 @@ function playDrawerSound() {
   click();
 }
 
-/* OPEN DRAWER */
-function openCashDrawer(change) {
-  const drawer = document.getElementById("cashDrawer");
-  document.getElementById("drawerChange").textContent =
-    `Change: $${change.toFixed(2)}`;
-  drawer.style.bottom = "0px";
-  playDrawerSound();
+/* ---------------------------
+   AUSTRALIAN ROUNDING (CASH ONLY)
+----------------------------*/
+function roundToFiveCents(amount) {
+  return Math.round(amount * 20) / 20; // 20 increments per dollar = 5c
 }
-
-document.getElementById("closeDrawerBtn").onclick = () => {
-  document.getElementById("cashDrawer").style.bottom = "-260px";
-  resetToPOS();
-};
 
 /* ---------------------------
    SALES TRACKING
@@ -530,7 +554,6 @@ function addKvsOrderAuto(order) {
   if (side === 1) kvs1Orders.push(order);
   else kvs2Orders.push(order);
 
-  /* SIDE‑SPECIFIC SOUND */
   if (side === 1) playDingDongSide1();
   else playDingDongSide2();
 
@@ -552,20 +575,27 @@ document.getElementById("storeBtn").onclick = () => {
   document.getElementById("payment").classList.add("active");
 
   document.getElementById("payItems").textContent = order.items.join(", ");
-  document.getElementById("payTotal").textContent =
-    "Total: $" + order.total.toFixed(2);
+
+  const exact = order.total;
+  const rounded = roundToFiveCents(order.total);
+
+  document.getElementById("payTotalExact").textContent =
+    `Exact Total: $${exact.toFixed(2)}`;
+
+  document.getElementById("payTotalRounded").textContent =
+    `Cash Total (Rounded): $${rounded.toFixed(2)}`;
 
   currentOrder = [];
   selectedIndex = null;
   updateOrderList();
 };
-
 /* ---------------------------
    CASH INPUT (EFTPOS STYLE)
 ----------------------------*/
 let cashInput = "";
 
 function updateCashDisplay() {
+  document.getElementById("cashEntered").style.color = "#fff";
   document.getElementById("cashEntered").textContent =
     cashInput || "0.00";
 }
@@ -587,28 +617,65 @@ document.querySelectorAll(".cash-key").forEach(key => {
 });
 
 /* ---------------------------
+   PRESET CASH BUTTONS
+----------------------------*/
+document.querySelectorAll(".preset-btn").forEach(btn => {
+  btn.onclick = () => {
+    const amount = parseFloat(btn.dataset.cash);
+    cashInput = amount.toFixed(2);
+    updateCashDisplay();
+  };
+});
+
+/* ---------------------------
+   OPEN CASH DRAWER
+----------------------------*/
+function openCashDrawer(change) {
+  const drawer = document.getElementById("cashDrawer");
+  document.getElementById("drawerChange").textContent =
+    `Change: $${change.toFixed(2)}`;
+  drawer.style.bottom = "0px";
+  playDrawerSound();
+}
+
+document.getElementById("closeDrawerBtn").onclick = () => {
+  document.getElementById("cashDrawer").style.bottom = "-260px";
+  resetToPOS();
+};
+
+/* ---------------------------
    AMOUNT TENDERED BUTTON
+   (AU rounding applied to CASH ONLY)
 ----------------------------*/
 document.getElementById("amountTenderedBtn").onclick = () => {
   if (!currentPaymentOrder) return;
 
   const received = parseFloat(cashInput);
-  const total = currentPaymentOrder.total;
-
   if (isNaN(received)) return;
 
-  const change = received - total;
+  const exactTotal = currentPaymentOrder.total;
+  const roundedTotal = roundToFiveCents(exactTotal);
 
-  if (change >= 0) {
-    totalCashSales += total;
-    updateSalesDisplay();
+  const change = received - roundedTotal;
+
+  /* SHORT CASH — DO NOT OPEN DRAWER */
+  if (change < 0) {
+    document.getElementById("cashEntered").style.color = "red";
+    document.getElementById("cashEntered").textContent =
+      `Short by $${Math.abs(change).toFixed(2)}`;
+    return;
   }
 
+  /* ENOUGH CASH — PROCESS PAYMENT */
+  totalCashSales += roundedTotal;
+  updateSalesDisplay();
+
+  /* Open drawer with correct change */
   openCashDrawer(change);
 };
 
 /* ---------------------------
-   CARD PAYMENT
+   CARD PAYMENT (NO ROUNDING)
 ----------------------------*/
 document.getElementById("payCard").onclick = () => {
   if (!currentPaymentOrder) return;
@@ -634,7 +701,6 @@ function resetToPOS() {
   document.getElementById("payment").classList.remove("active");
   document.getElementById("pos").classList.add("active");
 }
-
 /* ---------------------------
    KVS RENDERING
 ----------------------------*/
@@ -729,7 +795,7 @@ toggleBtn.onclick = () => {
 updateSalesDisplay();
 updateOrderList();
 updateCashDisplay();
-</script>
 
+</script>
 </body>
 </html>
