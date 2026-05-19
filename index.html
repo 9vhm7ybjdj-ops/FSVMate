@@ -87,41 +87,27 @@
       gap: 16px;
     }
 
-    /* Standardized Action Button styled to look exactly like the classic text layout */
+    /* Standalone Gold Action Button styling brought back */
     .splash-action-button {
-      background: none;
+      background: linear-gradient(180deg, #ffd700, #ffb700);
+      color: #5a3b00;
       border: none;
       outline: none;
-      padding: 20px;
-      margin: 0;
-      width: 100%;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      border-radius: 999px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 2px 2px rgba(255, 255, 255, 0.4);
       cursor: pointer;
       display: block;
-      
-      /* Reapplied your original text style requirements */
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      color: #ffffff;
-      text-transform: uppercase;
-      text-shadow: 0 3px 8px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.4);
-      text-align: center;
-      
-      /* Pulsing logic directly tied to the interactive element */
-      animation: pulseText 2.0s infinite ease-in-out;
+      animation: pulseButton 1.6s infinite ease-in-out;
     }
 
-    @keyframes pulseText {
-      0%, 100% { 
-        transform: scale(1); 
-        opacity: 0.85;
-        text-shadow: 0 3px 8px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.3);
-      }
-      50% { 
-        transform: scale(1.03); 
-        opacity: 1;
-        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 215, 0, 0.7);
-      }
+    @keyframes pulseButton {
+      0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
+      50% { transform: scale(1.04); box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3); }
     }
 
     .progress-bar-container {
@@ -577,7 +563,7 @@
 
   <div id="splashScreen">
     <div class="splash-interaction-zone">
-      <button class="splash-action-button" id="splashActionButton">Tap anywhere to start</button>
+      <button class="splash-action-button" id="splashActionButton">Tap to Start</button>
       <div class="progress-bar-container" id="progressBarContainer">
         <div class="progress-bar-inner" id="progressBarInner"></div>
       </div>
@@ -762,24 +748,27 @@
         e.stopPropagation();
       }
 
-      // 1. Direct Synchronous Native Interaction Window Audio Context Unfreeze
+      // Initialize context
       initAudio();
+      
+      // CRITICAL FIX: Explicitly play a silent note immediately on click to permanently lift iOS restrictions 
       if (audioCtx) {
-        const buffer = audioCtx.createBuffer(1, 1, 22050);
-        const source = audioCtx.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioCtx.destination);
-        if (source.start) { source.start(0); } else { source.noteOn(0); }
-
         if (audioCtx.state === 'suspended') {
           audioCtx.resume();
         }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        osc.start(0);
+        osc.stop(0.01);
       }
 
-      // 2. Play the intro track sequence 
+      // Now run the startup track safely without iOS security blocking it
       playRetroStartupJingle();
 
-      // 3. Swap text/button out for progress sequence bars
+      // UI update transition sequence
       splashActionButton.style.display = "none";
       splashStatusText.style.display = "block";
       progressBarContainer.style.display = "block";
@@ -794,7 +783,7 @@
       }, 1700);
     }
 
-    // Direct binding to button component to address explicit user interaction rules
+    // Direct click/touch bindings to the UI action element
     splashActionButton.addEventListener('click', executeStartupSequence);
     splashActionButton.addEventListener('touchstart', executeStartupSequence, { passive: false });
 
@@ -813,7 +802,6 @@
 
     /* --- RETRO ARCADE BOOT-UP CHIPTUNE JINGLE --- */
     function playRetroStartupJingle() {
-      initAudio();
       if (!audioCtx) return;
 
       const now = audioCtx.currentTime;
