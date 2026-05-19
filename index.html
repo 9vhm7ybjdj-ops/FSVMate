@@ -2,54 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FSVMate - Food Safety Visit</title>
+  <title>FSV Mate</title>
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="FSVMate">
+  <meta name="apple-mobile-web-app-title" content="FSV Mate">
   
   <link rel="apple-touch-icon" href="icon-180.png">
-  
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c8102e">
+
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
   <style>
     :root {
       --mc-red: #c8102e;
+      --mc-red-dark: #8f0c21;
       --mc-yellow: #ffd700;
-      --load-time: 3s; /* Global configuration for 3 seconds */
+      --mc-yellow-soft: #ffe766;
+      --bg-dark: #101010;
+      --text-main: #ffffff;
+      --text-muted: #c7c7c7;
+      --yes-bg: #ffd700;
+      --yes-text: #5a3b00;
+      --no-bg: #c8102e;
+      --no-text: #ffffff;
+      --check-bg: #262626;
+      --check-border: #ffd700;
+      --score-bg: #ffd700;
+      --score-text: #8f0c21;
+      --tab-inactive: #f0f0f0;
+      --tab-inactive-text: #555555;
+      --tab-active-text: #ffffff;
+      --load-time: 3s;
     }
 
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
-      /* Prevent rapid double-tap zoom behavior on older iOS versions */
+      -webkit-user-select: none;
+      user-select: none;
       touch-action: manipulation;
     }
 
     body {
       margin: 0;
-      padding: 0;
-      /* Matches the background color of the image for a seamless transition */
-      background-color: #a70000;
-      font-family: system-ui, -apple-system, sans-serif;
-      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+      background-color: #000;
+      color: var(--text-main);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      color: #fff;
+      min-height: 100vh;
+      overflow: hidden;
     }
 
-    /* Full-screen wrapper and background image handler */
-    .splash-container {
-      position: relative;
-      width: 100%;
-      max-width: 480px; /* iPhone MAX standard width for safe layout */
-      height: 100vh;
-      /* Use the static background provided */
+    /* --- SPLASH SCREEN CONTAINER --- */
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      background-color: #a70000;
       background-image: url('splash_background.png');
       background-size: cover;
       background-position: center;
@@ -58,97 +71,551 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      /* Accommodates iOS status bar notch and home indicator pill when standalone */
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
+      z-index: 9999;
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
 
-    /* Header Logo Area */
-    .header-logo {
-      width: 100%;
-      height: 25vh; /* Upper quarter of the screen */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 10;
-    }
-
-    /* Character and Tray Area */
-    .character-logo {
-      flex: 1; /* Occupies middle space */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 5;
-    }
-
-    /* -- The Working Loading Bar and Text System -- */
     .loading-zone {
       width: 100%;
-      height: 20vh; /* Lower part of the screen */
+      height: 22vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 20;
     }
 
-    /* Outer container (the darker area behind the static bar in your image) */
     .progress-bar-container {
-      width: 80%; /* Aligns with the static bar */
-      height: 24px;
-      background-color: rgba(60, 0, 0, 0.7); /* Dark semi-transparent overlay */
+      width: 78%;
+      height: 22px;
+      background-color: rgba(40, 0, 0, 0.65);
       border-radius: 99px;
-      overflow: hidden; /* Important: clips the moving bar */
+      overflow: hidden;
       position: relative;
-      box-shadow: 
-        0 4px 10px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(0, 0, 0, 0.5); /* Outer bezel */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.4);
     }
 
-    /* The actual working yellow bar */
     .progress-bar-inner {
       height: 100%;
-      width: 0%; /* Initial state for animation */
-      background: linear-gradient(to right, #ffd700, #fff); /* Matches your gold-to-white text gradient */
+      width: 0%;
+      background: linear-gradient(to right, #ffd700, #fff);
       border-radius: 99px;
-      /* CSS animation synchronized with the JavaScript timer */
       animation: fillBar var(--load-time) linear forwards;
-      box-shadow: 
-        inset 0 2px 2px rgba(255, 255, 255, 0.5), /* Inner highlight */
-        0 0 8px #ffd700; /* Subtle outer glow */
+      box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4), 0 0 8px #ffd700;
     }
 
-    /* Animation definition for linear growth from 0 to 100% */
     @keyframes fillBar {
       0% { width: 0%; }
-      /* We use 98.5% instead of 100% to keep a small bezel visible at the far right edge, similar to your image design */
       100% { width: 98.5%; }
     }
 
-    /* Loading Text and Powered By text */
     .loading-text {
-      margin-top: 10px;
-      font-size: 13px;
+      margin-top: 12px;
+      font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: rgba(255, 255, 255, 0.85);
       text-transform: uppercase;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
 
-    .powered-text {
+    /* --- CORE SYSTEM APPLICATION CONTAINER --- */
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      padding-top: env(safe-area-inset-top);
+      opacity: 0; /* Hidden initially behind splash screens */
+      transition: opacity 0.4s ease;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--mc-red), var(--mc-red-dark));
+      color: #ffffff;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.02em;
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      overflow-x: auto;
+      background: #1a0507;
+      padding: 10px 8px 6px;
+      gap: 6px;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      flex: 0 0 auto;
+      padding: 6px 12px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--tab-inactive);
+      color: var(--tab-inactive-text);
+      border: 1px solid transparent;
+      position: relative;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .tab.active {
+      background: rgba(255, 215, 0, 0.12);
+      color: var(--tab-active-text);
+      border-color: rgba(255, 215, 0, 0.6);
+      box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.4), 0 6px 14px rgba(0, 0, 0, 0.6);
+    }
+
+    .tab.active::after {
+      content: "";
       position: absolute;
-      bottom: calc(10px + env(safe-area-inset-bottom));
+      left: 18%;
+      right: 18%;
+      bottom: -3px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--mc-yellow), #fff6a0);
+      box-shadow: 0 0 6px rgba(255, 215, 0, 0.9);
+    }
+
+    .content {
+      flex: 1;
+      background: radial-gradient(circle at top, #2a0b0f 0, #050505 55%, #000 100%);
+      padding: 12px 12px 110px;
+      overflow-y: auto;
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .section { display: none; animation: fadeIn 0.18s ease-out; }
+    .section.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #3a151a 0, #120608 40%, #050505 100%);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255, 215, 0, 0.08);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.85);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--mc-yellow-soft);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      margin-bottom: 6px;
+    }
+
+    .item-label {
+      flex: 1 1 0;
+      min-width: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .btn-group { display: flex; gap: 4px; flex-shrink: 0; }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 12px;
       font-size: 11px;
-      color: rgba(255, 255, 255, 0.6);
+      font-weight: 700;
+      cursor: pointer;
+      min-width: 46px;
+    }
+
+    .btn-yes { background: rgba(255, 215, 0, 0.18); color: #ffffff; opacity: 0.7; }
+    .btn-no { background: rgba(200, 16, 46, 0.18); color: var(--no-text); opacity: 0.7; }
+    .btn.active { opacity: 1; }
+    .btn-yes.active { background: var(--yes-bg); color: var(--yes-text); box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.9); }
+    .btn-no.active { background: var(--no-bg); box-shadow: 0 0 0 2px rgba(255, 120, 120, 0.9); }
+
+    .check-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      background: var(--check-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .check-with-score { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .score-badge { color: var(--text-muted); font-size: 11px; font-weight: 600; }
+
+    .check-box span {
+      font-size: 16px;
+      color: var(--mc-yellow-soft);
+      opacity: 0;
+      transform: scale(0.7);
+      transition: opacity 0.12s ease, transform 0.12s ease;
+    }
+
+    .check-box.active {
+      border-color: var(--check-border);
+      background: radial-gradient(circle at top, #3a2a00 0, #120608 60%);
+    }
+
+    .check-box.active span { opacity: 1; transform: scale(1); }
+
+    .secondary-sub-row { display: none; flex-direction: row; flex-wrap: wrap; margin: 8px 0 0 0; gap: 6px; }
+
+    .score-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 70%, rgba(0,0,0,0));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .score-inner {
+      background: linear-gradient(90deg, var(--score-bg), #fff6a0);
+      color: var(--score-text);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      flex: 1;
+    }
+
+    .finish-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--mc-red);
+      color: #fff;
+      display: none;
+      cursor: pointer;
+    }
+
+    .finish-btn.show { display: inline-flex; }
+    .pass { margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: rgba(0, 0, 0, 0.12); font-size: 11px; }
+    .swipe-hint { font-size: 10px; color: rgba(255, 255, 255, 0.5); letter-spacing: 0.12em; }
+
+    /* --- DIALOGS AND OVERLAYS --- */
+    .dialog-overlay, .reason-dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+
+    .dialog-box, .reason-dialog-box {
+      width: 100%;
+      max-width: 380px;
+      background: #1a0507;
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 215, 0, 0.3);
+      color: #fff;
+    }
+
+    .dialog-box h2 { margin: 0 0 8px; font-size: 18px; color: var(--mc-yellow); }
+    .dialog-box p { margin: 0 0 16px; font-size: 13px; color: var(--text-muted); }
+
+    .meta-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: #000;
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .reason-dialog-input {
+      width: 100%;
+      min-height: 80px;
+      border-radius: 12px;
+      background: #000;
+      color: #fff;
+      padding: 10px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .dialog-btn {
+      width: 100%;
+      margin-bottom: 8px;
+      border-radius: 999px;
+      border: none;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #exportPNG { background: var(--mc-yellow); color: var(--yes-text); }
+    #viewLogBtn { background: #ffffff; color: #000000; }
+    #newAudit { background: var(--mc-red); color: #fff; }
+    .dialog-btn.cancel { background: transparent; color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.2); }
+
+    .log-viewer-container {
+      max-height: 250px;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.4);
+      padding: 10px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+      text-align: left;
+    }
+
+    .log-header-block {
+      font-size: 12px;
+      color: var(--mc-yellow-soft);
+      border-bottom: 1px dashed rgba(255,255,255,0.15);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+
+    .log-item { font-size: 12px; padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+    .photo-preview-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .photo-preview-image {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      -webkit-user-select: element;
+      user-select: element;
+    }
+
+    .photo-instruction {
+      color: #fff;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 16px;
+      margin-bottom: 20px;
       font-weight: 500;
     }
   </style>
 </head>
 <body>
+
+  <div id="splashScreen">
+    <div></div>
+    <div></div>
+    <div class="loading-zone">
+      <div class="progress-bar-container">
+        <div class="progress-bar-inner"></div>
+      </div>
+      <div class="loading-text">Loading Application...</div>
+    </div>
+  </div>
+
+  <div class="app-shell" id="appShell">
+    <div class="header"><div class="header-title">Food Safety Visit</div></div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-target="critical">Critical Minimums</button>
+      <button class="tab" data-target="back">Back of House</button>
+      <button class="tab" data-target="kitchen">Kitchen</button>
+      <button class="tab" data-target="service">Service Area</button>
+      <button class="tab" data-target="storewide">Storewide</button>
+    </div>
+
+    <div class="content" id="content">
+      <section class="section active" id="critical">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Critical Minimums</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row">
+            <div class="item-label">Food Items in Date - (Shake, Sundae, Lettuce, DLM, Ham, Bacon)</div>
+            <div class="btn-group" data-critical="true"><button class="btn btn-yes">YES</button><button class="btn btn-no">NO</button></div>
+          </div>
+          <div class="item-row">
+            <div class="item-label">FSDC Products passed Tests - Beef, Chicken, Fish, Sausage, Eggs</div>
+            <div class="btn-group" data-critical="true"><button class="btn btn-yes">YES</button><button class="btn btn-no">NO</button></div>
+          </div>
+          <div class="item-row">
+            <div class="item-label">Restaurant is free from Pest activity - All sightings are logged</div>
+            <div class="btn-group" data-critical="true"><button class="btn btn-yes">YES</button><button class="btn btn-no">NO</button></div>
+          </div>
+          <div class="item-row">
+            <div class="item-label">Managers can demonstrate completion of FSDC & Troubleshoot effectively</div>
+            <div class="btn-group" data-critical="true"><button class="btn btn-yes">YES</button><button class="btn btn-no">NO</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="back">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Back of House & Washup</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row"><div class="item-label">Water Filters in date and have timer?</div><div class="check-box" data-score="1"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Spill Kit Available?</div><div class="check-box" data-score="1"><span></span></div></div>
+          <div class="item-row"><div class="item-label">All chemicals marked, approved & stored safely in Ops Cupboard?</div><div class="check-box" data-score="3"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Sanitiser Sink free from debris and meets strip test</div><div class="check-box" data-score="1"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Ice Machine Free From Mould & Ice scoop stored</div><div class="check-box" data-score="3"><span></span></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="kitchen">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Kitchen</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row"><div class="item-label">Dress Bench timers in use & current</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Handwashing Sink has all Supplies (AMH, Warm water & Towel)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Blue gloves used for raw product, Clear gloves for cooked</div><div class="check-box" data-score="10"><span></span></div></div>
+          <div class="item-row secondary-container">
+            <div class="item-column">
+              <div class="item-label">Check secondary timers - Refer to kitchen timers on Sheet</div>
+              <div class="secondary-sub-row" data-secondary-group="kitchen"></div>
+            </div>
+            <div class="check-box secondary-main" data-score="5" data-secondary-group="kitchen"><span></span></div>
+          </div>
+          <div class="item-row"><div class="item-label">All open product is covered - freezers, under line, tortillas</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">All cloths at stations (changed hourly, no loose strands)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Cloth Buckets meet strip test and water clean & Lukewarm</div><div class="check-box" data-score="5"><span></span></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="service">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Service Area</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row"><div class="item-label">All cloths at stations (changed hourly, clean)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Cloth Buckets meet strip test and water clean</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Whipped cream has lid and timer (BIC & Café fridges)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row secondary-container">
+            <div class="item-column">
+              <div class="item-label">Check secondary timers - BIC, Mcafe cabinet items</div>
+              <div class="secondary-sub-row" data-secondary-group="service"></div>
+            </div>
+            <div class="check-box secondary-main" data-score="5" data-secondary-group="service"><span></span></div>
+          </div>
+          <div class="item-row"><div class="item-label">Handwashing Sink has all Supplies (AMH, Warm water & Towel)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Milk Jugs in Café rinsed every 2hrs - Rule of Three</div><div class="check-box" data-score="2"><span></span></div></div>
+          <div class="item-row"><div class="item-label">ABS Nozzle free from Mould & Ice scoops used cleanly</div><div class="check-box" data-score="3"><span></span></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="storewide">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Storewide</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row"><div class="item-label">Handwashing & Sanitation timer is use</div><div class="check-box" data-score="6"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Check Freezer - Is filet covered?</div><div class="check-box" data-score="4"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Food Safety Folder Current - FSDC accurate & NO breaches</div><div class="check-box" data-score="25"><span></span></div></div>
+          <div class="item-row"><div class="item-label">General Cleanliness & Good repair (no holes, pools of water)</div><div class="check-box" data-score="6"><span></span></div></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="score-bar">
+      <div class="score-inner" id="scoreBar">
+        <span class="label">Score:</span><span class="value" id="scoreText">0 / 120 — 0.0%</span><span class="pass" id="passText">PENDING</span>
+      </div>
+      <button class="finish-btn" id="finishBtn">Finish</button>
+    </div>
+  </div>
+
+  <div id="metaDialog" class="dialog-overlay" style="display:none;">
+    <div class="dialog-box">
+      <h2>Audit Details</h2>
+      <p>Please log the workspace data before locking the file.</p>
+      <input type="text" id="metaStore" class="meta-input" placeholder="Store Name (e.g., Main St)">
+      <input type="text" id="metaAuditor" class="meta-input" placeholder="Auditor Name">
+      <button class="dialog-btn" id="metaSubmit" style="background:var(--mc-yellow); color:#000;">Lock & Finish</button>
+      <button class="dialog-btn cancel" id="metaCancel">Back</button>
+    </div>
+  </div>
+
+  <div id="completeDialog" class="dialog-overlay" style="display:none;">
+    <div class="dialog-box">
+      <h2>Audit Finalized</h2>
+      <p>Select an output option below.</p>
+      <div id="logViewer" class="log-viewer-container" style="display:none;"></div>
+      <button class="dialog-btn" id="viewLogBtn">View Opportunity Log</button>
+      <button class="dialog-btn" id="exportPNG">Export PNG Report</button>
+      <button class="dialog-btn" id="newAudit">Start New Audit</button>
+      <button class="dialog-btn cancel" id="closeDialog">Cancel</button>
+    </div>
+  </div>
+
+  <div id="reasonDialog" class="reason-dialog-overlay" style="display:none;">
+    <div class="reason-dialog-box">
+      <div style="color:var(--mc-yellow); font-weight:700; margin-bottom:8px;">Enter Opportunity:</div>
+      <textarea id="reasonInput" class="reason-dialog-input" rows="3" placeholder="Describe opportunity..."></textarea>
+      <div style="display:flex; gap:8px;">
+        <button class="dialog-btn" id="reasonSubmit" style="background:var(--mc-yellow); color:#000; margin:0;">Submit</button>
+        <button class="dialog-btn cancel" id="reasonCancel" style="margin:0;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div id="photoPreviewOverlay" class="photo-preview-overlay" style="display:none;">
     <img id="photoPreviewImg" class="photo-preview-image" src="" alt="Report Preview">
     <div class="photo-instruction">Press and hold the image above,<br>then select <strong>"Save to Photos"</strong>.</div>
@@ -156,7 +623,34 @@
   </div>
 
   <script>
-    /* --- 1. Synthesized Audio Engine (Tak-Tile Mechanical Click) --- */
+    /* --- SPLASH TIMING ENGINE --- */
+    window.addEventListener('DOMContentLoaded', () => {
+      // Hold splash view exactly long enough for loading graphic animation to clear
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        const shell = document.getElementById('appShell');
+        
+        splash.style.opacity = '0';
+        splash.style.transform = 'scale(1.04)';
+        shell.style.opacity = '1';
+        
+        setTimeout(() => splash.remove(), 500); // Discard completely from memory
+      }, 3000);
+    });
+
+    /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
+    let lastTouchTime = 0;
+    document.addEventListener('touchstart', function (event) {
+      const now = new Date().getTime();
+      if (now - lastTouchTime <= 300) event.preventDefault();
+      lastTouchTime = now;
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
+    /* --- SYNTHESIZED CLICK SYNAPSES ENGINE --- */
     let audioCtx = null;
     let auditMetadata = { store: "", auditor: "", timestamp: "", scoreStr: "" };
 
@@ -184,7 +678,6 @@
         osc.start(now);
         osc.stop(now + 0.18);
       } else if (type === 'action' || type === 'click') {
-        // Uniform click action logic applied back to manual tab presses
         osc.type = 'square';
         osc.frequency.setValueAtTime(1400, now);
         osc.frequency.exponentialRampToValueAtTime(120, now + 0.015);
@@ -195,7 +688,7 @@
       }
     }
 
-    /* --- 2. Tab and Touch Control System --- */
+    /* --- RUNTIME INTERACTION CONTROL SYSTEMS --- */
     const tabs = document.querySelectorAll(".tab");
     const sections = document.querySelectorAll(".section");
     const scoreText = document.getElementById("scoreText");
@@ -214,7 +707,7 @@
       if (newActiveTab) newActiveTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
 
       if (source === 'swipe') playSound('swipe');
-      else if (source === 'click') playSound('click'); // Click audio trigger activated
+      else if (source === 'click') playSound('click');
     }
 
     tabs.forEach(tab => tab.addEventListener("click", () => setActiveTab(tab.dataset.target, 'click')));
@@ -240,7 +733,6 @@
       box.innerHTML = `<span style="color:${color || ''}; font-weight:900;">${symbol}</span>`;
     }
 
-    /* --- 3. Deficiency & Log Dialogue Logic (Terminology Updated) --- */
     const reasonDialogEl = document.getElementById("reasonDialog");
     const reasonInput = document.getElementById("reasonInput");
     let reasonCallback = null;
@@ -261,7 +753,6 @@
       if (reasonCallback) { reasonCallback("No details logged"); reasonCallback = null; }
     });
 
-    /* --- 4. Question & Question List Controllers --- */
     function getSecondarySubBoxes(group) { return Array.from(document.querySelectorAll(`.secondary-sub-box[data-secondary-group="${group}"]`)); }
     function getSecondarySubRow(group) { return document.querySelector(`.secondary-sub-row[data-secondary-group="${group}"]`); }
 
@@ -311,7 +802,6 @@
 
       if (criticalFail) total = 0;
       const pct = (total / (max || 1)) * 100;
-      // Terminology changed from Deficiency to Opportunity
       auditMetadata.scoreStr = `${total} / ${max} — ${pct.toFixed(1)}% ${criticalFail ? '[CRITICAL FAILED]' : ''}`;
       scoreText.textContent = `${total} / ${max} — ${pct.toFixed(1)}%`;
 
@@ -366,11 +856,9 @@
       recalcScore();
     }
 
-    /* --- 5. Audit Finalization & Output (terminology & logic updated) --- */
     function buildFailList() {
       const list = [];
       document.querySelectorAll("[data-critical]").forEach(g => {
-        // Critical Minimums question structure is handled differently
         if (g.dataset.state === "fail") list.push({ q: g.closest(".item-row").querySelector(".item-label").textContent, r: g.dataset.reason || "N/A" });
       });
       document.querySelectorAll(".check-box").forEach(b => {
@@ -390,7 +878,6 @@
     const photoPreviewOverlay = document.getElementById("photoPreviewOverlay");
     const photoPreviewImg = document.getElementById("photoPreviewImg");
 
-    // Phase 1: Lock File Metadata Entry
     finishBtn.addEventListener("click", () => {
       metaDialog.style.display = "flex";
       document.getElementById("metaStore").value = "";
@@ -399,7 +886,6 @@
 
     document.getElementById("metaCancel").addEventListener("click", () => metaDialog.style.display = "none");
     
-    // Phase 2: Lock & Display Finalization Dialog
     document.getElementById("metaSubmit").addEventListener("click", () => {
       auditMetadata.store = document.getElementById("metaStore").value.trim() || "Default Store";
       auditMetadata.auditor = document.getElementById("metaAuditor").value.trim() || "Anonymous Auditor";
@@ -407,12 +893,10 @@
       
       metaDialog.style.display = "none";
       completeDialog.style.display = "flex";
-      // Ensure viewer is reset before displaying finalized dialogue
       logViewer.style.display = "none";
       document.getElementById("viewLogBtn").textContent = "View Opportunity Log";
     });
 
-    // Control Panel: View Interactive Opportunity Log
     document.getElementById("viewLogBtn").addEventListener("click", () => {
       if (logViewer.style.display === "block") {
         logViewer.style.display = "none";
@@ -428,7 +912,7 @@
         `;
         const fails = buildFailList();
         if (fails.length === 0) {
-          logViewer.innerHTML += `<div style="font-size:12px;color:#85ff85;">✓ 100% Core Standards Compliance. No operational opportunity required.</div>`;
+          logViewer.innerHTML += `<div style="font-size:12px;color:#85ff85;">✓ 100% Core Standards Compliance.</div>`;
         } else {
           fails.forEach(f => {
             logViewer.innerHTML += `
@@ -443,17 +927,14 @@
       }
     });
 
-    // Control Panel Actions
     document.getElementById("closeDialog").addEventListener("click", () => completeDialog.style.display = "none");
     document.getElementById("newAudit").addEventListener("click", () => location.reload());
     document.getElementById("closePhotoPreview").addEventListener("click", () => photoPreviewOverlay.style.display = "none");
 
-    // Phase 3: Export PNG Report (terminology and mobile save updated)
     document.getElementById("exportPNG").addEventListener("click", () => {
       const box = document.createElement("div");
       Object.assign(box.style, { width: "620px", padding: "26px", background: "#0b0205", color: "#fff", fontFamily: "system-ui, sans-serif", borderRadius: "16px" });
       
-      // Update terminology from Performance Metric to Overall Score in PNG header
       box.innerHTML = `
         <div style="font-size:22px; font-weight:800; color:#ffd700; margin-bottom:4px; text-transform:uppercase;">Food Safety Visit Log</div>
         <div style="font-size:13px; color:#c7c7c7; margin-bottom:16px; border-bottom:2px solid #c8102e; padding-bottom:10px; line-height:1.6;">
@@ -466,10 +947,9 @@
 
       const fails = buildFailList();
       if (fails.length === 0) {
-        box.innerHTML += `<div style="color:#85ff85; font-size:14px; font-weight:600;">✓ All standards logged successfully compliant. No operational opportunity required.</div>`;
+        box.innerHTML += `<div style="color:#85ff85; font-size:14px; font-weight:600;">✓ All standards logged successfully compliant. No operational action required.</div>`;
       } else {
         fails.forEach(f => {
-          // Update terminology from deficiency detail to opportunity detail
           box.innerHTML += `
             <div style="margin-bottom:12px; padding:12px; background:rgba(255,255,255,0.03); border-left:4px solid #c8102e; border-radius:4px;">
               <div style="font-size:13px; font-weight:700; color:#fff6a0; margin-bottom:4px;">${f.q}</div>
@@ -480,11 +960,8 @@
 
       document.body.appendChild(box);
       html2canvas(box, { scale: 2, backgroundColor: "#0b0205" }).then(canvas => {
-        // MOBILE OPTIMIZATION: Instead of programmatic download, display image on screen inside a PWA overlay.
         photoPreviewImg.src = canvas.toDataURL("image/png");
         photoPreviewOverlay.style.display = "flex";
-        
-        // Clean up the off-screen div used to generate the canvas
         box.remove();
       });
     });
