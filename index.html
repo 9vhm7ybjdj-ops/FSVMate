@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>FSV Mate</title>
   
+  <!-- Updated viewport to firmly declare intent to disable scaling -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -43,6 +44,8 @@
       -webkit-tap-highlight-color: transparent;
       -webkit-user-select: none;
       user-select: none;
+      /* Added CSS property to disable default double-tap zoom behaviors on text/elements */
+      touch-action: manipulation;
     }
 
     body {
@@ -590,6 +593,22 @@
   </div>
 
   <script>
+    /* --- Zoom Prevention Logic --- */
+    // 1. Blocks double-tap zoom by tracking the timing interval between touch starts
+    let lastTouchTime = 0;
+    document.addEventListener('touchstart', function (event) {
+      const now = new Date().getTime();
+      if (now - lastTouchTime <= 300) {
+        event.preventDefault(); // blocks native browser double tap scaling response
+      }
+      lastTouchTime = now;
+    }, { passive: false });
+
+    // 2. Blocks pinch-to-zoom gestures natively on iOS Safari / WebKit environments
+    document.addEventListener('gesturestart', function (event) {
+      event.preventDefault(); // blocks screen scaling calculations when two fingers touch
+    }, { passive: false });
+
     let audioCtx = null;
     let auditMetadata = { store: "", auditor: "", timestamp: "", scoreStr: "" };
 
@@ -617,15 +636,11 @@
         osc.start(now);
         osc.stop(now + 0.18);
       } else if (type === 'action' || type === 'click') {
-        // High-frequency mechanical pop mixed with an instantaneous pitch envelope
         osc.type = 'square';
         osc.frequency.setValueAtTime(1400, now);
         osc.frequency.exponentialRampToValueAtTime(120, now + 0.015);
-        
-        // Ultra-fast decay envelope to recreate a physical microswitch press
         gain.gain.setValueAtTime(0.04, now);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
-        
         osc.start(now);
         osc.stop(now + 0.018);
       }
