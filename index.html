@@ -491,6 +491,52 @@
       border: 1px solid rgba(255,255,255,0.2);
     }
 
+    /* --- INLINE PHOTO CAPTURE CLASSES --- */
+    .photo-trigger-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .camera-btn {
+      background: #333;
+      border: 1px solid #555;
+      color: #fff;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .camera-btn.has-photo {
+      border-color: #85ff85;
+      background: rgba(133, 255, 133, 0.1);
+    }
+
+    .thumb-preview {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--mc-yellow);
+      display: none;
+    }
+
+    .log-thumb {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+      margin-top: 6px;
+      display: block;
+    }
+
     .dialog-btn {
       width: 100%;
       margin-bottom: 8px;
@@ -516,14 +562,6 @@
       margin-bottom: 14px;
       border: 1px solid rgba(255,255,255,0.05);
       text-align: left;
-    }
-
-    .log-header-block {
-      font-size: 12px;
-      color: var(--mc-yellow-soft);
-      border-bottom: 1px dashed rgba(255,255,255,0.15);
-      padding-bottom: 6px;
-      margin-bottom: 8px;
     }
 
     .log-item { font-size: 12px; padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -708,6 +746,15 @@
     <div class="reason-dialog-box">
       <div style="color:var(--mc-yellow); font-weight:700; margin-bottom:8px;">Enter Opportunity:</div>
       <textarea id="reasonInput" class="reason-dialog-input" rows="3" placeholder="Describe opportunity..."></textarea>
+      
+      <div class="photo-trigger-container">
+        <label class="camera-btn" id="cameraBtn">
+          📷 Take Photo
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+        </label>
+        <img id="reasonThumbPreview" class="thumb-preview" alt="Preview">
+      </div>
+
       <div style="display:flex; gap:8px;">
         <button class="dialog-btn" id="reasonSubmit" style="background:var(--mc-yellow); color:#000; margin:0;">Submit</button>
         <button class="dialog-btn cancel" id="reasonCancel" style="margin:0;">Cancel</button>
@@ -758,17 +805,14 @@
     function executeStartupSequence(e) {
       if (applicationHasStarted) return;
       
-      // STEP 1: Unlock and ignite sound context while DOM architecture is entirely stable
       forceUnfreezeAudioHardware();
       applicationHasStarted = true;
       playRetroStartupJingle();
 
-      // Stable visual shift inside the gesture frame (matching your working checkboxes)
       splashActionButton.style.background = "linear-gradient(180deg, #e6c200, #cc9300)";
       splashActionButton.style.transform = "scale(0.95)";
       splashActionButton.textContent = "Loading...";
 
-      // STEP 2: Let the jingle play completely clear of the interface thread before building load bars
       setTimeout(() => {
         splashActionButton.style.display = "none";
         splashStatusText.style.display = "block";
@@ -793,7 +837,7 @@
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
     let lastTouchTime = 0;
     document.addEventListener('touchstart', function (event) {
-      if (event.target.closest('#splashScreen')) return; 
+      if (event.target.closest('#splashScreen') || event.target.closest('#reasonDialog')) return; 
       const now = new Date().getTime();
       if (now - lastTouchTime <= 300) event.preventDefault();
       lastTouchTime = now;
@@ -806,10 +850,8 @@
     /* --- RETRO ARCADE BOOT-UP CHIPTUNE JINGLE --- */
     function playRetroStartupJingle() {
       if (!audioCtx) return;
-
       const now = audioCtx.currentTime;
       const rhythmSpeed = 1.3; 
-      
       const notes = [
         { freq: 440.00, start: 0.00 * rhythmSpeed, duration: 0.16 },
         { freq: 493.88, start: 0.18 * rhythmSpeed, duration: 0.16 },
@@ -817,26 +859,19 @@
         { freq: 659.25, start: 0.62 * rhythmSpeed, duration: 0.24 },
         { freq: 554.37, start: 0.88 * rhythmSpeed, duration: 0.55 }
       ];
-
       notes.forEach((note, index) => {
         const osc = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
-        
         osc.type = (index === 4) ? 'square' : 'triangle';
-        
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-
         const noteStart = now + note.start;
         const noteEnd = noteStart + note.duration;
-
         osc.frequency.setValueAtTime(note.freq * 0.97, noteStart);
         osc.frequency.linearRampToValueAtTime(note.freq, noteStart + 0.04);
-
         gainNode.gain.setValueAtTime(0, noteStart);
         gainNode.gain.linearRampToValueAtTime(0.12, noteStart + 0.015);
         gainNode.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
-
         osc.start(noteStart);
         osc.stop(noteEnd);
       });
@@ -846,7 +881,6 @@
       initAudio();
       if (!audioCtx) return;
       if (audioCtx.state === 'suspended') audioCtx.resume();
-
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
@@ -884,10 +918,8 @@
     function setActiveTab(targetId, source) {
       const activeTab = document.querySelector(".tab.active");
       if (activeTab && activeTab.dataset.target === targetId) return;
-
       tabs.forEach(t => t.classList.toggle("active", t.dataset.target === targetId));
       sections.forEach(s => s.classList.toggle("active", s.id === targetId));
-
       if (source === 'swipe') playSound('swipe');
       else if (source === 'click') playSound('click');
     }
@@ -915,24 +947,67 @@
       box.innerHTML = `<span style="color:${color || ''}; font-weight:900;">${symbol}</span>`;
     }
 
+    /* --- LIGHTWEIGHT HARDWARE COMPRESSION ENGINE --- */
     const reasonDialogEl = document.getElementById("reasonDialog");
     const reasonInput = document.getElementById("reasonInput");
+    const cameraInput = document.getElementById("cameraInput");
+    const cameraBtn = document.getElementById("cameraBtn");
+    const reasonThumbPreview = document.getElementById("reasonThumbPreview");
+    
     let reasonCallback = null;
+    let currentCompressedPhotoData = null;
 
     function showReasonDialog(callback) {
       reasonCallback = callback;
       reasonDialogEl.style.display = "flex";
       reasonInput.value = "";
+      currentCompressedPhotoData = null;
+      reasonThumbPreview.style.display = "none";
+      reasonThumbPreview.src = "";
+      cameraBtn.className = "camera-btn";
+      cameraInput.value = "";
       reasonInput.focus();
     }
 
+    // Capture and squash heavy phone photos to a fast 160px thumb
+    cameraInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 160;
+          const scale = MAX_WIDTH / img.width;
+          canvas.width = MAX_WIDTH;
+          canvas.height = img.height * scale;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          currentCompressedPhotoData = canvas.toDataURL("image/jpeg", 0.7);
+          reasonThumbPreview.src = currentCompressedPhotoData;
+          reasonThumbPreview.style.display = "block";
+          cameraBtn.className = "camera-btn has-photo";
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
     document.getElementById("reasonSubmit").addEventListener("click", () => {
       reasonDialogEl.style.display = "none";
-      if (reasonCallback) { reasonCallback(reasonInput.value.trim() || "No details logged"); reasonCallback = null; }
+      if (reasonCallback) { 
+        reasonCallback(reasonInput.value.trim() || "No details logged", currentCompressedPhotoData); 
+        reasonCallback = null; 
+      }
     });
+
     document.getElementById("reasonCancel").addEventListener("click", () => {
       reasonDialogEl.style.display = "none";
-      if (reasonCallback) { reasonCallback("No details logged"); reasonCallback = null; }
+      if (reasonCallback) { reasonCallback("No details logged", null); reasonCallback = null; }
     });
 
     function getSecondarySubBoxes(group) { return Array.from(document.querySelectorAll(`.secondary-sub-box[data-secondary-group="${group}"]`)); }
@@ -947,8 +1022,11 @@
       box.addEventListener("click", () => {
         playSound('action');
         if (box.dataset.state === "blank") {
-          showReasonDialog(r => {
-            box.dataset.state = "fail"; box.dataset.reason = r; setCheckVisual(box, "✕", "#c8102e");
+          showReasonDialog((txt, photo) => {
+            box.dataset.state = "fail"; 
+            box.dataset.reason = txt;
+            if(photo) box.dataset.photo = photo;
+            setCheckVisual(box, "✕", "#c8102e");
             if (!getSecondarySubBoxes(group).some(s => s.dataset.state === "blank") && getSecondarySubBoxes(group).length < 10) createSecondarySubBox(group);
             recalcScore();
           });
@@ -1007,7 +1085,6 @@
       const wrapper = document.createElement('div');
       wrapper.className = 'check-with-score';
       box.parentNode.insertBefore(wrapper, box); 
-      
       wrapper.appendChild(box); 
       const b = document.createElement('span'); 
       b.className = 'score-badge'; 
@@ -1017,8 +1094,8 @@
 
     document.querySelectorAll(".btn-group[data-critical]").forEach(g => {
       const y = g.querySelector(".btn-yes"), n = g.querySelector(".btn-no");
-      y.addEventListener("click", () => { playSound('action'); g.dataset.state="pass"; y.classList.add("active"); n.classList.remove("active"); delete g.dataset.reason; recalcScore(); });
-      n.addEventListener("click", () => { playSound('action'); g.dataset.state="fail"; n.classList.add("active"); y.classList.remove("active"); showReasonDialog(r => { g.dataset.reason = r; recalcScore(); }); });
+      y.addEventListener("click", () => { playSound('action'); g.dataset.state="pass"; y.classList.add("active"); n.classList.remove("active"); delete g.dataset.reason; delete g.dataset.photo; recalcScore(); });
+      n.addEventListener("click", () => { playSound('action'); g.dataset.state="fail"; n.classList.add("active"); y.classList.remove("active"); showReasonDialog((txt, photo) => { g.dataset.reason = txt; if(photo) g.dataset.photo = photo; recalcScore(); }); });
     });
 
     document.querySelectorAll(".check-box").forEach(box => {
@@ -1027,25 +1104,25 @@
         box.addEventListener("click", () => {
           playSound('action');
           if (box.dataset.state === "blank") { box.dataset.state = "pass"; setCheckVisual(box, "✓"); }
-          else if (box.dataset.state === "pass") { box.dataset.state = "pending"; showReasonDialog(r => { createSecondarySubBox(box.dataset.secondaryGroup).dataset.reason = r; recordSubFail(box.dataset.secondaryGroup, r); }); }
-          else { box.dataset.state = "blank"; delete box.dataset.reason; getSecondarySubBoxes(box.dataset.secondaryGroup).forEach(s => s.remove()); setCheckVisual(box, null); }
+          else if (box.dataset.state === "pass") { box.dataset.state = "pending"; showReasonDialog((txt, photo) => { let sb = createSecondarySubBox(box.dataset.secondaryGroup); sb.dataset.reason = txt; if(photo) sb.dataset.photo = photo; recordSubFail(box.dataset.secondaryGroup, txt, photo); }); }
+          else { box.dataset.state = "blank"; delete box.dataset.reason; delete box.dataset.photo; getSecondarySubBoxes(box.dataset.secondaryGroup).forEach(s => s.remove()); setCheckVisual(box, null); }
           recalcScore();
         });
       } else if (!box.classList.contains("secondary-sub-box")) {
         box.addEventListener("click", () => {
           playSound('action');
           if (box.dataset.state === "blank") { box.dataset.state = "pass"; setCheckVisual(box, "✓"); }
-          else if (box.dataset.state === "pass") { showReasonDialog(r => { box.dataset.state = "fail"; box.dataset.reason = r; setCheckVisual(box, "✕", "#c8102e"); recalcScore(); }); }
-          else { box.dataset.state = "blank"; setCheckVisual(box, null); delete box.dataset.reason; }
+          else if (box.dataset.state === "pass") { showReasonDialog((txt, photo) => { box.dataset.state = "fail"; box.dataset.reason = txt; if(photo) box.dataset.photo = photo; setCheckVisual(box, "✕", "#c8102e"); recalcScore(); }); }
+          else { box.dataset.state = "blank"; setCheckVisual(box, null); delete box.dataset.reason; delete box.dataset.photo; }
           recalcScore();
         });
       }
     });
 
-    function recordSubFail(g, r) {
+    function recordSubFail(g, txt, photo) {
       let b = getSecondarySubBoxes(g).find(s => s.dataset.state === "blank");
       if (!b) b = createSecondarySubBox(g);
-      b.dataset.state = "fail"; b.dataset.reason = r; setCheckVisual(b, "✕", "#c8102e");
+      b.dataset.state = "fail"; b.dataset.reason = txt; if(photo) b.dataset.photo = photo; setCheckVisual(b, "✕", "#c8102e");
       if (getSecondarySubBoxes(g).length < 10) createSecondarySubBox(g);
       recalcScore();
     }
@@ -1053,13 +1130,13 @@
     function buildFailList() {
       const list = [];
       document.querySelectorAll("[data-critical]").forEach(g => {
-        if (g.dataset.state === "fail") list.push({ q: g.closest(".item-row").querySelector(".item-label").textContent, r: g.dataset.reason || "N/A" });
+        if (g.dataset.state === "fail") list.push({ q: g.closest(".item-row").querySelector(".item-label").textContent, r: g.dataset.reason || "N/A", p: g.dataset.photo || null });
       });
       document.querySelectorAll(".check-box").forEach(b => {
         if (b.dataset.state === "fail" && b.dataset.reason) {
           let label = b.closest(".item-row").querySelector(".item-label").textContent;
           if (b.classList.contains("secondary-sub-box")) label += " (Sub-Timer Issue)";
-          list.push({ q: label, r: b.dataset.reason });
+          list.push({ q: label, r: b.dataset.reason, p: b.dataset.photo || null });
         }
       });
       return list;
@@ -1106,13 +1183,15 @@
         `;
         const fails = buildFailList();
         if (fails.length === 0) {
-          logViewer.innerHTML += `<div style="font-size:12px;color:#85ff85;">✓ 100% Core Standards Compliance.</div>`;
+          logViewer.innerHTML += `<div style="font-size:12px;color:#85ff85;padding-top:6px;">✓ 100% Core Standards Compliance.</div>`;
         } else {
           fails.forEach(f => {
+            let photoTag = f.p ? `<img src="${f.p}" class="log-thumb">` : '';
             logViewer.innerHTML += `
-              <div class="log-item">
+              <div class="log-item" style="margin-bottom:8px;">
                 <span style="color:#ffb3c0; font-weight:600;">Opportunity:</span> ${f.q}<br>
                 <span style="color:var(--mc-yellow-soft);">Action Detail:</span> ${f.r}
+                ${photoTag}
               </div>`;
           });
         }
@@ -1144,20 +1223,26 @@
         box.innerHTML += `<div style="color:#85ff85; font-size:14px; font-weight:600;">✓ All standards logged successfully compliant. No operational action required.</div>`;
       } else {
         fails.forEach(f => {
+          let reportImgTag = f.p ? `<img src="${f.p}" style="width:120px; height:120px; object-fit:cover; border-radius:6px; margin-top:8px; border:1px solid rgba(255,255,255,0.15); display:block;">` : '';
           box.innerHTML += `
-            <div style="margin-bottom:12px; padding:12px; background:rgba(255,255,255,0.03); border-left:4px solid #c8102e; border-radius:4px;">
+            <div style="margin-bottom:14px; padding:12px; background:rgba(255,255,255,0.03); border-left:4px solid #c8102e; border-radius:4px;">
               <div style="font-size:13px; font-weight:700; color:#fff6a0; margin-bottom:4px;">${f.q}</div>
               <div style="font-size:12px; color:#e0e0e0;"><span style="color:#ffb3c0; font-weight:600;">Opportunity Detail:</span> ${f.r}</div>
+              ${reportImgTag}
             </div>`;
         });
       }
 
       document.body.appendChild(box);
-      html2canvas(box, { scale: 2, backgroundColor: "#0b0205" }).then(canvas => {
-        photoPreviewImg.src = canvas.toDataURL("image/png");
-        photoPreviewOverlay.style.display = "flex";
-        box.remove();
-      });
+      
+      // Allow DOM rendering frame to align base64 strings cleanly before capturing canvas
+      setTimeout(() => {
+        html2canvas(box, { scale: 2, backgroundColor: "#0b0205", useCORS: true }).then(canvas => {
+          photoPreviewImg.src = canvas.toDataURL("image/png");
+          photoPreviewOverlay.style.display = "flex";
+          box.remove();
+        });
+      }, 100);
     });
 
     recalcScore();
