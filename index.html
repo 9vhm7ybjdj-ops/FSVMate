@@ -87,7 +87,6 @@
       gap: 16px;
     }
 
-    /* Standalone Gold Action Button styling */
     .splash-action-button {
       background: linear-gradient(180deg, #ffd700, #ffb700);
       color: #5a3b00;
@@ -739,14 +738,12 @@
     const progressBarInner = document.getElementById('progressBarInner');
     const shell = document.getElementById('appShell');
 
-    // INSTANT UNFREEZER BLOCK: Must execute completely synchronously ahead of code sequence
     function forceUnfreezeAudioHardware() {
       initAudio();
       if (audioCtx) {
         if (audioCtx.state === 'suspended') {
           audioCtx.resume();
         }
-        // Force-feed a hardware note on primary pipeline
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
@@ -760,32 +757,29 @@
     function executeStartupSequence(e) {
       if (applicationHasStarted) return;
       
-      // 1. Instantly unfreeze the phone hardware pipeline synchronously before handling events
+      // PHASE 1: Authenticate gesture context and trigger sound instantly while DOM is dead-stable
       forceUnfreezeAudioHardware();
-
       applicationHasStarted = true;
-
-      // 2. Safely process system configurations and audio track
       playRetroStartupJingle();
 
-      // UI update transition sequence
-      splashActionButton.style.display = "none";
-      splashStatusText.style.display = "block";
-      progressBarContainer.style.display = "block";
-      progressBarInner.classList.add('animate-loading');
-
+      // PHASE 2: Push layout changes to the bottom of the stack to ensure browser token approval
       setTimeout(() => {
-        splashScreen.style.opacity = '0';
-        splashScreen.style.transform = 'scale(1.04)';
-        shell.style.opacity = '1';
-        
-        setTimeout(() => splashScreen.remove(), 400); 
-      }, 1700);
+        splashActionButton.style.display = "none";
+        splashStatusText.style.display = "block";
+        progressBarContainer.style.display = "block";
+        progressBarInner.classList.add('animate-loading');
+
+        setTimeout(() => {
+          splashScreen.style.opacity = '0';
+          splashScreen.style.transform = 'scale(1.04)';
+          shell.style.opacity = '1';
+          
+          setTimeout(() => splashScreen.remove(), 400); 
+        }, 1700);
+      }, 0);
     }
 
-    // Bind early hardware unlocking trigger directly to touch start phase
     splashActionButton.addEventListener('touchstart', (e) => {
-      // Do not use preventDefault here to protect native clean sound gesture pipeline rules
       executeStartupSequence(e);
     }, { passive: true });
 
