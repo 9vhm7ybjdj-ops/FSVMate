@@ -101,6 +101,7 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 2px 2px rgba(255, 255, 255, 0.4);
       cursor: pointer;
       display: block;
+      transition: transform 0.1s ease, background 0.1s ease;
       animation: pulseButton 1.6s infinite ease-in-out;
     }
 
@@ -757,12 +758,17 @@
     function executeStartupSequence(e) {
       if (applicationHasStarted) return;
       
-      // PHASE 1: Authenticate gesture context and trigger sound instantly while DOM is dead-stable
+      // STEP 1: Unlock and ignite sound context while DOM architecture is entirely stable
       forceUnfreezeAudioHardware();
       applicationHasStarted = true;
       playRetroStartupJingle();
 
-      // PHASE 2: Push layout changes to the bottom of the stack to ensure browser token approval
+      // Stable visual shift inside the gesture frame (matching your working checkboxes)
+      splashActionButton.style.background = "linear-gradient(180deg, #e6c200, #cc9300)";
+      splashActionButton.style.transform = "scale(0.95)";
+      splashActionButton.textContent = "Loading...";
+
+      // STEP 2: Let the jingle play completely clear of the interface thread before building load bars
       setTimeout(() => {
         splashActionButton.style.display = "none";
         splashStatusText.style.display = "block";
@@ -776,16 +782,13 @@
           
           setTimeout(() => splashScreen.remove(), 400); 
         }, 1700);
-      }, 0);
+      }, 800); 
     }
 
+    splashActionButton.addEventListener('click', executeStartupSequence);
     splashActionButton.addEventListener('touchstart', (e) => {
       executeStartupSequence(e);
     }, { passive: true });
-
-    splashActionButton.addEventListener('click', (e) => {
-      executeStartupSequence(e);
-    });
 
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
     let lastTouchTime = 0;
