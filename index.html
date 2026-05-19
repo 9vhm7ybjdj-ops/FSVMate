@@ -1,9 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>FSV Mate</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Strict Viewport Config to prevent accidental zooming during clicks on iPhone -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <!-- iOS PWA Specific Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FSV Mate">
+  
+  <!-- Apple Touch Icon for iOS Home Screen -->
+  <link rel="apple-touch-icon" href="icon-192.png">
+  
+  <!-- Web App Manifest for general PWA compliance -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#c8102e">
 
   <!-- html2canvas CDN for PNG export -->
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -33,53 +47,47 @@
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      /* Prevent text selection when swiping rapidly on iPhone */
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "SF Pro Display", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
       background: radial-gradient(circle at top, #2a0b0f 0, #050505 55%, #000 100%);
       color: var(--text-main);
       display: flex;
       justify-content: center;
-      align-items: stretch;
+      align-items: center;
       min-height: 100vh;
+      /* Smooth scrolling mechanics for iOS momentum scrolling */
+      -webkit-overflow-scrolling: touch;
     }
 
     .app-shell {
       width: 100%;
       max-width: 480px;
+      height: 100vh; /* Shifted to full height to accommodate iOS standalone viewports */
       background: transparent;
       display: flex;
       flex-direction: column;
-      border-radius: 32px;
       overflow: hidden;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
-      margin: 12px;
       position: relative;
-    }
-
-    .status-bar {
-      height: 20px;
-      background: linear-gradient(to bottom, #000000aa, #00000000);
-      color: #ffffffcc;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 12px;
+      /* Compensate for iOS Status Bar Notch when in standalone fullscreen */
+      padding-top: env(safe-area-inset-top);
     }
 
     .header {
       background: linear-gradient(135deg, var(--mc-red), var(--mc-red-dark));
       color: #ffffff;
-      padding: 14px 16px 10px;
+      padding: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+      flex-shrink: 0;
     }
 
     .header-title {
@@ -93,9 +101,10 @@
       align-items: center;
       overflow-x: auto;
       background: #1a0507;
-      padding: 6px 6px 0;
+      padding: 10px 8px 6px;
       gap: 6px;
       scrollbar-width: none;
+      flex-shrink: 0;
     }
 
     .tabs::-webkit-scrollbar {
@@ -114,19 +123,14 @@
       position: relative;
       cursor: pointer;
       white-space: nowrap;
-      transition:
-        background 0.18s ease,
-        color 0.18s ease,
-        transform 0.12s ease,
-        box-shadow 0.18s ease;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
     }
 
     .tab.active {
       background: rgba(255, 215, 0, 0.12);
       color: var(--tab-active-text);
       border-color: rgba(255, 215, 0, 0.6);
-      box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.4),
-        0 6px 14px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.4), 0 6px 14px rgba(0, 0, 0, 0.6);
     }
 
     .tab.active::after {
@@ -148,7 +152,7 @@
     .content {
       flex: 1;
       background: radial-gradient(circle at top, #2a0b0f 0, #050505 55%, #000 100%);
-      padding: 10px 10px 80px;
+      padding: 12px 12px 110px;
       overflow-y: auto;
       position: relative;
     }
@@ -163,32 +167,24 @@
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .card {
       background: radial-gradient(circle at top left, #3a151a 0, #120608 40%, #050505 100%);
       border-radius: 18px;
-      padding: 12px 12px 10px;
-      margin-bottom: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
       border: 1px solid rgba(255, 215, 0, 0.08);
-      box-shadow:
-        0 10px 26px rgba(0, 0, 0, 0.85),
-        0 0 0 1px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0, 0, 0, 0.7);
     }
 
     .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .card-title {
@@ -199,37 +195,16 @@
       text-transform: uppercase;
     }
 
-    .card-pill {
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(200, 16, 46, 0.2);
-      color: #ffb3c0;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .card-note {
-      font-size: 11px;
-      color: var(--text-muted);
-      line-height: 1.4;
-      margin-bottom: 8px;
-      padding-left: 2px;
-    }
-
     .item-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 7px 6px;
+      padding: 8px;
       border-radius: 10px;
-      background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.02),
-        rgba(255, 255, 255, 0)
-      );
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
       border: 1px solid rgba(255, 255, 255, 0.04);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .item-label {
@@ -237,31 +212,28 @@
       min-width: 0;
       font-size: 13px;
       color: var(--text-muted);
-      padding-right: 8px;
+      padding-right: 4px;
+      line-height: 1.4;
     }
 
     .btn-group {
       display: flex;
       gap: 4px;
+      flex-shrink: 0;
     }
 
     .btn {
       border-radius: 999px;
       border: none;
-      padding: 4px 10px;
+      padding: 6px 12px;
       font-size: 11px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 40px;
-      transition:
-        transform 0.08s ease,
-        box-shadow 0.12s ease,
-        filter 0.12s ease,
-        background 0.12s ease,
-        color 0.12s ease;
+      min-width: 46px;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
     }
 
     .btn:active {
@@ -290,30 +262,18 @@
     .btn-yes.active {
       background: var(--yes-bg);
       color: var(--yes-text);
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7),
-        0 0 0 2px rgba(255, 215, 0, 0.9);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(255, 215, 0, 0.9);
     }
 
     .btn-no.active {
       background: var(--no-bg);
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7),
-        0 0 0 2px rgba(255, 120, 120, 0.9);
-    }
-
-    .btn-yes.active {
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7),
-        0 0 0 2px rgba(255, 215, 0, 0.9);
-    }
-
-    .btn-no.active {
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7),
-        0 0 0 2px rgba(255, 120, 120, 0.9);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(255, 120, 120, 0.9);
     }
 
     .check-box {
-      width: 26px;
-      height: 26px;
-      min-width: 26px;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
       flex: 0 0 auto;
       border-radius: 9px;
       background: var(--check-bg);
@@ -322,11 +282,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition:
-        border 0.12s ease,
-        box-shadow 0.12s ease,
-        background 0.12s ease,
-        transform 0.08s ease;
+      transition: border 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, transform 0.08s ease;
       position: relative;
     }
 
@@ -334,10 +290,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 4px;
+      gap: 6px;
       flex: 0 0 auto;
-      min-width: 56px;
-      width: 56px;
+      min-width: 60px;
     }
 
     .score-badge {
@@ -353,21 +308,15 @@
       color: var(--mc-yellow-soft);
       opacity: 0;
       transform: scale(0.7);
-      transition:
-        opacity 0.12s ease,
-        transform 0.12s ease;
-      line-height: 1;
+      transition: opacity 0.12s ease, transform 0.12s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 100%;
-      height: 100%;
     }
 
     .check-box.active {
       border-color: var(--check-border);
-      box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.7),
-        0 4px 10px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.7), 0 4px 10px rgba(0, 0, 0, 0.8);
       background: radial-gradient(circle at top, #3a2a00 0, #120608 60%);
     }
 
@@ -390,10 +339,6 @@
       width: 100%;
     }
 
-    .secondary-sub-row .check-box {
-      margin-top: 0;
-    }
-
     .item-row.secondary-container {
       align-items: flex-start;
     }
@@ -401,57 +346,51 @@
     .item-row.secondary-container .item-column {
       display: flex;
       flex-direction: column;
-      gap: 8px;
       width: 100%;
     }
 
     .item-row.secondary-container .check-box.secondary-main {
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .secondary-sub-box {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 9px;
     }
 
     .score-bar {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 10px;
-      width: 100%;
-      max-width: 480px;
-      padding: 10px;
-      pointer-events: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); /* Dynamic margin safe for Home indicator pill */
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 70%, rgba(0,0,0,0));
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      z-index: 10;
     }
 
     .score-inner {
-      pointer-events: auto;
       background: linear-gradient(90deg, var(--score-bg), #fff6a0);
       color: var(--score-text);
       border-radius: 999px;
-      padding: 8px 14px;
+      padding: 10px 16px;
       font-size: 13px;
       font-weight: 800;
       text-align: center;
-      box-shadow:
-        0 10px 26px rgba(0, 0, 0, 0.85),
-        0 0 0 1px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.4);
-      flex: 1 1 auto;
+      flex: 1;
       min-width: 0;
     }
 
     .finish-btn {
-      pointer-events: auto;
       border-radius: 999px;
       border: none;
-      padding: 10px 14px;
+      padding: 10px 18px;
       font-size: 12px;
       font-weight: 700;
       background: var(--mc-red);
@@ -460,12 +399,17 @@
       cursor: pointer;
       display: none;
       white-space: nowrap;
+      transition: transform 0.1s ease;
     }
 
     .finish-btn.show {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .finish-btn:active {
+      transform: scale(0.95);
     }
 
     .score-inner span.label {
@@ -490,18 +434,17 @@
 
     .swipe-hint {
       font-size: 10px;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.5);
       text-transform: uppercase;
       letter-spacing: 0.12em;
       white-space: nowrap;
       margin-left: 6px;
-      flex: 0 0 auto;
     }
 
     .dialog-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -511,7 +454,7 @@
     .reason-dialog-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.85);
       display: none;
       align-items: center;
       justify-content: center;
@@ -522,107 +465,96 @@
     .reason-dialog-box {
       width: 100%;
       max-width: 360px;
-      background: rgba(200, 16, 46, 0.92);
+      background: rgba(200, 16, 46, 0.95);
       border-radius: 22px;
-      padding: 18px;
-      box-shadow:
-        0 18px 40px rgba(0, 0, 0, 0.9),
-        0 0 0 1px rgba(255, 215, 0, 0.3);
+      padding: 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
       color: #fff;
-      border: 1px solid rgba(255, 215, 0, 0.18);
+      border: 1px solid rgba(255, 215, 0, 0.3);
     }
 
     .reason-dialog-title {
-      margin: 0 0 10px;
+      margin: 0 0 12px;
       font-size: 15px;
       font-weight: 700;
-      letter-spacing: 0.02em;
       color: var(--mc-yellow);
     }
 
     .reason-dialog-input {
       width: 100%;
-      min-height: 80px;
+      min-height: 90px;
       border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       background: #120608;
       color: #fff;
-      padding: 10px 12px;
+      padding: 12px;
       font-size: 13px;
-      resize: vertical;
-      margin-bottom: 12px;
+      resize: none;
+      margin-bottom: 14px;
+      font-family: inherit;
     }
 
     .reason-dialog-actions {
       display: flex;
       gap: 8px;
-      align-items: center;
-      justify-content: space-between;
     }
 
     .reason-dialog-actions .dialog-btn {
       flex: 1;
       background: var(--mc-yellow);
       color: var(--yes-text);
-      box-shadow: 0 3px 10px rgba(255, 215, 0, 0.35);
     }
 
     .reason-dialog-actions .dialog-btn.cancel {
-      background: rgba(255, 215, 0, 0.18);
+      background: rgba(255, 215, 0, 0.15);
       color: var(--mc-yellow);
-      border: 1px solid rgba(255, 215, 0, 0.35);
-      box-shadow: none;
+      border: 1px solid rgba(255, 215, 0, 0.3);
     }
 
     .dialog-box {
       width: 90%;
       max-width: 360px;
       background: #1a0507;
-      border-radius: 18px;
-      padding: 16px 16px 14px;
-      box-shadow:
-        0 18px 40px rgba(0, 0, 0, 0.9),
-        0 0 0 1px rgba(255, 215, 0, 0.4);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 215, 0, 0.4);
       color: #fff;
     }
 
     .dialog-box h2 {
-      margin: 0 0 6px;
+      margin: 0 0 8px;
       font-size: 18px;
+      color: var(--mc-yellow);
     }
 
     .dialog-box p {
-      margin: 0 0 12px;
+      margin: 0 0 16px;
       font-size: 13px;
       color: var(--text-muted);
+      line-height: 1.4;
     }
 
     .dialog-btn {
       width: 100%;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       border-radius: 999px;
       border: none;
-      padding: 8px 10px;
+      padding: 10px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      display: block;
       text-align: center;
-      transition:
-        transform 0.08s ease,
-        box-shadow 0.12s ease,
-        filter 0.12s ease;
+      transition: transform 0.08s ease, filter 0.12s ease;
     }
 
     .dialog-btn:active {
       transform: scale(0.97);
-      filter: brightness(0.95);
     }
 
     #exportPNG {
       background: var(--mc-yellow);
       color: var(--yes-text);
-      box-shadow: 0 3px 10px rgba(255, 215, 0, 0.7);
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
     }
 
     #newAudit {
@@ -634,35 +566,13 @@
       background: transparent;
       color: var(--text-muted);
       border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .finish-btn {
-      position: absolute;
-      right: 12px;
-      bottom: 52px;
-      border-radius: 999px;
-      border: none;
-      padding: 6px 12px;
-      font-size: 11px;
-      font-weight: 700;
-      background: var(--mc-red);
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
-      cursor: pointer;
-    }
-
-    .finish-btn:active {
-      transform: scale(0.97);
+      margin-bottom: 0;
     }
 
     @media (max-width: 400px) {
-      .item-label {
-        font-size: 12px;
-      }
-      .btn {
-        padding: 3px 8px;
-        font-size: 10px;
-      }
+      .item-label { font-size: 12px; }
+      .btn { padding: 4px 8px; font-size: 10px; min-width: 40px; }
+      .app-shell { height: 100vh; max-height: none; margin: 0; border-radius: 0; }
     }
   </style>
 </head>
@@ -734,37 +644,27 @@
 
           <div class="item-row">
             <div class="item-label">Water Filters in date and have timer?</div>
-            <div class="check-box" data-score="1">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="1"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Spill Kit Available?</div>
-            <div class="check-box" data-score="1">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="1"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">All chemicals clearly marked, McDonalds approved & Stored away from food in Ops Cupboard?</div>
-            <div class="check-box" data-score="3">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="3"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Sanitiser Sink free from debris and meets strip test</div>
-            <div class="check-box" data-score="1">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="1"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Ice Machine Free From Mould & Ice scoop stored</div>
-            <div class="check-box" data-score="3">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="3"><span></span></div>
           </div>
         </div>
       </section>
@@ -779,23 +679,17 @@
 
           <div class="item-row">
             <div class="item-label">Dress Bench timers in use & current</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Handwashing Sink has all Supplies (AMH, Warm running water & Paper towel)</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Blue gloves being used for raw product, Clear gloves for cooked</div>
-            <div class="check-box" data-score="10">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="10"><span></span></div>
           </div>
 
           <!-- Secondary Timer (Kitchen) -->
@@ -804,29 +698,22 @@
               <div class="item-label">Check secondary timers - Refer to kitchen timers on Secondary timer sheet</div>
               <div class="secondary-sub-row" data-secondary-group="kitchen"></div>
             </div>
-            <div class="check-box secondary-main" data-score="5" data-secondary-group="kitchen">
-              <span></span>
-            </div>
+            <div class="check-box secondary-main" data-score="5" data-secondary-group="kitchen"><span></span></div>
           </div>
+
           <div class="item-row">
             <div class="item-label">All open product is covered - beef/saus grill side freezer, under MFY line, tortillas, filet in freezers</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">All cloths at stations (changed hourly, no strands pulled, changed when dirty)</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Cloth Buckets meet strip test and water clean & Lukewarm</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
         </div>
       </section>
@@ -840,24 +727,18 @@
           </div>
 
           <div class="item-row">
-            <div class="item-label">All cloths at stations (changed hourly, no strands pulled, changed when dirty,)</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="item-label">All cloths at stations (changed hourly, no strands pulled, changed when dirty)</div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Cloth Buckets meet strip test and water clean & Lukewarm</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Whipped cream has lid and timer (check BIC & Café fridges)</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
 
           <!-- Secondary Timer (Service Area) -->
@@ -866,30 +747,22 @@
               <div class="item-label">Check secondary timers - BIC (dates on bags), any Mcafe food in cabinets</div>
               <div class="secondary-sub-row" data-secondary-group="service"></div>
             </div>
-            <div class="check-box secondary-main" data-score="5" data-secondary-group="service">
-              <span></span>
-            </div>
+            <div class="check-box secondary-main" data-score="5" data-secondary-group="service"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Handwashing Sink has all Supplies (AMH, Warm running water & Paper towel)</div>
-            <div class="check-box" data-score="5">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="5"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Milk Jugs in Café rinsed every 2hrs and no excessive build up Sanitation Rule of three</div>
-            <div class="check-box" data-score="2">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="2"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">ABS Nozzle free from Mould & Ice scoops being used to prevent contamination to ice</div>
-            <div class="check-box" data-score="3">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="3"><span></span></div>
           </div>
         </div>
       </section>
@@ -904,51 +777,41 @@
 
           <div class="item-row">
             <div class="item-label">Handwashing & Sanitation timer is use</div>
-            <div class="check-box" data-score="6">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="6"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Check Freezer - Is filet covered?</div>
-            <div class="check-box" data-score="4">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="4"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">Food Safety Folder Current - FS Summary page printed & FSDC accurate & NO breaches</div>
-            <div class="check-box" data-score="25">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="25"><span></span></div>
           </div>
 
           <div class="item-row">
             <div class="item-label">General Cleanliness & Good repair (no holes, pools of water, excessive dust, floors under equip)</div>
-            <div class="check-box" data-score="6">
-              <span></span>
-            </div>
+            <div class="check-box" data-score="6"><span></span></div>
           </div>
         </div>
       </section>
     </div>
 
-  </div>
-
-  <div class="score-bar">
-    <div class="score-inner" id="scoreBar">
-      <span class="label">Score:</span>
-      <span class="value" id="scoreText">0 / 120 — 0.0%</span>
-      <span class="pass" id="passText">PENDING</span>
+    <div class="score-bar">
+      <div class="score-inner" id="scoreBar">
+        <span class="label">Score:</span>
+        <span class="value" id="scoreText">0 / 120 — 0.0%</span>
+        <span class="pass" id="passText">PENDING</span>
+      </div>
+      <button class="finish-btn" id="finishBtn">Finish</button>
     </div>
-    <button class="finish-btn" id="finishBtn">Finish</button>
   </div>
 
   <div id="completeDialog" class="dialog-overlay" style="display:none;">
     <div class="dialog-box">
       <h2>Audit Complete</h2>
       <p>Your audit is ready to export.</p>
-
       <button class="dialog-btn" id="exportPNG">Export as PNG</button>
       <button class="dialog-btn" id="newAudit">Start New Audit</button>
       <button class="dialog-btn cancel" id="closeDialog">Cancel</button>
@@ -958,7 +821,7 @@
   <div id="reasonDialog" class="reason-dialog-overlay">
     <div class="reason-dialog-box">
       <div class="reason-dialog-title">Enter Reason:</div>
-      <textarea id="reasonInput" class="reason-dialog-input" rows="3" placeholder="Type reason here"></textarea>
+      <textarea id="reasonInput" class="reason-dialog-input" rows="3" placeholder="Type reason here..."></textarea>
       <div class="reason-dialog-actions">
         <button class="dialog-btn" id="reasonSubmit">Submit</button>
         <button class="dialog-btn cancel" id="reasonCancel">Cancel</button>
@@ -967,6 +830,64 @@
   </div>
 
   <script>
+    // --- Register Service Worker for PWA compliance ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+      });
+    }
+
+    // --- Web Audio API Synth Engine ---
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSound(type) {
+      initAudio();
+      if (!audioCtx) return;
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'tab') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(580, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'swipe') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (type === 'action') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(850, now);
+        osc.frequency.setValueAtTime(400, now + 0.02);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+    }
+
+    // --- Tab Configuration and Touch Tracking ---
     const tabs = document.querySelectorAll(".tab");
     const sections = document.querySelectorAll(".section");
     const scoreText = document.getElementById("scoreText");
@@ -974,17 +895,27 @@
     const contentEl = document.getElementById("content");
     const tabOrder = ["critical", "back", "kitchen", "service", "storewide"];
 
-    function setActiveTab(targetId) {
+    function setActiveTab(targetId, source) {
+      const activeTab = document.querySelector(".tab.active");
+      if (activeTab && activeTab.dataset.target === targetId) return;
+
       tabs.forEach(t => t.classList.toggle("active", t.dataset.target === targetId));
       sections.forEach(s => s.classList.toggle("active", s.id === targetId));
-      const activeTab = document.querySelector(".tab.active");
-      if (activeTab) {
-        activeTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      
+      const newActiveTab = document.querySelector(".tab.active");
+      if (newActiveTab) {
+        newActiveTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
+
+      if (source === 'swipe') {
+        playSound('swipe');
+      } else {
+        playSound('tab');
       }
     }
 
     tabs.forEach(tab => {
-      tab.addEventListener("click", () => setActiveTab(tab.dataset.target));
+      tab.addEventListener("click", () => setActiveTab(tab.dataset.target, 'click'));
     });
 
     let startX = null;
@@ -1004,7 +935,7 @@
         let nextIdx = idx;
         if (delta < 0 && idx < tabOrder.length - 1) nextIdx = idx + 1;
         if (delta > 0 && idx > 0) nextIdx = idx - 1;
-        if (nextIdx !== idx) setActiveTab(tabOrder[nextIdx]);
+        if (nextIdx !== idx) setActiveTab(tabOrder[nextIdx], 'swipe');
       }
       startX = null;
     });
@@ -1063,10 +994,6 @@
         event.preventDefault();
         hideReasonDialog(reasonInput.value.trim() || "No reason provided");
       }
-      if (event.key === "Escape") {
-        event.preventDefault();
-        hideReasonDialog("No reason provided");
-      }
     });
 
     function getSecondarySubBoxes(group) {
@@ -1079,6 +1006,7 @@
 
     function attachSecondarySubClick(box) {
       box.addEventListener("click", () => {
+        playSound('action');
         const current = box.dataset.state;
         const group = box.dataset.secondaryGroup;
         if (current === "blank") {
@@ -1141,6 +1069,7 @@
     }
 
     function handleSecondaryMainClick(box) {
+      playSound('action');
       const current = box.dataset.state;
       const group = box.dataset.secondaryGroup;
       if (current === "blank") {
@@ -1173,11 +1102,9 @@
         if (no.classList.contains("active")) criticalFail = true;
       });
 
-      document.querySelectorAll(".check-box").forEach(box => {
+      document.querySelectorAll(".check-box:not(.secondary-sub-box)").forEach(box => {
         const value = parseInt(box.dataset.score || "0", 10);
-        if (!box.classList.contains("secondary-sub-box")) {
-          max += value;
-        }
+        max += value;
       });
 
       document.querySelectorAll(".secondary-main").forEach(main => {
@@ -1202,29 +1129,21 @@
         }
       });
 
-      document.querySelectorAll(".check-box").forEach(box => {
+      document.querySelectorAll(".check-box:not(.secondary-sub-box)").forEach(box => {
         const value = parseInt(box.dataset.score || "0", 10);
-        if (box.classList.contains("secondary-sub-box")) return;
-
-        if (box.classList.contains("secondary-main")) {
-          if (box.dataset.state === "pass") {
-            total += value;
-          }
-        } else if (box.dataset.state === "pass") {
+        if (box.dataset.state === "pass") {
           total += value;
         }
       });
 
       if (max === 0) max = 1;
-      if (criticalFail) {
-        total = 0;
-      }
+      if (criticalFail) total = 0;
+      
       const pct = (total / max) * 100;
-      const pctStr = pct.toFixed(1);
-      scoreText.textContent = `${total} / ${max} — ${pctStr}%`;
+      scoreText.textContent = `${total} / ${max} — ${pct.toFixed(1)}%`;
 
       if (criticalFail) {
-        passText.textContent = "Critical Minimums not met";
+        passText.textContent = "CRITICAL FAIL";
         passText.style.background = "rgba(200,16,46,0.2)";
         passText.style.borderColor = "rgba(200,16,46,0.7)";
       } else if (pct >= 90) {
@@ -1232,14 +1151,14 @@
         passText.style.background = "rgba(0,0,0,0.12)";
         passText.style.borderColor = "rgba(143,12,33,0.4)";
       } else {
-        passText.textContent = "";
+        passText.textContent = "PENDING";
         passText.style.background = "transparent";
         passText.style.borderColor = "transparent";
       }
       updateFinishButton();
     }
 
-    document.querySelectorAll('.check-box[data-score]:not(.secondary-sub-box)').forEach(box => {
+    document.querySelectorAll('.check-box:not(.secondary-sub-box)').forEach(box => {
       const wrapper = document.createElement('div');
       wrapper.className = 'check-with-score';
       box.parentNode.insertBefore(wrapper, box);
@@ -1256,6 +1175,7 @@
       const no = group.querySelector(".btn-no");
 
       yes.addEventListener("click", () => {
+        playSound('action');
         yes.classList.add("active");
         no.classList.remove("active");
         delete group.dataset.reason;
@@ -1263,6 +1183,7 @@
       });
 
       no.addEventListener("click", () => {
+        playSound('action');
         no.classList.add("active");
         yes.classList.remove("active");
         showReasonDialog(reason => {
@@ -1274,16 +1195,13 @@
 
     document.querySelectorAll(".check-box").forEach(box => {
       box.dataset.state = "blank";
-
       const isSecondaryMain = box.classList.contains("secondary-main");
-      const isSecondarySub = box.classList.contains("secondary-sub-box");
 
-      if (isSecondarySub) {
-        attachSecondarySubClick(box);
-      } else if (isSecondaryMain) {
+      if (isSecondaryMain) {
         box.addEventListener("click", () => handleSecondaryMainClick(box));
-      } else {
+      } else if (!box.classList.contains("secondary-sub-box")) {
         box.addEventListener("click", () => {
+          playSound('action');
           const current = box.dataset.state;
           if (current === "blank") {
             box.dataset.state = "pass";
@@ -1312,109 +1230,64 @@
         const label = row.querySelector(".item-label");
         return label ? label.textContent.trim() : "";
       }
-      const subRow = el.closest(".secondary-sub-row");
-      if (subRow) {
-        const parentRow = subRow.closest(".item-row");
-        const label = parentRow ? parentRow.querySelector(".item-label") : null;
-        return label ? label.textContent.trim() : "Secondary timer failure";
-      }
       return "Unknown question";
     }
 
     function buildFailedExportItems() {
       const items = [];
-
       document.querySelectorAll(".btn-group[data-critical]").forEach(group => {
         const no = group.querySelector(".btn-no");
         if (no && no.classList.contains("active") && group.dataset.reason) {
-          const label = getQuestionLabelForElement(group);
-          items.push({
-            title: label,
-            reason: group.dataset.reason
-          });
+          items.push({ title: getQuestionLabelForElement(group), reason: group.dataset.reason });
         }
       });
 
       document.querySelectorAll(".check-box").forEach(box => {
-        const isFail = box.dataset.state === "fail";
-        if (!isFail || !box.dataset.reason) return;
-
-        const label = getQuestionLabelForElement(box);
-        if (box.classList.contains("secondary-sub-box")) {
-          const group = box.dataset.secondaryGroup;
-          const mainLabel = getQuestionLabelForElement(getSecondarySubRow(group));
-          items.push({
-            title: `${mainLabel} — secondary fail`,
-            reason: box.dataset.reason
-          });
-        } else {
-          items.push({
-            title: label,
-            reason: box.dataset.reason
-          });
+        if (box.dataset.state === "fail" && box.dataset.reason) {
+          const label = getQuestionLabelForElement(box);
+          if (box.classList.contains("secondary-sub-box")) {
+            const group = box.dataset.secondaryGroup;
+            const mainLabel = getQuestionLabelForElement(getSecondarySubRow(group));
+            items.push({ title: `${mainLabel} — Sub-Timer Failure`, reason: box.dataset.reason });
+          } else {
+            items.push({ title: label, reason: box.dataset.reason });
+          }
         }
       });
-
       return items;
     }
 
     function exportToPNG() {
       const failedItems = buildFailedExportItems();
       const exportWrapper = document.createElement("div");
-      exportWrapper.style.position = "absolute";
-      exportWrapper.style.left = "-9999px";
-      exportWrapper.style.top = "0";
-      exportWrapper.style.width = "800px";
-      exportWrapper.style.padding = "24px";
-      exportWrapper.style.background = "#0b0205";
-      exportWrapper.style.color = "#fff";
-      exportWrapper.style.fontFamily = "system-ui, sans-serif";
-      exportWrapper.style.lineHeight = "1.4";
-      exportWrapper.style.border = "1px solid rgba(255,255,255,0.08)";
-      exportWrapper.style.borderRadius = "18px";
+      
+      Object.assign(exportWrapper.style, {
+        width: "600px",
+        padding: "24px",
+        background: "#0b0205",
+        color: "#fff",
+        fontFamily: "system-ui, sans-serif",
+        lineHeight: "1.5",
+        borderRadius: "16px"
+      });
 
-      const header = document.createElement("div");
-      header.style.marginBottom = "18px";
-      header.innerHTML = `<div style="font-size:20px;font-weight:800;color:#ffd700;margin-bottom:8px;">Failed Questions</div>`;
-      exportWrapper.appendChild(header);
+      exportWrapper.innerHTML = `<div style="font-size:22px;font-weight:800;color:#ffd700;margin-bottom:16px;border-bottom:2px solid #c8102e;padding-bottom:8px;">FSV Deficiencies Log</div>`;
 
       if (failedItems.length === 0) {
-        const empty = document.createElement("div");
-        empty.textContent = "No failed questions with reasons available.";
-        empty.style.fontSize = "14px";
-        empty.style.color = "#ccc";
-        exportWrapper.appendChild(empty);
+        exportWrapper.innerHTML += `<div style="color:#ccc;font-size:14px;">100% Compliance. No compliance issues flagged.</div>`;
       } else {
         failedItems.forEach(item => {
-          const row = document.createElement("div");
-          row.style.marginBottom = "16px";
-          row.style.padding = "14px 16px";
-          row.style.background = "rgba(255,255,255,0.05)";
-          row.style.borderRadius = "14px";
-
-          const title = document.createElement("div");
-          title.textContent = item.title;
-          title.style.fontSize = "14px";
-          title.style.fontWeight = "700";
-          title.style.color = "#ffd700";
-          title.style.marginBottom = "8px";
-          row.appendChild(title);
-
-          const reason = document.createElement("div");
-          reason.textContent = `Reason: ${item.reason}`;
-          reason.style.fontSize = "13px";
-          reason.style.color = "#fff";
-          row.appendChild(reason);
-
-          exportWrapper.appendChild(row);
+          exportWrapper.innerHTML += `
+            <div style="margin-bottom:14px;padding:12px;background:rgba(255,255,255,0.04);border-left:4px solid #c8102e;border-radius:4px;">
+              <div style="font-size:14px;font-weight:700;color:#fff6a0;margin-bottom:4px;">${item.title}</div>
+              <div style="font-size:13px;color:#e0e0e0;"><span style="color:#ffb3c0;font-weight:600;">Reason:</span> ${item.reason}</div>
+            </div>`;
         });
       }
 
       document.body.appendChild(exportWrapper);
-      html2canvas(exportWrapper, {
-        scale: 3,
-        backgroundColor: null
-      }).then(canvas => {
+      
+      html2canvas(exportWrapper, { scale: 2, backgroundColor: "#0b0205" }).then(canvas => {
         const link = document.createElement("a");
         link.download = "food_safety_audit_fails.png";
         link.href = canvas.toDataURL("image/png");
@@ -1423,25 +1296,15 @@
       });
     }
 
-    const completeDialog = document.getElementById("completeDialog");
-    const finishBtn = document.getElementById("finishBtn");
-
-    function isQuestionAnswered(box) {
-      if (box.classList.contains("secondary-sub-box")) {
-        const row = box.closest(".secondary-sub-row");
-        if (!row || row.style.display !== "flex") return true;
-      }
-      return box.dataset.state && box.dataset.state !== "blank";
-    }
-
     function allQuestionsAnswered() {
       const criticalAnswered = Array.from(document.querySelectorAll(".btn-group[data-critical]")).every(group => {
-        const yes = group.querySelector(".btn-yes");
-        const no = group.querySelector(".btn-no");
-        return yes.classList.contains("active") || no.classList.contains("active");
+        return group.querySelector(".btn-yes").classList.contains("active") || group.querySelector(".btn-no").classList.contains("active");
       });
 
-      const checksAnswered = Array.from(document.querySelectorAll(".check-box")).every(isQuestionAnswered);
+      const checksAnswered = Array.from(document.querySelectorAll(".check-box:not(.secondary-sub-box)")).every(box => {
+        return box.dataset.state && box.dataset.state !== "blank";
+      });
+
       return criticalAnswered && checksAnswered;
     }
 
@@ -1453,27 +1316,11 @@
       }
     }
 
-    function showCompletionDialog() {
-      completeDialog.style.display = "flex";
-    }
-
-    function hideCompletionDialog() {
-      completeDialog.style.display = "none";
-    }
-
-    finishBtn.addEventListener("click", () => {
-      showCompletionDialog();
-    });
-
-    document.getElementById("closeDialog").addEventListener("click", hideCompletionDialog);
-
-    document.getElementById("exportPNG").addEventListener("click", () => {
-      exportToPNG();
-    });
-
-    document.getElementById("newAudit").addEventListener("click", () => {
-      location.reload();
-    });
+    const finishBtn = document.getElementById("finishBtn");
+    finishBtn.addEventListener("click", () => document.getElementById("completeDialog").style.display = "flex");
+    document.getElementById("closeDialog").addEventListener("click", () => document.getElementById("completeDialog").style.display = "none");
+    document.getElementById("exportPNG").addEventListener("click", exportToPNG);
+    document.getElementById("newAudit").addEventListener("click", () => location.reload());
 
     recalcScore();
   </script>
