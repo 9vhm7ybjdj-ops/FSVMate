@@ -4,18 +4,12 @@
   <meta charset="UTF-8">
   <title>FSV Mate</title>
   
-  <!-- Strict Viewport Config to prevent accidental zooming during clicks on iPhone -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-  <!-- iOS PWA Specific Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FSV Mate">
   
-  <!-- Apple Touch Icon for iOS Home Screen -->
   <link rel="apple-touch-icon" href="icon-192.png">
-  
-  <!-- Web App Manifest for general PWA compliance -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c8102e">
 
@@ -47,7 +41,6 @@
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
-      /* Prevent text selection when swiping rapidly on iPhone */
       -webkit-user-select: none;
       user-select: none;
     }
@@ -61,20 +54,18 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      /* Smooth scrolling mechanics for iOS momentum scrolling */
       -webkit-overflow-scrolling: touch;
     }
 
     .app-shell {
       width: 100%;
       max-width: 480px;
-      height: 100vh; /* Shifted to full height to accommodate iOS standalone viewports */
+      height: 100vh;
       background: transparent;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
-      /* Compensate for iOS Status Bar Notch when in standalone fullscreen */
       padding-top: env(safe-area-inset-top);
     }
 
@@ -123,7 +114,7 @@
       position: relative;
       cursor: pointer;
       white-space: nowrap;
-      transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
     }
 
     .tab.active {
@@ -143,10 +134,6 @@
       border-radius: 999px;
       background: linear-gradient(90deg, var(--mc-yellow), #fff6a0);
       box-shadow: 0 0 6px rgba(255, 215, 0, 0.9);
-    }
-
-    .tab:active {
-      transform: scale(0.97);
     }
 
     .content {
@@ -177,7 +164,7 @@
       padding: 14px;
       margin-bottom: 12px;
       border: 1px solid rgba(255, 215, 0, 0.08);
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.85);
     }
 
     .card-header {
@@ -212,7 +199,6 @@
       min-width: 0;
       font-size: 13px;
       color: var(--text-muted);
-      padding-right: 4px;
       line-height: 1.4;
     }
 
@@ -229,52 +215,18 @@
       font-size: 11px;
       font-weight: 700;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       min-width: 46px;
-      transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
     }
 
-    .btn:active {
-      transform: scale(0.95);
-      filter: brightness(0.95);
-    }
-
-    .btn-yes {
-      background: rgba(255, 215, 0, 0.18);
-      color: #ffffff;
-      box-shadow: 0 3px 8px rgba(255, 215, 0, 0.25);
-      opacity: 0.7;
-    }
-
-    .btn-no {
-      background: rgba(200, 16, 46, 0.18);
-      color: var(--no-text);
-      box-shadow: 0 3px 8px rgba(200, 16, 46, 0.25);
-      opacity: 0.7;
-    }
-
-    .btn.active {
-      opacity: 1;
-    }
-
-    .btn-yes.active {
-      background: var(--yes-bg);
-      color: var(--yes-text);
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(255, 215, 0, 0.9);
-    }
-
-    .btn-no.active {
-      background: var(--no-bg);
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(255, 120, 120, 0.9);
-    }
+    .btn-yes { background: rgba(255, 215, 0, 0.18); color: #ffffff; opacity: 0.7; }
+    .btn-no { background: rgba(200, 16, 46, 0.18); color: var(--no-text); opacity: 0.7; }
+    .btn.active { opacity: 1; }
+    .btn-yes.active { background: var(--yes-bg); color: var(--yes-text); box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.9); }
+    .btn-no.active { background: var(--no-bg); box-shadow: 0 0 0 2px rgba(255, 120, 120, 0.9); }
 
     .check-box {
       width: 28px;
       height: 28px;
-      min-width: 28px;
-      flex: 0 0 auto;
       border-radius: 9px;
       background: var(--check-bg);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -282,8 +234,6 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: border 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, transform 0.08s ease;
-      position: relative;
     }
 
     .check-with-score {
@@ -291,17 +241,9 @@
       align-items: center;
       justify-content: flex-end;
       gap: 6px;
-      flex: 0 0 auto;
-      min-width: 60px;
     }
 
-    .score-badge {
-      color: var(--text-muted);
-      font-size: 11px;
-      white-space: nowrap;
-      font-weight: 600;
-      flex: 0 0 auto;
-    }
+    .score-badge { color: var(--text-muted); font-size: 11px; font-weight: 600; }
 
     .check-box span {
       font-size: 16px;
@@ -309,25 +251,14 @@
       opacity: 0;
       transform: scale(0.7);
       transition: opacity 0.12s ease, transform 0.12s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .check-box.active {
       border-color: var(--check-border);
-      box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.7), 0 4px 10px rgba(0, 0, 0, 0.8);
       background: radial-gradient(circle at top, #3a2a00 0, #120608 60%);
     }
 
-    .check-box.active span {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .check-box:active {
-      transform: scale(0.95);
-    }
+    .check-box.active span { opacity: 1; transform: scale(1); }
 
     .secondary-sub-row {
       display: none;
@@ -335,28 +266,6 @@
       flex-wrap: wrap;
       margin: 8px 0 0 0;
       gap: 6px;
-      align-items: center;
-      width: 100%;
-    }
-
-    .item-row.secondary-container {
-      align-items: flex-start;
-    }
-
-    .item-row.secondary-container .item-column {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
-
-    .item-row.secondary-container .check-box.secondary-main {
-      margin-top: 2px;
-    }
-
-    .secondary-sub-box {
-      width: 28px;
-      height: 28px;
-      border-radius: 9px;
     }
 
     .score-bar {
@@ -364,7 +273,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); /* Dynamic margin safe for Home indicator pill */
+      padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
       background: linear-gradient(to top, rgba(0,0,0,0.95) 70%, rgba(0,0,0,0));
       display: flex;
       align-items: center;
@@ -380,11 +289,7 @@
       padding: 10px 16px;
       font-size: 13px;
       font-weight: 800;
-      text-align: center;
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.4);
       flex: 1;
-      min-width: 0;
     }
 
     .finish-btn {
@@ -395,143 +300,68 @@
       font-weight: 700;
       background: var(--mc-red);
       color: #fff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
-      cursor: pointer;
       display: none;
-      white-space: nowrap;
-      transition: transform 0.1s ease;
+      cursor: pointer;
     }
 
-    .finish-btn.show {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .finish-btn.show { display: inline-flex; }
 
-    .finish-btn:active {
-      transform: scale(0.95);
-    }
-
-    .score-inner span.label {
-      opacity: 0.85;
-      font-weight: 600;
-    }
-
-    .score-inner span.value {
-      margin-left: 4px;
-    }
-
-    .score-inner span.pass {
+    .pass {
       margin-left: 6px;
       padding: 2px 8px;
       border-radius: 999px;
       background: rgba(0, 0, 0, 0.12);
-      border: 1px solid rgba(143, 12, 33, 0.4);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
       font-size: 11px;
     }
 
-    .swipe-hint {
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.5);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      white-space: nowrap;
-      margin-left: 6px;
-    }
+    .swipe-hint { font-size: 10px; color: rgba(255, 255, 255, 0.5); letter-spacing: 0.12em; }
 
-    .dialog-overlay {
+    /* Modals & Dialogs Setup */
+    .dialog-overlay, .reason-dialog-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 999;
+      padding: 16px;
     }
 
-    .reason-dialog-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 18px;
-    }
-
-    .reason-dialog-box {
+    .dialog-box, .reason-dialog-box {
       width: 100%;
-      max-width: 360px;
-      background: rgba(200, 16, 46, 0.95);
+      max-width: 380px;
+      background: #1a0507;
       border-radius: 22px;
       padding: 20px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 215, 0, 0.3);
       color: #fff;
-      border: 1px solid rgba(255, 215, 0, 0.3);
     }
 
-    .reason-dialog-title {
-      margin: 0 0 12px;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--mc-yellow);
+    .dialog-box h2 { margin: 0 0 8px; font-size: 18px; color: var(--mc-yellow); }
+    .dialog-box p { margin: 0 0 16px; font-size: 13px; color: var(--text-muted); }
+
+    .meta-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: #000;
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 10px;
     }
 
     .reason-dialog-input {
       width: 100%;
-      min-height: 90px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: #120608;
+      min-height: 80px;
+      border-radius: 12px;
+      background: #000;
       color: #fff;
-      padding: 12px;
+      padding: 10px;
       font-size: 13px;
-      resize: none;
-      margin-bottom: 14px;
-      font-family: inherit;
-    }
-
-    .reason-dialog-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .reason-dialog-actions .dialog-btn {
-      flex: 1;
-      background: var(--mc-yellow);
-      color: var(--yes-text);
-    }
-
-    .reason-dialog-actions .dialog-btn.cancel {
-      background: rgba(255, 215, 0, 0.15);
-      color: var(--mc-yellow);
-      border: 1px solid rgba(255, 215, 0, 0.3);
-    }
-
-    .dialog-box {
-      width: 90%;
-      max-width: 360px;
-      background: #1a0507;
-      border-radius: 22px;
-      padding: 20px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 215, 0, 0.4);
-      color: #fff;
-    }
-
-    .dialog-box h2 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      color: var(--mc-yellow);
-    }
-
-    .dialog-box p {
-      margin: 0 0 16px;
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.4;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
     }
 
     .dialog-btn {
@@ -543,44 +373,41 @@
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      text-align: center;
-      transition: transform 0.08s ease, filter 0.12s ease;
     }
 
-    .dialog-btn:active {
-      transform: scale(0.97);
-    }
+    #exportPNG { background: var(--mc-yellow); color: var(--yes-text); }
+    #viewLogBtn { background: #ffffff; color: #000000; }
+    #newAudit { background: var(--mc-red); color: #fff; }
+    .dialog-btn.cancel { background: transparent; color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.2); }
 
-    #exportPNG {
-      background: var(--mc-yellow);
-      color: var(--yes-text);
-      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+    /* Interactive Log Viewer UI */
+    .log-viewer-container {
+      max-height: 250px;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.4);
+      padding: 10px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+      text-align: left;
     }
-
-    #newAudit {
-      background: var(--mc-red);
-      color: #fff;
+    .log-header-block {
+      font-size: 12px;
+      color: var(--mc-yellow-soft);
+      border-bottom: 1px dashed rgba(255,255,255,0.15);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
     }
-
-    .dialog-btn.cancel {
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      margin-bottom: 0;
-    }
-
-    @media (max-width: 400px) {
-      .item-label { font-size: 12px; }
-      .btn { padding: 4px 8px; font-size: 10px; min-width: 40px; }
-      .app-shell { height: 100vh; max-height: none; margin: 0; border-radius: 0; }
+    .log-item {
+      font-size: 12px;
+      padding: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
   </style>
 </head>
 <body>
   <div class="app-shell">
-    <div class="header">
-      <div class="header-title">Food Safety Visit</div>
-    </div>
+    <div class="header"><div class="header-title">Food Safety Visit</div></div>
 
     <div class="tabs" id="tabs">
       <button class="tab active" data-target="critical">Critical Minimums</button>
@@ -591,45 +418,25 @@
     </div>
 
     <div class="content" id="content">
-
       <!-- Critical Minimums -->
       <section class="section active" id="critical">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Critical Minimums</div>
-            <div class="swipe-hint">SWIPE TABS</div>
-          </div>
-
+          <div class="card-header"><div class="card-title">Critical Minimums</div><div class="swipe-hint">SWIPE TABS</div></div>
           <div class="item-row">
-            <div class="item-label">Food Items in Date - (Shake Mix, Sundae Mix, Shredded Lettuce, DLM, Ham, Bacon)</div>
-            <div class="btn-group" data-critical="true">
-              <button class="btn btn-yes">YES</button>
-              <button class="btn btn-no">NO</button>
-            </div>
+            <div class="item-label">Food Items in Date - (Shake, Sundae, Lettuce, DLM, Ham, Bacon)</div>
+            <div class="btn-group" data-critical="true"><button class="btn btn-yes">YES</button><button class="btn btn-no">NO</button></div>
           </div>
-
           <div class="item-row">
             <div class="item-label">FSDC Products passed Tests - Beef, Chicken, Fish, Sausage, Eggs</div>
-            <div class="btn-group" data-critical="true">
-              <button class="btn btn-yes">YES</button>
-              <button class="btn btn-no">NO</button>
-            </div>
+            <div class="btn-group" data-critical="true"><button class="btn btn-yes">YES</button><button class="btn btn-no">NO</button></div>
           </div>
-
           <div class="item-row">
             <div class="item-label">Restaurant is free from Pest activity - All sightings are logged</div>
-            <div class="btn-group" data-critical="true">
-              <button class="btn btn-yes">YES</button>
-              <button class="btn btn-no">NO</button>
-            </div>
+            <div class="btn-group" data-critical="true"><button class="btn btn-yes">YES</button><button class="btn btn-no">NO</button></div>
           </div>
-
           <div class="item-row">
-            <div class="item-label">Managers can demonstrate they understand completion of FSDC & Troubleshoot effectively</div>
-            <div class="btn-group" data-critical="true">
-              <button class="btn btn-yes">YES</button>
-              <button class="btn btn-no">NO</button>
-            </div>
+            <div class="item-label">Managers can demonstrate completion of FSDC & Troubleshoot effectively</div>
+            <div class="btn-group" data-critical="true"><button class="btn btn-yes">YES</button><button class="btn btn-no">NO</button></div>
           </div>
         </div>
       </section>
@@ -637,257 +444,154 @@
       <!-- Back of House -->
       <section class="section" id="back">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Back of House & Washup</div>
-            <div class="swipe-hint">SWIPE TABS</div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Water Filters in date and have timer?</div>
-            <div class="check-box" data-score="1"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Spill Kit Available?</div>
-            <div class="check-box" data-score="1"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">All chemicals clearly marked, McDonalds approved & Stored away from food in Ops Cupboard?</div>
-            <div class="check-box" data-score="3"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Sanitiser Sink free from debris and meets strip test</div>
-            <div class="check-box" data-score="1"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Ice Machine Free From Mould & Ice scoop stored</div>
-            <div class="check-box" data-score="3"><span></span></div>
-          </div>
+          <div class="card-header"><div class="card-title">Back of House & Washup</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row"><div class="item-label">Water Filters in date and have timer?</div><div class="check-box" data-score="1"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Spill Kit Available?</div><div class="check-box" data-score="1"><span></span></div></div>
+          <div class="item-row"><div class="item-label">All chemicals marked, approved & stored safely in Ops Cupboard?</div><div class="check-box" data-score="3"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Sanitiser Sink free from debris and meets strip test</div><div class="check-box" data-score="1"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Ice Machine Free From Mould & Ice scoop stored</div><div class="check-box" data-score="3"><span></span></div></div>
         </div>
       </section>
 
       <!-- Kitchen -->
       <section class="section" id="kitchen">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Kitchen</div>
-            <div class="swipe-hint">SWIPE TABS</div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Dress Bench timers in use & current</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Handwashing Sink has all Supplies (AMH, Warm running water & Paper towel)</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Blue gloves being used for raw product, Clear gloves for cooked</div>
-            <div class="check-box" data-score="10"><span></span></div>
-          </div>
-
-          <!-- Secondary Timer (Kitchen) -->
+          <div class="card-header"><div class="card-title">Kitchen</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row"><div class="item-label">Dress Bench timers in use & current</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Handwashing Sink has all Supplies (AMH, Warm water & Towel)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Blue gloves used for raw product, Clear gloves for cooked</div><div class="check-box" data-score="10"><span></span></div></div>
           <div class="item-row secondary-container">
             <div class="item-column">
-              <div class="item-label">Check secondary timers - Refer to kitchen timers on Secondary timer sheet</div>
+              <div class="item-label">Check secondary timers - Refer to kitchen timers on Sheet</div>
               <div class="secondary-sub-row" data-secondary-group="kitchen"></div>
             </div>
             <div class="check-box secondary-main" data-score="5" data-secondary-group="kitchen"><span></span></div>
           </div>
-
-          <div class="item-row">
-            <div class="item-label">All open product is covered - beef/saus grill side freezer, under MFY line, tortillas, filet in freezers</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">All cloths at stations (changed hourly, no strands pulled, changed when dirty)</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Cloth Buckets meet strip test and water clean & Lukewarm</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
+          <div class="item-row"><div class="item-label">All open product is covered - freezers, under line, tortillas</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">All cloths at stations (changed hourly, no loose strands)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Cloth Buckets meet strip test and water clean & Lukewarm</div><div class="check-box" data-score="5"><span></span></div></div>
         </div>
       </section>
 
       <!-- Service Area -->
       <section class="section" id="service">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Service Area</div>
-            <div class="swipe-hint">SWIPE TABS</div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">All cloths at stations (changed hourly, no strands pulled, changed when dirty)</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Cloth Buckets meet strip test and water clean & Lukewarm</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Whipped cream has lid and timer (check BIC & Café fridges)</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
-
-          <!-- Secondary Timer (Service Area) -->
+          <div class="card-header"><div class="card-title">Service Area</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row"><div class="item-label">All cloths at stations (changed hourly, clean)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Cloth Buckets meet strip test and water clean</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Whipped cream has lid and timer (BIC & Café fridges)</div><div class="check-box" data-score="5"><span></span></div></div>
           <div class="item-row secondary-container">
             <div class="item-column">
-              <div class="item-label">Check secondary timers - BIC (dates on bags), any Mcafe food in cabinets</div>
+              <div class="item-label">Check secondary timers - BIC, Mcafe cabinet items</div>
               <div class="secondary-sub-row" data-secondary-group="service"></div>
             </div>
             <div class="check-box secondary-main" data-score="5" data-secondary-group="service"><span></span></div>
           </div>
-
-          <div class="item-row">
-            <div class="item-label">Handwashing Sink has all Supplies (AMH, Warm running water & Paper towel)</div>
-            <div class="check-box" data-score="5"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Milk Jugs in Café rinsed every 2hrs and no excessive build up Sanitation Rule of three</div>
-            <div class="check-box" data-score="2"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">ABS Nozzle free from Mould & Ice scoops being used to prevent contamination to ice</div>
-            <div class="check-box" data-score="3"><span></span></div>
-          </div>
+          <div class="item-row"><div class="item-label">Handwashing Sink has all Supplies (AMH, Warm water & Towel)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Milk Jugs in Café rinsed every 2hrs - Rule of Three</div><div class="check-box" data-score="2"><span></span></div></div>
+          <div class="item-row"><div class="item-label">ABS Nozzle free from Mould & Ice scoops used cleanly</div><div class="check-box" data-score="3"><span></span></div></div>
         </div>
       </section>
 
       <!-- Storewide -->
       <section class="section" id="storewide">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Storewide</div>
-            <div class="swipe-hint">SWIPE TABS</div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Handwashing & Sanitation timer is use</div>
-            <div class="check-box" data-score="6"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Check Freezer - Is filet covered?</div>
-            <div class="check-box" data-score="4"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Food Safety Folder Current - FS Summary page printed & FSDC accurate & NO breaches</div>
-            <div class="check-box" data-score="25"><span></span></div>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">General Cleanliness & Good repair (no holes, pools of water, excessive dust, floors under equip)</div>
-            <div class="check-box" data-score="6"><span></span></div>
-          </div>
+          <div class="card-header"><div class="card-title">Storewide</div><div class="swipe-hint">SWIPE TABS</div></div>
+          <div class="item-row"><div class="item-label">Handwashing & Sanitation timer is use</div><div class="check-box" data-score="6"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Check Freezer - Is filet covered?</div><div class="check-box" data-score="4"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Food Safety Folder Current - FSDC accurate & NO breaches</div><div class="check-box" data-score="25"><span></span></div></div>
+          <div class="item-row"><div class="item-label">General Cleanliness & Good repair (no holes, pools of water)</div><div class="check-box" data-score="6"><span></span></div></div>
         </div>
       </section>
     </div>
 
     <div class="score-bar">
       <div class="score-inner" id="scoreBar">
-        <span class="label">Score:</span>
-        <span class="value" id="scoreText">0 / 120 — 0.0%</span>
-        <span class="pass" id="passText">PENDING</span>
+        <span class="label">Score:</span><span class="value" id="scoreText">0 / 120 — 0.0%</span><span class="pass" id="passText">PENDING</span>
       </div>
       <button class="finish-btn" id="finishBtn">Finish</button>
     </div>
   </div>
 
+  <!-- Meta Info Entry Modal -->
+  <div id="metaDialog" class="dialog-overlay" style="display:none;">
+    <div class="dialog-box">
+      <h2>Audit Details</h2>
+      <p>Please log the workspace data before locking the file.</p>
+      <input type="text" id="metaStore" class="meta-input" placeholder="Store Name (e.g., Main St)">
+      <input type="text" id="metaAuditor" class="meta-input" placeholder="Auditor Name">
+      <button class="dialog-btn" id="metaSubmit" style="background:var(--mc-yellow); color:#000;">Lock & Finish</button>
+      <button class="dialog-btn cancel" id="metaCancel">Back</button>
+    </div>
+  </div>
+
+  <!-- Audit Completed Control panel -->
   <div id="completeDialog" class="dialog-overlay" style="display:none;">
     <div class="dialog-box">
-      <h2>Audit Complete</h2>
-      <p>Your audit is ready to export.</p>
-      <button class="dialog-btn" id="exportPNG">Export as PNG</button>
+      <h2>Audit Finalized</h2>
+      <p>Select an output option below.</p>
+      
+      <!-- Live Reason List Viewer Node -->
+      <div id="logViewer" class="log-viewer-container" style="display:none;"></div>
+
+      <button class="dialog-btn" id="viewLogBtn">View Reason Log</button>
+      <button class="dialog-btn" id="exportPNG">Export PNG Report</button>
       <button class="dialog-btn" id="newAudit">Start New Audit</button>
       <button class="dialog-btn cancel" id="closeDialog">Cancel</button>
     </div>
   </div>
 
-  <div id="reasonDialog" class="reason-dialog-overlay">
+  <!-- Quick Reason Input Popup -->
+  <div id="reasonDialog" class="reason-dialog-overlay" style="display:none;">
     <div class="reason-dialog-box">
-      <div class="reason-dialog-title">Enter Reason:</div>
-      <textarea id="reasonInput" class="reason-dialog-input" rows="3" placeholder="Type reason here..."></textarea>
-      <div class="reason-dialog-actions">
-        <button class="dialog-btn" id="reasonSubmit">Submit</button>
-        <button class="dialog-btn cancel" id="reasonCancel">Cancel</button>
+      <div class="reason-dialog-title" style="color:var(--mc-yellow); font-weight:700; margin-bottom:8px;">Enter Reason:</div>
+      <textarea id="reasonInput" class="reason-dialog-input" rows="3" placeholder="Describe deficiency..."></textarea>
+      <div style="display:flex; gap:8px;">
+        <button class="dialog-btn" id="reasonSubmit" style="background:var(--mc-yellow); color:#000; margin:0;">Submit</button>
+        <button class="dialog-btn cancel" id="reasonCancel" style="margin:0;">Cancel</button>
       </div>
     </div>
   </div>
 
   <script>
-    // --- Register Service Worker for PWA compliance ---
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
-      });
-    }
-
-    // --- Web Audio API Synth Engine ---
     let audioCtx = null;
+    let auditMetadata = { store: "", auditor: "", timestamp: "", scoreStr: "" };
 
     function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 
     function playSound(type) {
       initAudio();
       if (!audioCtx) return;
-
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
 
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       const now = audioCtx.currentTime;
 
-      if (type === 'tab') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(580, now);
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-        osc.start(now);
-        osc.stop(now + 0.08);
-      } else if (type === 'swipe') {
+      if (type === 'swipe') {
+        // Optimized SWOOSH Mechanics: Rapid pitch slide upward with smooth ease-out gain curve
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(320, now);
-        osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.18);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
         osc.start(now);
-        osc.stop(now + 0.15);
+        osc.stop(now + 0.18);
       } else if (type === 'action') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(850, now);
-        osc.frequency.setValueAtTime(400, now + 0.02);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+        osc.frequency.setValueAtTime(750, now);
+        osc.frequency.setValueAtTime(450, now + 0.03);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
         osc.start(now);
-        osc.stop(now + 0.05);
+        osc.stop(now + 0.06);
       }
     }
 
-    // --- Tab Configuration and Touch Tracking ---
     const tabs = document.querySelectorAll(".tab");
     const sections = document.querySelectorAll(".section");
     const scoreText = document.getElementById("scoreText");
@@ -903,424 +607,263 @@
       sections.forEach(s => s.classList.toggle("active", s.id === targetId));
       
       const newActiveTab = document.querySelector(".tab.active");
-      if (newActiveTab) {
-        newActiveTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-      }
+      if (newActiveTab) newActiveTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
 
-      if (source === 'swipe') {
-        playSound('swipe');
-      } else {
-        playSound('tab');
-      }
+      if (source === 'swipe') playSound('swipe');
     }
 
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => setActiveTab(tab.dataset.target, 'click'));
-    });
+    tabs.forEach(tab => tab.addEventListener("click", () => setActiveTab(tab.dataset.target, 'click')));
 
     let startX = null;
-    contentEl.addEventListener("touchstart", e => {
-      startX = e.touches[0].clientX;
-    });
-
+    contentEl.addEventListener("touchstart", e => { startX = e.touches[0].clientX; });
     contentEl.addEventListener("touchend", e => {
       if (startX === null) return;
-      const endX = e.changedTouches[0].clientX;
-      const delta = endX - startX;
-      const threshold = 50;
-      if (Math.abs(delta) > threshold) {
-        const active = document.querySelector(".section.active");
-        const currentId = active.id;
-        const idx = tabOrder.indexOf(currentId);
-        let nextIdx = idx;
-        if (delta < 0 && idx < tabOrder.length - 1) nextIdx = idx + 1;
-        if (delta > 0 && idx > 0) nextIdx = idx - 1;
-        if (nextIdx !== idx) setActiveTab(tabOrder[nextIdx], 'swipe');
+      const delta = e.changedTouches[0].clientX - startX;
+      if (Math.abs(delta) > 60) {
+        const idx = tabOrder.indexOf(document.querySelector(".section.active").id);
+        let nIdx = idx;
+        if (delta < 0 && idx < tabOrder.length - 1) nIdx = idx + 1;
+        if (delta > 0 && idx > 0) nIdx = idx - 1;
+        if (nIdx !== idx) setActiveTab(tabOrder[nIdx], 'swipe');
       }
       startX = null;
     });
 
     function setCheckVisual(box, symbol, color) {
-      if (!symbol) {
-        box.innerHTML = "<span></span>";
-        box.classList.remove("active");
-        return;
-      }
+      if (!symbol) { box.innerHTML = "<span></span>"; box.classList.remove("active"); return; }
       box.classList.add("active");
-      if (color) {
-        box.innerHTML = `<span style="color:${color};font-weight:900;">${symbol}</span>`;
-      } else {
-        box.innerHTML = `<span>${symbol}</span>`;
-      }
+      box.innerHTML = `<span style="color:${color || ''}; font-weight:900;">${symbol}</span>`;
     }
 
     const reasonDialogEl = document.getElementById("reasonDialog");
     const reasonInput = document.getElementById("reasonInput");
-    const reasonSubmit = document.getElementById("reasonSubmit");
-    const reasonCancel = document.getElementById("reasonCancel");
-    let reasonDialogCallback = null;
+    let reasonCallback = null;
 
     function showReasonDialog(callback) {
-      reasonDialogCallback = callback;
+      reasonCallback = callback;
       reasonDialogEl.style.display = "flex";
       reasonInput.value = "";
       reasonInput.focus();
     }
 
-    function hideReasonDialog(reason) {
+    document.getElementById("reasonSubmit").addEventListener("click", () => {
       reasonDialogEl.style.display = "none";
-      if (reasonDialogCallback) {
-        reasonDialogCallback(reason);
-        reasonDialogCallback = null;
-      }
-    }
-
-    reasonSubmit.addEventListener("click", () => {
-      hideReasonDialog(reasonInput.value.trim() || "No reason provided");
+      if (reasonCallback) { reasonCallback(reasonInput.value.trim() || "No reason logged"); reasonCallback = null; }
+    });
+    document.getElementById("reasonCancel").addEventListener("click", () => {
+      reasonDialogEl.style.display = "none";
+      if (reasonCallback) { reasonCallback("No reason logged"); reasonCallback = null; }
     });
 
-    reasonCancel.addEventListener("click", () => {
-      hideReasonDialog("No reason provided");
-    });
-
-    reasonDialogEl.addEventListener("click", event => {
-      if (event.target === reasonDialogEl) {
-        hideReasonDialog("No reason provided");
-      }
-    });
-
-    reasonInput.addEventListener("keydown", event => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        hideReasonDialog(reasonInput.value.trim() || "No reason provided");
-      }
-    });
-
-    function getSecondarySubBoxes(group) {
-      return Array.from(document.querySelectorAll(`.secondary-sub-box[data-secondary-group="${group}"]`));
-    }
-
-    function getSecondarySubRow(group) {
-      return document.querySelector(`.secondary-sub-row[data-secondary-group="${group}"]`);
-    }
-
-    function attachSecondarySubClick(box) {
-      box.addEventListener("click", () => {
-        playSound('action');
-        const current = box.dataset.state;
-        const group = box.dataset.secondaryGroup;
-        if (current === "blank") {
-          showReasonDialog(reason => {
-            box.dataset.state = "fail";
-            box.dataset.reason = reason || "No reason provided";
-            setCheckVisual(box, "✕", "#c8102e");
-            ensureBlankSecondaryBox(group);
-            recalcScore();
-          });
-          return;
-        } else {
-          box.dataset.state = "blank";
-          delete box.dataset.reason;
-          setCheckVisual(box, null);
-        }
-        recalcScore();
-      });
-    }
+    function getSecondarySubBoxes(group) { return Array.from(document.querySelectorAll(`.secondary-sub-box[data-secondary-group="${group}"]`)); }
+    function getSecondarySubRow(group) { return document.querySelector(`.secondary-sub-row[data-secondary-group="${group}"]`); }
 
     function createSecondarySubBox(group) {
       const row = getSecondarySubRow(group);
-      if (!row) return null;
       const box = document.createElement("div");
       box.className = "check-box secondary-sub-box";
       box.dataset.secondaryGroup = group;
       box.dataset.state = "blank";
-      setCheckVisual(box, null);
-      attachSecondarySubClick(box);
+      box.addEventListener("click", () => {
+        playSound('action');
+        if (box.dataset.state === "blank") {
+          showReasonDialog(r => {
+            box.dataset.state = "fail"; box.dataset.reason = r; setCheckVisual(box, "✕", "#c8102e");
+            if (!getSecondarySubBoxes(group).some(s => s.dataset.state === "blank") && getSecondarySubBoxes(group).length < 10) createSecondarySubBox(group);
+            recalcScore();
+          });
+        } else {
+          box.remove();
+          recalcScore();
+        }
+      });
       row.appendChild(box);
       return box;
     }
 
-    function ensureBlankSecondaryBox(group) {
-      const subs = getSecondarySubBoxes(group);
-      if (subs.length >= 10) return;
-      if (!subs.some(sub => sub.dataset.state === "blank")) {
-        createSecondarySubBox(group);
-      }
-    }
-
-    function recordSecondaryFail(group, reason) {
-      let target = getSecondarySubBoxes(group).find(sub => sub.dataset.state === "blank");
-      if (!target) {
-        if (getSecondarySubBoxes(group).length >= 10) return;
-        target = createSecondarySubBox(group);
-      }
-      if (!target) return;
-      target.dataset.state = "fail";
-      target.dataset.reason = reason || "No reason provided";
-      setCheckVisual(target, "✕", "#c8102e");
-      ensureBlankSecondaryBox(group);
-    }
-
-    function resetSecondarySubBoxes(group) {
-      const row = getSecondarySubRow(group);
-      if (!row) return;
-      getSecondarySubBoxes(group).forEach(sub => sub.remove());
-      row.style.display = "none";
-    }
-
-    function handleSecondaryMainClick(box) {
-      playSound('action');
-      const current = box.dataset.state;
-      const group = box.dataset.secondaryGroup;
-      if (current === "blank") {
-        box.dataset.state = "pass";
-        setCheckVisual(box, "✓");
-      } else if (current === "pass") {
-        box.dataset.state = "pending";
-        showReasonDialog(reason => {
-          box.dataset.reason = reason || "No reason provided";
-          recordSecondaryFail(group, reason);
-          recalcScore();
-        });
-        return;
-      } else {
-        box.dataset.state = "blank";
-        delete box.dataset.reason;
-        resetSecondarySubBoxes(group);
-        setCheckVisual(box, null);
-      }
-      recalcScore();
-    }
-
     function recalcScore() {
-      let total = 0;
-      let max = 0;
-      let criticalFail = false;
+      let total = 0, max = 0, criticalFail = false;
 
-      document.querySelectorAll(".btn-group[data-critical]").forEach(group => {
-        const no = group.querySelector(".btn-no");
-        if (no.classList.contains("active")) criticalFail = true;
+      document.querySelectorAll(".btn-group[data-critical]").forEach(g => {
+        if (g.querySelector(".btn-no").classList.contains("active")) criticalFail = true;
       });
 
-      document.querySelectorAll(".check-box:not(.secondary-sub-box)").forEach(box => {
-        const value = parseInt(box.dataset.score || "0", 10);
-        max += value;
-      });
+      document.querySelectorAll(".check-box:not(.secondary-sub-box)").forEach(b => { max += parseInt(b.dataset.score || "0", 10); });
 
       document.querySelectorAll(".secondary-main").forEach(main => {
         const group = main.dataset.secondaryGroup;
-        const subs = getSecondarySubBoxes(group);
-        const failCount = subs.filter(sub => sub.dataset.state === "fail").length;
-        const row = getSecondarySubRow(group);
-
-        if (failCount >= 3) {
-          main.dataset.state = "fail";
-          setCheckVisual(main, "✕", "#c8102e");
-        } else if (main.dataset.state === "blank") {
-          main.dataset.state = "blank";
-          setCheckVisual(main, null);
-        } else {
-          main.dataset.state = "pass";
-          setCheckVisual(main, "✓");
-        }
-
-        if (row) {
-          row.style.display = failCount > 0 ? "flex" : "none";
-        }
+        const fails = getSecondarySubBoxes(group).filter(s => s.dataset.state === "fail").length;
+        if (fails >= 3) { main.dataset.state = "fail"; setCheckVisual(main, "✕", "#c8102e"); }
+        else if (main.dataset.state !== "blank" && main.dataset.state !== "pass") { main.dataset.state = "pass"; setCheckVisual(main, "✓"); }
+        getSecondarySubRow(group).style.display = fails > 0 ? "flex" : "none";
       });
 
-      document.querySelectorAll(".check-box:not(.secondary-sub-box)").forEach(box => {
-        const value = parseInt(box.dataset.score || "0", 10);
-        if (box.dataset.state === "pass") {
-          total += value;
-        }
+      document.querySelectorAll(".check-box:not(.secondary-sub-box)").forEach(b => {
+        if (b.dataset.state === "pass") total += parseInt(b.dataset.score || "0", 10);
       });
 
-      if (max === 0) max = 1;
       if (criticalFail) total = 0;
-      
-      const pct = (total / max) * 100;
+      const pct = (total / (max || 1)) * 100;
+      auditMetadata.scoreStr = `${total} / ${max} — ${pct.toFixed(1)}% ${criticalFail ? '[CRITICAL FAILED]' : ''}`;
       scoreText.textContent = `${total} / ${max} — ${pct.toFixed(1)}%`;
 
-      if (criticalFail) {
-        passText.textContent = "CRITICAL FAIL";
-        passText.style.background = "rgba(200,16,46,0.2)";
-        passText.style.borderColor = "rgba(200,16,46,0.7)";
-      } else if (pct >= 90) {
-        passText.textContent = "PASS";
-        passText.style.background = "rgba(0,0,0,0.12)";
-        passText.style.borderColor = "rgba(143,12,33,0.4)";
-      } else {
-        passText.textContent = "PENDING";
-        passText.style.background = "transparent";
-        passText.style.borderColor = "transparent";
-      }
-      updateFinishButton();
+      if (criticalFail) { passText.textContent = "CRITICAL FAIL"; passText.style.color = "#ffb3c0"; }
+      else if (pct >= 90) { passText.textContent = "PASS"; passText.style.color = "#000"; }
+      else { passText.textContent = "PENDING"; passText.style.color = "#000"; }
+
+      const allAns = Array.from(document.querySelectorAll(".btn-group[data-critical]")).every(g => g.querySelector(".btn-yes").classList.contains("active") || g.querySelector(".btn-no").classList.contains("active")) &&
+                     Array.from(document.querySelectorAll(".check-box:not(.secondary-sub-box)")).every(b => b.dataset.state && b.dataset.state !== "blank");
+      document.getElementById("finishBtn").classList.toggle("show", allAns);
     }
 
     document.querySelectorAll('.check-box:not(.secondary-sub-box)').forEach(box => {
       const wrapper = document.createElement('div');
       wrapper.className = 'check-with-score';
-      box.parentNode.insertBefore(wrapper, box);
-      wrapper.appendChild(box);
-
-      const badge = document.createElement('span');
-      badge.className = 'score-badge';
-      badge.textContent = `(+${box.dataset.score})`;
-      wrapper.appendChild(badge);
+      box.parentNode.insertBefore(wrapper, box); wrapper.appendChild(box);
+      const b = document.createElement('span'); b.className = 'score-badge'; b.textContent = `(+${box.dataset.score})`; wrapper.appendChild(b);
     });
 
-    document.querySelectorAll(".btn-group[data-critical]").forEach(group => {
-      const yes = group.querySelector(".btn-yes");
-      const no = group.querySelector(".btn-no");
-
-      yes.addEventListener("click", () => {
-        playSound('action');
-        yes.classList.add("active");
-        no.classList.remove("active");
-        delete group.dataset.reason;
-        recalcScore();
-      });
-
-      no.addEventListener("click", () => {
-        playSound('action');
-        no.classList.add("active");
-        yes.classList.remove("active");
-        showReasonDialog(reason => {
-          group.dataset.reason = reason || "No reason provided";
-          recalcScore();
-        });
-      });
+    document.querySelectorAll(".btn-group[data-critical]").forEach(g => {
+      const y = g.querySelector(".btn-yes"), n = g.querySelector(".btn-no");
+      y.addEventListener("click", () => { playSound('action'); g.dataset.state="pass"; y.classList.add("active"); n.classList.remove("active"); delete g.dataset.reason; recalcScore(); });
+      n.addEventListener("click", () => { playSound('action'); g.dataset.state="fail"; n.classList.add("active"); y.classList.remove("active"); showReasonDialog(r => { g.dataset.reason = r; recalcScore(); }); });
     });
 
     document.querySelectorAll(".check-box").forEach(box => {
       box.dataset.state = "blank";
-      const isSecondaryMain = box.classList.contains("secondary-main");
-
-      if (isSecondaryMain) {
-        box.addEventListener("click", () => handleSecondaryMainClick(box));
+      if (box.classList.contains("secondary-main")) {
+        box.addEventListener("click", () => {
+          playSound('action');
+          if (box.dataset.state === "blank") { box.dataset.state = "pass"; setCheckVisual(box, "✓"); }
+          else if (box.dataset.state === "pass") { box.dataset.state = "pending"; showReasonDialog(r => { createSecondarySubBox(box.dataset.secondaryGroup).dataset.reason = r; recordSubFail(box.dataset.secondaryGroup, r); }); }
+          else { box.dataset.state = "blank"; delete box.dataset.reason; getSecondarySubBoxes(box.dataset.secondaryGroup).forEach(s => s.remove()); setCheckVisual(box, null); }
+          recalcScore();
+        });
       } else if (!box.classList.contains("secondary-sub-box")) {
         box.addEventListener("click", () => {
           playSound('action');
-          const current = box.dataset.state;
-          if (current === "blank") {
-            box.dataset.state = "pass";
-            setCheckVisual(box, "✓");
-          } else if (current === "pass") {
-            box.dataset.state = "fail";
-            showReasonDialog(reason => {
-              box.dataset.reason = reason || "No reason provided";
-              setCheckVisual(box, "✕", "#c8102e");
-              recalcScore();
-            });
-            return;
-          } else {
-            box.dataset.state = "blank";
-            setCheckVisual(box, null);
-            delete box.dataset.reason;
-          }
+          if (box.dataset.state === "blank") { box.dataset.state = "pass"; setCheckVisual(box, "✓"); }
+          else if (box.dataset.state === "pass") { showReasonDialog(r => { box.dataset.state = "fail"; box.dataset.reason = r; setCheckVisual(box, "✕", "#c8102e"); recalcScore(); }); }
+          else { box.dataset.state = "blank"; setCheckVisual(box, null); delete box.dataset.reason; }
           recalcScore();
         });
       }
     });
 
-    function getQuestionLabelForElement(el) {
-      const row = el.closest(".item-row");
-      if (row) {
-        const label = row.querySelector(".item-label");
-        return label ? label.textContent.trim() : "";
-      }
-      return "Unknown question";
+    function recordSubFail(g, r) {
+      let b = getSecondarySubBoxes(g).find(s => s.dataset.state === "blank");
+      if (!b) b = createSecondarySubBox(g);
+      b.dataset.state = "fail"; b.dataset.reason = r; setCheckVisual(b, "✕", "#c8102e");
+      if (getSecondarySubBoxes(g).length < 10) createSecondarySubBox(g);
+      recalcScore();
     }
 
-    function buildFailedExportItems() {
-      const items = [];
-      document.querySelectorAll(".btn-group[data-critical]").forEach(group => {
-        const no = group.querySelector(".btn-no");
-        if (no && no.classList.contains("active") && group.dataset.reason) {
-          items.push({ title: getQuestionLabelForElement(group), reason: group.dataset.reason });
+    function buildFailList() {
+      const list = [];
+      document.querySelectorAll("[data-critical]").forEach(g => {
+        if (g.dataset.state === "fail") list.push({ q: g.closest(".item-row").querySelector(".item-label").textContent, r: g.dataset.reason || "N/A" });
+      });
+      document.querySelectorAll(".check-box").forEach(b => {
+        if (b.dataset.state === "fail" && b.dataset.reason) {
+          let label = b.closest(".item-row").querySelector(".item-label").textContent;
+          if (b.classList.contains("secondary-sub-box")) label += " (Sub-Timer Issue)";
+          list.push({ q: label, r: b.dataset.reason });
         }
       });
-
-      document.querySelectorAll(".check-box").forEach(box => {
-        if (box.dataset.state === "fail" && box.dataset.reason) {
-          const label = getQuestionLabelForElement(box);
-          if (box.classList.contains("secondary-sub-box")) {
-            const group = box.dataset.secondaryGroup;
-            const mainLabel = getQuestionLabelForElement(getSecondarySubRow(group));
-            items.push({ title: `${mainLabel} — Sub-Timer Failure`, reason: box.dataset.reason });
-          } else {
-            items.push({ title: label, reason: box.dataset.reason });
-          }
-        }
-      });
-      return items;
+      return list;
     }
 
-    function exportToPNG() {
-      const failedItems = buildFailedExportItems();
-      const exportWrapper = document.createElement("div");
+    // --- Interactive Dialogue State Control ---
+    const finishBtn = document.getElementById("finishBtn");
+    const metaDialog = document.getElementById("metaDialog");
+    const completeDialog = document.getElementById("completeDialog");
+    const logViewer = document.getElementById("logViewer");
+
+    finishBtn.addEventListener("click", () => {
+      metaDialog.style.display = "flex";
+      document.getElementById("metaStore").value = "";
+      document.getElementById("metaAuditor").value = "";
+    });
+
+    document.getElementById("metaCancel").addEventListener("click", () => metaDialog.style.display = "none");
+    
+    document.getElementById("metaSubmit").addEventListener("click", () => {
+      auditMetadata.store = document.getElementById("metaStore").value.trim() || "Default Store";
+      auditMetadata.auditor = document.getElementById("metaAuditor").value.trim() || "Anonymous Auditor";
+      auditMetadata.timestamp = new Date().toLocaleString();
       
-      Object.assign(exportWrapper.style, {
-        width: "600px",
-        padding: "24px",
-        background: "#0b0205",
-        color: "#fff",
-        fontFamily: "system-ui, sans-serif",
-        lineHeight: "1.5",
-        borderRadius: "16px"
-      });
+      metaDialog.style.display = "none";
+      completeDialog.style.display = "flex";
+      logViewer.style.display = "none";
+      document.getElementById("viewLogBtn").textContent = "View Reason Log";
+    });
 
-      exportWrapper.innerHTML = `<div style="font-size:22px;font-weight:800;color:#ffd700;margin-bottom:16px;border-bottom:2px solid #c8102e;padding-bottom:8px;">FSV Deficiencies Log</div>`;
-
-      if (failedItems.length === 0) {
-        exportWrapper.innerHTML += `<div style="color:#ccc;font-size:14px;">100% Compliance. No compliance issues flagged.</div>`;
+    document.getElementById("viewLogBtn").addEventListener("click", () => {
+      if (logViewer.style.display === "block") {
+        logViewer.style.display = "none";
+        document.getElementById("viewLogBtn").textContent = "View Reason Log";
       } else {
-        failedItems.forEach(item => {
-          exportWrapper.innerHTML += `
-            <div style="margin-bottom:14px;padding:12px;background:rgba(255,255,255,0.04);border-left:4px solid #c8102e;border-radius:4px;">
-              <div style="font-size:14px;font-weight:700;color:#fff6a0;margin-bottom:4px;">${item.title}</div>
-              <div style="font-size:13px;color:#e0e0e0;"><span style="color:#ffb3c0;font-weight:600;">Reason:</span> ${item.reason}</div>
+        logViewer.innerHTML = `
+          <div class="log-header-block">
+            <strong>Store:</strong> ${auditMetadata.store}<br>
+            <strong>Auditor:</strong> ${auditMetadata.auditor}<br>
+            <strong>Date/Time:</strong> ${auditMetadata.timestamp}<br>
+            <strong>Performance Metric:</strong> ${auditMetadata.scoreStr}
+          </div>
+        `;
+        const fails = buildFailList();
+        if (fails.length === 0) {
+          logViewer.innerHTML += `<div style="font-size:12px;color:#85ff85;">✓ 100% Core Standards Compliance.</div>`;
+        } else {
+          fails.forEach(f => {
+            logViewer.innerHTML += `
+              <div class="log-item">
+                <span style="color:#ffb3c0; font-weight:600;">Deficiency:</span> ${f.q}<br>
+                <span style="color:var(--mc-yellow-soft);">Reason:</span> ${f.r}
+              </div>`;
+          });
+        }
+        logViewer.style.display = "block";
+        document.getElementById("viewLogBtn").textContent = "Hide Reason Log";
+      }
+    });
+
+    document.getElementById("closeDialog").addEventListener("click", () => completeDialog.style.display = "none");
+    document.getElementById("newAudit").addEventListener("click", () => location.reload());
+
+    document.getElementById("exportPNG").addEventListener("click", () => {
+      const box = document.createElement("div");
+      Object.assign(box.style, { width: "620px", padding: "26px", background: "#0b0205", color: "#fff", fontFamily: "system-ui, sans-serif", borderRadius: "16px" });
+      
+      box.innerHTML = `
+        <div style="font-size:22px; font-weight:800; color:#ffd700; margin-bottom:4px; text-transform:uppercase;">Food Safety Visit Log</div>
+        <div style="font-size:13px; color:#c7c7c7; margin-bottom:16px; border-bottom:2px solid #c8102e; padding-bottom:10px; line-height:1.6;">
+          <strong>Store Profile:</strong> ${auditMetadata.store}<br>
+          <strong>Inspected By:</strong> ${auditMetadata.auditor}<br>
+          <strong>Timestamp:</strong> ${auditMetadata.timestamp}<br>
+          <strong>Performance Summary Score:</strong> <span style="color:#ffd700; font-weight:700;">${auditMetadata.scoreStr}</span>
+        </div>
+      `;
+
+      const fails = buildFailList();
+      if (fails.length === 0) {
+        box.innerHTML += `<div style="color:#85ff85; font-size:14px; font-weight:600;">✓ All standards logged successfully compliant. No actions required.</div>`;
+      } else {
+        fails.forEach(f => {
+          box.innerHTML += `
+            <div style="margin-bottom:12px; padding:12px; background:rgba(255,255,255,0.03); border-left:4px solid #c8102e; border-radius:4px;">
+              <div style="font-size:13px; font-weight:700; color:#fff6a0; margin-bottom:4px;">${f.q}</div>
+              <div style="font-size:12px; color:#e0e0e0;"><span style="color:#ffb3c0; font-weight:600;">Reason for Action:</span> ${f.r}</div>
             </div>`;
         });
       }
 
-      document.body.appendChild(exportWrapper);
-      
-      html2canvas(exportWrapper, { scale: 2, backgroundColor: "#0b0205" }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "food_safety_audit_fails.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-        exportWrapper.remove();
+      document.body.appendChild(box);
+      html2canvas(box, { scale: 2, backgroundColor: "#0b0205" }).then(canvas => {
+        const a = document.createElement("a"); a.download = `FSV_Report_${auditMetadata.store.replace(/\s+/g, '_')}.png`; a.href = canvas.toDataURL(); a.click();
+        box.remove();
       });
-    }
-
-    function allQuestionsAnswered() {
-      const criticalAnswered = Array.from(document.querySelectorAll(".btn-group[data-critical]")).every(group => {
-        return group.querySelector(".btn-yes").classList.contains("active") || group.querySelector(".btn-no").classList.contains("active");
-      });
-
-      const checksAnswered = Array.from(document.querySelectorAll(".check-box:not(.secondary-sub-box)")).every(box => {
-        return box.dataset.state && box.dataset.state !== "blank";
-      });
-
-      return criticalAnswered && checksAnswered;
-    }
-
-    function updateFinishButton() {
-      if (allQuestionsAnswered()) {
-        finishBtn.classList.add("show");
-      } else {
-        finishBtn.classList.remove("show");
-      }
-    }
-
-    const finishBtn = document.getElementById("finishBtn");
-    finishBtn.addEventListener("click", () => document.getElementById("completeDialog").style.display = "flex");
-    document.getElementById("closeDialog").addEventListener("click", () => document.getElementById("completeDialog").style.display = "none");
-    document.getElementById("exportPNG").addEventListener("click", exportToPNG);
-    document.getElementById("newAudit").addEventListener("click", () => location.reload());
+    });
 
     recalcScore();
   </script>
