@@ -87,7 +87,7 @@
       gap: 16px;
     }
 
-    /* Standalone Gold Action Button styling brought back */
+    /* Standalone Gold Action Button styling */
     .splash-action-button {
       background: linear-gradient(180deg, #ffd700, #ffb700);
       color: #5a3b00;
@@ -644,10 +644,10 @@
           <div class="card-header"><div class="card-title">Service Area</div><div class="swipe-hint">SWIPE TABS</div></div>
           <div class="item-row"><div class="item-label">All cloths at stations (changed hourly, clean)</div><div class="check-box" data-score="5"><span></span></div></div>
           <div class="item-row"><div class="item-label">Cloth Buckets meet strip test and water clean</div><div class="check-box" data-score="5"><span></span></div></div>
-          <div class="item-row"><div class="item-label">Whipped cream has lid and timer (BIC & Café fridges)</div><div class="check-box" data-score="5"><span></span></div></div>
+          <div class="item-row"><div class="item-label">Whipped cream has lid and timer (BIC & McCafe fridges)</div><div class="check-box" data-score="5"><span></span></div></div>
           <div class="item-row secondary-container">
             <div class="item-column">
-              <div class="item-label">Check secondary timers - BIC, Mcafe cabinet items</div>
+              <div class="item-label">Check secondary timers - BIC, McCafe cabinet items</div>
               <div class="secondary-sub-row" data-secondary-group="service"></div>
             </div>
             <div class="check-box secondary-main" data-score="5" data-secondary-group="service"><span></span></div>
@@ -722,7 +722,7 @@
   </div>
 
   <script>
-    /* --- INTERACTIVE SPLASH ENGINE & SOUND UNFREEZER --- */
+    /* --- INTERACTIVE SPLASH ENGINE & HARDCORE SOUND UNFREEZER --- */
     let audioCtx = null;
     let applicationHasStarted = false;
 
@@ -739,33 +739,33 @@
     const progressBarInner = document.getElementById('progressBarInner');
     const shell = document.getElementById('appShell');
 
-    function executeStartupSequence(e) {
-      if (applicationHasStarted) return;
-      applicationHasStarted = true;
-
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      // Initialize context
+    // INSTANT UNFREEZER BLOCK: Must execute completely synchronously ahead of code sequence
+    function forceUnfreezeAudioHardware() {
       initAudio();
-      
-      // CRITICAL FIX: Explicitly play a silent note immediately on click to permanently lift iOS restrictions 
       if (audioCtx) {
         if (audioCtx.state === 'suspended') {
           audioCtx.resume();
         }
+        // Force-feed a hardware note on primary pipeline
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
         osc.start(0);
         osc.stop(0.01);
       }
+    }
 
-      // Now run the startup track safely without iOS security blocking it
+    function executeStartupSequence(e) {
+      if (applicationHasStarted) return;
+      
+      // 1. Instantly unfreeze the phone hardware pipeline synchronously before handling events
+      forceUnfreezeAudioHardware();
+
+      applicationHasStarted = true;
+
+      // 2. Safely process system configurations and audio track
       playRetroStartupJingle();
 
       // UI update transition sequence
@@ -783,9 +783,15 @@
       }, 1700);
     }
 
-    // Direct click/touch bindings to the UI action element
-    splashActionButton.addEventListener('click', executeStartupSequence);
-    splashActionButton.addEventListener('touchstart', executeStartupSequence, { passive: false });
+    // Bind early hardware unlocking trigger directly to touch start phase
+    splashActionButton.addEventListener('touchstart', (e) => {
+      // Do not use preventDefault here to protect native clean sound gesture pipeline rules
+      executeStartupSequence(e);
+    }, { passive: true });
+
+    splashActionButton.addEventListener('click', (e) => {
+      executeStartupSequence(e);
+    });
 
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
     let lastTouchTime = 0;
