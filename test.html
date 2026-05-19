@@ -3,19 +3,35 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 .screen{display:none;padding:1rem}.active{display:block}
 .nav-buttons{position:fixed;top:10px;left:10px;z-index:9999;display:flex;gap:.5rem}
 .nav-btn{background:#444;color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;font-size:.9rem;cursor:pointer}
-#pos,#payment{background:#111;min-height:100vh}
+
+/* McCafé POS */
+#pos,#payment{background:#3b2f2f;min-height:100vh;color:#f3e9d2}
+#pos h1,#payment h1{margin-top:0;color:#d4a857;text-align:center;text-shadow:0 0 6px #000}
 .pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:1rem}
-.pos-btn{background:#333;border:1px solid #555;padding:1rem;border-radius:8px;text-align:center;font-size:1rem;cursor:pointer}
-#orderList{margin-top:1rem;font-size:1rem;border:1px solid #333;padding:.5rem;min-height:2rem}
-#storeBtn,#clearPosBtn,#voidItemBtn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
-#storeBtn{background:#1fb64b}#clearPosBtn{background:#444;color:#fff;margin-left:.5rem}#voidItemBtn{background:#b61f1f;margin-left:.5rem}
+.pos-btn{background:#5a4634;border:1px solid #d4a857;padding:1rem;border-radius:10px;text-align:center;font-size:1rem;cursor:pointer;color:#f3e9d2;box-shadow:0 2px 4px rgba(0,0,0,.6);transition:transform .1s ease,box-shadow .1s ease}
+.pos-btn:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.8)}
+#orderList{margin-top:1rem;font-size:1rem;border:1px solid #d4a857;padding:.5rem;min-height:2rem;background:#f3e9d2;color:#3b2f2f;border-radius:8px}
+.order-line{border-bottom:1px dashed #d4a857}
+.order-line:last-child{border-bottom:none}
+#storeBtn,#clearPosBtn,#voidItemBtn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
+#storeBtn{background:#1fb64b;color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.6)}
+#clearPosBtn{background:#5a4634;color:#f3e9d2;margin-left:.5rem;border:1px solid #d4a857}
+#voidItemBtn{background:#b61f1f;color:#fff;margin-left:.5rem}
 .mod-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
-.mod-btn{background:#222;border:1px solid #555;padding:.4rem .7rem;border-radius:6px;font-size:.85rem;cursor:pointer}
-.cash-grid button,.pay-btn,.cancel-btn{background:#333;color:#fff;border:1px solid #555;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer}
+.mod-btn{background:#2a1f1f;border:1px solid #d4a857;padding:.4rem .7rem;border-radius:6px;font-size:.85rem;cursor:pointer;color:#f3e9d2}
+
+/* Payment */
+#payItems,#payTotalExact,#payTotalRounded{color:#f3e9d2}
+#payTotalRounded{color:#ffd447}
+#cashEntered{font-size:2rem;margin:.5rem 0;color:#f3e9d2}
+.cash-grid button,.pay-btn,.cancel-btn{background:#5a4634;color:#f3e9d2;border:1px solid #d4a857;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer}
 .cash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem}
 .preset-row{display:flex;justify-content:space-between;margin-top:.75rem;gap:.5rem}
-.preset-btn{flex:1;background:#555;border:1px solid #777;padding:.6rem;border-radius:6px;font-size:1rem;cursor:pointer;text-align:center}
-.pay-btn{background:#1fb64b;width:100%;margin-top:1rem}.cancel-btn{background:#b61f1f;width:100%;margin-top:.5rem}
+.preset-btn{flex:1;background:#2a1f1f;border:1px solid #d4a857;padding:.6rem;border-radius:6px;font-size:1rem;cursor:pointer;text-align:center;color:#f3e9d2}
+.pay-btn{background:#1fb64b;width:100%;margin-top:1rem}
+.cancel-btn{background:#b61f1f;width:100%;margin-top:.5rem}
+
+/* KVS */
 .kvs{background:#000;min-height:100vh}
 .kvs-list{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem}
 .tile{background:#000;border:2px solid #333;border-radius:8px;width:calc(25% - .75rem);min-width:160px;aspect-ratio:1/1;padding:.5rem;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;transition:transform .25s ease,opacity .25s ease}
@@ -24,20 +40,19 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 .timer{font-family:monospace;font-size:1rem;color:#ffd447}
 .serve-btn{background:#1fb64b;color:#fff;border:none;padding:.4rem;border-radius:6px;cursor:pointer}
 
+/* Cash Drawer */
 #cashDrawer{position:fixed;bottom:-260px;left:0;right:0;height:260px;background:#222;border-top:4px solid #555;transition:bottom .3s ease;z-index:9998;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:2rem;color:#fff;padding:1rem}
 #drawerChange{font-size:2rem;margin-bottom:1rem}
 #closeDrawerBtn{background:#1fb64b;padding:.7rem 1.2rem;border:none;border-radius:8px;font-size:1.2rem;cursor:pointer}
 
 /* McCafé Dashboard Modal */
-#dashboardModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;justify-content:center;align-items:center;z-index:99999}
-#dashboardContent{width:90%;height:85%;background:#3b2f2f;border:3px solid #d4a857;border-radius:12px;padding:1rem;display:flex;flex-direction:column;color:#f3e9d2;position:relative}
+#dashboardModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;justify-content:center;align-items:center;z-index:99999;pointer-events:none}
+#dashboardContent{width:90%;height:85%;background:#3b2f2f;border:3px solid #d4a857;border-radius:12px;padding:1rem;display:flex;flex-direction:column;color:#f3e9d2;position:relative;pointer-events:auto}
 #dashboardTabs{display:flex;gap:.5rem;margin-bottom:1rem}
 .db-tab{flex:1;background:#5a4634;color:#f3e9d2;border:none;padding:.7rem;border-radius:6px;font-size:1rem;cursor:pointer;text-align:center}
 .db-tab.active{background:#d4a857;color:#3b2f2f;font-weight:700}
 .db-panel{display:none;flex:1;overflow-y:auto}
 .db-panel.active{display:block}
-
-/* Sales Summary Cards */
 .db-card{background:#5a4634;padding:1rem;border-radius:8px;margin-bottom:.75rem;border:1px solid #d4a857}
 
 /* Product Mix Bars */
@@ -46,17 +61,15 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 .mix-bar-bg{width:100%;height:18px;background:#2a1f1f;border-radius:10px;overflow:hidden}
 .mix-bar-fill{height:100%;background:#d4a857;width:0%;transition:width .6s ease}
 
-/* Dashboard Close Button */
+/* Dashboard Buttons */
 #closeDashboard{position:absolute;top:10px;right:10px;background:#d4a857;color:#3b2f2f;border:none;padding:.5rem 1rem;border-radius:6px;font-weight:700;cursor:pointer}
-
-/* Clear All Data Button */
 #clearDataBtn{position:absolute;bottom:10px;left:10px;background:#b61f1f;color:#fff;border:none;padding:.6rem 1rem;border-radius:6px;font-weight:700;cursor:pointer}
 
 /* Floating Dashboard FAB */
 #dashboardFab{position:fixed;bottom:20px;right:20px;background:#d4a857;color:#3b2f2f;border:none;padding:1rem 1.2rem;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;z-index:9999;box-shadow:0 0 10px #000}
 
 /* Reset Confirmation Modal */
-#resetConfirm{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:100000}
+#resetConfirm{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:9999999}
 #resetBox{background:#f3e9d2;color:#3b2f2f;padding:1.5rem;border-radius:10px;width:80%;max-width:350px;text-align:center;border:3px solid #d4a857}
 .reset-btn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
 #resetYes{background:#b61f1f;color:#fff}
@@ -71,7 +84,7 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 
 <button id="dashboardFab">Dashboard</button>
 
-<div id="pos" class="screen active"><h1>POS Register</h1>
+<div id="pos" class="screen active"><h1>POS Display</h1>
 <div class="pos-grid">
 <div class="pos-btn" data-item="Latte">Latte</div>
 <div class="pos-btn" data-item="Cappuccino">Cappuccino</div>
@@ -92,15 +105,13 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 <button id="storeBtn">Store Order</button>
 <button id="clearPosBtn">Clear</button>
 <button id="voidItemBtn">Void Item</button>
-<h2>Sales Totals</h2>
-<div id="salesTotals"></div>
 </div>
 
-<div id="payment" class="screen"><h1>Payment</h1>
+<div id="payment" class="screen"><h1>POS Display</h1>
 <div id="payItems"></div>
 <div id="payTotalExact" style="margin-top:1rem;font-size:1.3rem"></div>
-<div id="payTotalRounded" style="margin-top:.3rem;font-size:1.3rem;color:#ffd447"></div>
-<div id="cashEntered" style="font-size:2rem;margin:.5rem 0">0.00</div>
+<div id="payTotalRounded" style="margin-top:.3rem;font-size:1.3rem"></div>
+<div id="cashEntered" style="margin:.5rem 0">0.00</div>
 <div class="cash-grid">
 <button class="cash-key" data-key="1">1</button><button class="cash-key" data-key="2">2</button><button class="cash-key" data-key="3">3</button>
 <button class="cash-key" data-key="4">4</button><button class="cash-key" data-key="5">5</button><button class="cash-key" data-key="6">6</button>
@@ -120,7 +131,6 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 
 <div id="cashDrawer"><div id="drawerChange">Change: $0.00</div><button id="closeDrawerBtn">Close Drawer</button></div>
 
-<!-- Dashboard Modal -->
 <div id="dashboardModal">
 <div id="dashboardContent">
 <div id="dashboardTabs">
@@ -150,7 +160,6 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 </div>
 </div>
 
-<!-- Reset Confirmation Modal -->
 <div id="resetConfirm">
 <div id="resetBox">
 <h3>Clear ALL data?</h3>
@@ -161,28 +170,15 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 </div>
 
 <script>
-const BACKEND_URL="https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec";
+const BACKEND_URL="YOUR_DEPLOYED_WEB_APP_URL_HERE";
 
 const audioCtx=new(window.AudioContext||window.webkitAudioContext);
-const tone=(f,t,d,type="sine")=>{
- let o=audioCtx.createOscillator(),g=audioCtx.createGain();
- o.frequency.value=f;o.type=type;
- o.connect(g);g.connect(audioCtx.destination);
- g.gain.setValueAtTime(1,audioCtx.currentTime+t);
- g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+t+d);
- o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+d);
-};
+const tone=(f,t,d,type="sine")=>{let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;o.type=type;o.connect(g);g.connect(audioCtx.destination);g.gain.setValueAtTime(1,audioCtx.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+t+d);o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+d)};
 const playDing1=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(880,0,.15);tone(660,.18,.25)};
 const playDing2=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(500,0,.15,"square");tone(900,.18,.25,"square")};
 const playDrawer=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(120,0,.15,"square");tone(800,.1,.08,"square")};
 
 const round5=e=>Math.round(e*20)/20;
-
-let totalCashSales=0,totalCardSales=0;
-function updateSalesDisplay(){
- document.getElementById("salesTotals").innerHTML=
- `Cash: $${totalCashSales.toFixed(2)}<br>Card: $${totalCardSales.toFixed(2)}<br>Total: $${(totalCashSales+totalCardSales).toFixed(2)}`;
-}
 
 const menuPrices={Latte:5,Cappuccino:5,Mocha:5.5,"Iced Coffee":5.5,"Caramel Frappe":6,"Blueberry Muffin":4};
 let currentOrder=[],selectedIndex=null,lastSideUsed=2,currentPaymentOrder=null;
@@ -202,7 +198,7 @@ function updateOrderList(){
  let box=document.getElementById("orderList");
  if(!currentOrder.length){box.innerHTML="(empty)";selectedIndex=null;return}
  box.innerHTML=currentOrder.map((o,i)=>
-  `<div class="order-line" data-index="${i}" style="padding:4px;cursor:pointer;${selectedIndex===i?"background:#333;":""}">${formatItem(o)}</div>`
+  `<div class="order-line" data-index="${i}" style="padding:4px;cursor:pointer;${selectedIndex===i?"background:#e8dcc2;":""}">${formatItem(o)}</div>`
  ).join("");
  document.querySelectorAll(".order-line").forEach(l=>{
   l.onclick=()=>{selectedIndex=parseInt(l.dataset.index);updateOrderList()};
@@ -227,7 +223,8 @@ function buildOrder(){
   id:"ORD-"+(1000+Math.floor(Math.random()*9000)),
   items:currentOrder.map(formatItem),
   createdAt:Date.now(),
-  total
+  total,
+  paymentType:null
  };
 }
 
@@ -253,7 +250,8 @@ function addKvsOrderAuto(order){
    side,
    items:order.items,
    totalExact:order.total,
-   totalRounded:round5(order.total)
+   totalRounded:round5(order.total),
+   paymentType:"" // filled on serve
   })
  });
 }
@@ -276,7 +274,7 @@ document.getElementById("storeBtn").onclick=()=>{
 
 let cashInput="";
 function updateCashDisplay(){
- document.getElementById("cashEntered").style.color="#fff";
+ document.getElementById("cashEntered").style.color="#f3e9d2";
  document.getElementById("cashEntered").textContent=cashInput||"0.00";
 }
 
@@ -317,15 +315,30 @@ document.getElementById("amountTenderedBtn").onclick=()=>{
   document.getElementById("cashEntered").textContent=`Short by $${Math.abs(change).toFixed(2)}`;
   return;
  }
- totalCashSales+=rounded;updateSalesDisplay();
- openCashDrawer(change);
+ currentPaymentOrder.paymentType="cash";
+ fetch(BACKEND_URL,{
+  method:"POST",
+  contentType:"application/json",
+  body:JSON.stringify({
+   action:"serve",
+   id:currentPaymentOrder.id,
+   paymentType:"cash"
+  })
+ }).then(()=>{openCashDrawer(change);});
 };
 
 document.getElementById("payCard").onclick=()=>{
  if(currentPaymentOrder){
-  totalCardSales+=currentPaymentOrder.total;
-  updateSalesDisplay();
-  resetToPOS();
+  currentPaymentOrder.paymentType="card";
+  fetch(BACKEND_URL,{
+   method:"POST",
+   contentType:"application/json",
+   body:JSON.stringify({
+    action:"serve",
+    id:currentPaymentOrder.id,
+    paymentType:"card"
+   })
+  }).then(()=>{resetToPOS();});
  }
 };
 
@@ -484,10 +497,10 @@ setInterval(()=>{
 document.getElementById("clearDataBtn").onclick=()=>{
  document.getElementById("resetConfirm").style.display="flex";
 };
-document.getElementById("resetNo").onclick=()=>{
+document.getElementById("resetNo").addEventListener("click",()=>{
  document.getElementById("resetConfirm").style.display="none";
-};
-document.getElementById("resetYes").onclick=()=>{
+});
+document.getElementById("resetYes").addEventListener("click",()=>{
  fetch(BACKEND_URL,{
   method:"POST",
   contentType:"application/json",
@@ -497,9 +510,8 @@ document.getElementById("resetYes").onclick=()=>{
   refreshDashboard();
   syncKvsFromBackend();
  });
-};
+});
 
-updateSalesDisplay();updateOrderList();updateCashDisplay();
+updateOrderList();updateCashDisplay();
 </script></body></html>
-
 
