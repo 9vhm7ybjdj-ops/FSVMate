@@ -35,7 +35,6 @@
       --tab-inactive: rgba(240, 240, 240, 0.85);
       --tab-inactive-text: #333333;
       --tab-active-text: #ffffff;
-      --load-time: 3s;
     }
 
     * {
@@ -95,6 +94,7 @@
       overflow: hidden;
       position: relative;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.4);
+      display: none; /* Hidden until tap occurs */
     }
 
     .progress-bar-inner {
@@ -102,8 +102,12 @@
       width: 0%;
       background: linear-gradient(to right, #ffd700, #fff);
       border-radius: 99px;
-      animation: fillBar var(--load-time) linear forwards;
       box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4), 0 0 8px #ffd700;
+    }
+
+    /* Active utility class triggered programmatically on user gesture */
+    .animate-loading {
+      animation: fillBar 3s linear forwards;
     }
 
     @keyframes fillBar {
@@ -113,18 +117,23 @@
 
     .loading-text {
       margin-top: 14px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 800;
       letter-spacing: 0.08em;
-      color: rgba(255, 255, 255, 0.95);
+      color: var(--mc-yellow);
       text-transform: uppercase;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-      animation: pulseText 1.5s infinite ease-in-out;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+
+    .pulse-text {
+      animation: pulseText 1.4s infinite ease-in-out;
+      color: #ffffff;
     }
 
     @keyframes pulseText {
-      0%, 100% { opacity: 0.6; }
-      50% { opacity: 1; }
+      0%, 100% { opacity: 0.6; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); }
     }
 
     /* --- CORE SYSTEM APPLICATION CONTAINER --- */
@@ -145,7 +154,7 @@
     .header {
       background: linear-gradient(135deg, var(--mc-red), var(--mc-red-dark));
       color: #ffffff;
-      padding: 18px 16px;
+      padding: 22px 16px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -154,22 +163,23 @@
       flex-shrink: 0;
     }
 
-    /* FIX: Scaled up Header Icon up by ~30% for clearer desktop branding visibility */
+    /* FIX: Scaled up burger logo icon significantly to 56px for absolute branding dominance */
     .header-icon {
       position: absolute;
-      left: 14px;
+      left: 16px;
       top: 50%;
       transform: translateY(-50%);
-      width: 42px;
-      height: 42px;
+      width: 56px;
+      height: 56px;
       object-fit: contain;
       border-radius: 8px;
     }
 
     .header-title {
       font-weight: 700;
-      font-size: 18px;
+      font-size: 19px;
       letter-spacing: 0.02em;
+      margin-left: 48px; /* Safe clearing buffer for the larger logo icon */
     }
 
     /* Transparent Backdrop Glassmorphism Tab Strip - Fixed Layout */
@@ -540,10 +550,10 @@
     <div></div>
     <div></div>
     <div class="loading-zone">
-      <div class="progress-bar-container">
-        <div class="progress-bar-inner"></div>
+      <div class="progress-bar-container" id="progressBarContainer">
+        <div class="progress-bar-inner" id="progressBarInner"></div>
       </div>
-      <div class="loading-text">Tap anywhere to look around</div>
+      <div class="loading-text pulse-text" id="splashStatusText">Tap anywhere to start</div>
     </div>
   </div>
 
@@ -697,9 +707,9 @@
   </div>
 
   <script>
-    /* --- SECURITY ENHANCED INTERACTIVE SPLASH AUDIO UNFREEZER --- */
+    /* --- INTERACTIVE SPLASH ENGINE & SOUND UNFREEZER --- */
     let audioCtx = null;
-    let baselineJingleHasPlayed = false;
+    let applicationHasStarted = false;
 
     function initAudio() {
       if (!audioCtx) {
@@ -707,40 +717,42 @@
       }
     }
 
-    // Capture explicit early touch pattern to completely unlock the hardware sound pipeline
     const splashScreen = document.getElementById('splashScreen');
-    
-    function initialUserUnlockSequence() {
-      if (baselineJingleHasPlayed) return;
+    const splashStatusText = document.getElementById('splashStatusText');
+    const progressBarContainer = document.getElementById('progressBarContainer');
+    const progressBarInner = document.getElementById('progressBarInner');
+    const shell = document.getElementById('appShell');
+
+    function executeStartupSequence() {
+      if (applicationHasStarted) return;
+      applicationHasStarted = true;
+
+      // 1. Instantly context-resume and trigger hardware audio pipelines
       initAudio();
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
       playRetroStartupJingle();
-      baselineJingleHasPlayed = true;
-    }
 
-    splashScreen.addEventListener('touchstart', initialUserUnlockSequence, { once: true });
-    splashScreen.addEventListener('click', initialUserUnlockSequence, { once: true });
+      // 2. Adjust splash display labels and trigger layout animations
+      splashStatusText.classList.remove('pulse-text');
+      splashStatusText.textContent = "Loading Application...";
+      progressBarContainer.style.display = "block";
+      progressBarInner.classList.add('animate-loading');
 
-    window.addEventListener('DOMContentLoaded', () => {
+      // 3. Keep splash alive for exactly 3 seconds during bar fill before transition
       setTimeout(() => {
-        const splash = document.getElementById('splashScreen');
-        const shell = document.getElementById('appShell');
-        
-        // Safety lock check plays audio if loader finishes without a user tap
-        if (!baselineJingleHasPlayed) {
-          playRetroStartupJingle();
-          baselineJingleHasPlayed = true;
-        }
-        
-        splash.style.opacity = '0';
-        splash.style.transform = 'scale(1.04)';
+        splashScreen.style.opacity = '0';
+        splashScreen.style.transform = 'scale(1.04)';
         shell.style.opacity = '1';
         
-        setTimeout(() => splash.remove(), 500); 
+        setTimeout(() => splashScreen.remove(), 500); 
       }, 3000);
-    });
+    }
+
+    // Attach unlock execution logic directly onto user gesture inputs
+    splashScreen.addEventListener('touchstart', executeStartupSequence, { once: true });
+    splashScreen.addEventListener('click', executeStartupSequence, { once: true });
 
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
     let lastTouchTime = 0;
@@ -761,22 +773,20 @@
       if (audioCtx.state === 'suspended') audioCtx.resume();
 
       const now = audioCtx.currentTime;
-      
-      // FIX: Adjusted timing, cadence intervals, and notes to recognize the jingle
       const rhythmSpeed = 1.3; 
+      
       const notes = [
-        { freq: 440.00, start: 0.00 * rhythmSpeed, duration: 0.16 }, // ba (A4)
-        { freq: 493.88, start: 0.18 * rhythmSpeed, duration: 0.16 }, // da (B4)
-        { freq: 554.37, start: 0.36 * rhythmSpeed, duration: 0.22 }, // ba (C#5)
-        { freq: 659.25, start: 0.62 * rhythmSpeed, duration: 0.24 }, // ba (E5)
-        { freq: 554.37, start: 0.88 * rhythmSpeed, duration: 0.55 }  // baaa (C#5)
+        { freq: 440.00, start: 0.00 * rhythmSpeed, duration: 0.16 }, // ba
+        { freq: 493.88, start: 0.18 * rhythmSpeed, duration: 0.16 }, // da
+        { freq: 554.37, start: 0.36 * rhythmSpeed, duration: 0.22 }, // ba
+        { freq: 659.25, start: 0.62 * rhythmSpeed, duration: 0.24 }, // ba
+        { freq: 554.37, start: 0.88 * rhythmSpeed, duration: 0.55 }  // baaa
       ];
 
       notes.forEach((note, index) => {
         const osc = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         
-        // Retro triangle wave blend for notes 1-4, classic square wave punch for the final note
         osc.type = (index === 4) ? 'square' : 'triangle';
         
         osc.connect(gainNode);
@@ -785,7 +795,6 @@
         const noteStart = now + note.start;
         const noteEnd = noteStart + note.duration;
 
-        // Vintage pitch bend tracking up into position
         osc.frequency.setValueAtTime(note.freq * 0.97, noteStart);
         osc.frequency.linearRampToValueAtTime(note.freq, noteStart + 0.04);
 
