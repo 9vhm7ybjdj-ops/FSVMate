@@ -769,7 +769,7 @@
   </div>
 
   <script>
-    /* --- INTERACTIVE SPLASH ENGINE & HARDCORE SOUND UNFREEZER --- */
+    /* --- INTERACTIVE SPLASH ENGINE & DIRECT HARDWARE AUDIO IGNITION --- */
     let audioCtx = null;
     let applicationHasStarted = false;
 
@@ -786,29 +786,22 @@
     const progressBarInner = document.getElementById('progressBarInner');
     const shell = document.getElementById('appShell');
 
-    function forceUnfreezeAudioHardware() {
-      initAudio();
-      if (audioCtx) {
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-        osc.start(0);
-        osc.stop(0.01);
-      }
-    }
-
+    // IRON-CLAD STARTUP SEQUENCE FOR IMMEDATE AUDIO RESUMPTION
     function executeStartupSequence(e) {
       if (applicationHasStarted) return;
       
-      forceUnfreezeAudioHardware();
+      // Force Audio Context setup immediately on the touch event frame
+      initAudio();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      
       applicationHasStarted = true;
+      
+      // Fire the retro jingle immediately now that hardware is hot
       playRetroStartupJingle();
 
+      // Fire UI Animations
       splashActionButton.style.background = "linear-gradient(180deg, #e6c200, #cc9300)";
       splashActionButton.style.transform = "scale(0.95)";
       splashActionButton.textContent = "Loading...";
@@ -830,9 +823,7 @@
     }
 
     splashActionButton.addEventListener('click', executeStartupSequence);
-    splashActionButton.addEventListener('touchstart', (e) => {
-      executeStartupSequence(e);
-    }, { passive: true });
+    splashActionButton.addEventListener('touchstart', executeStartupSequence, { passive: true });
 
     /* --- MOBILE SYSTEM ZOOM COERCION PREVENTION --- */
     let lastTouchTime = 0;
@@ -881,13 +872,14 @@
       initAudio();
       if (!audioCtx) return;
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      
       const now = audioCtx.currentTime;
 
       if (type === 'swipe') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(200, now);
         osc.frequency.exponentialRampToValueAtTime(600, now + 0.18);
@@ -896,6 +888,10 @@
         osc.start(now);
         osc.stop(now + 0.18);
       } else if (type === 'action' || type === 'click') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
         osc.type = 'square';
         osc.frequency.setValueAtTime(1400, now);
         osc.frequency.exponentialRampToValueAtTime(120, now + 0.015);
@@ -903,6 +899,32 @@
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
         osc.start(now);
         osc.stop(now + 0.018);
+      } else if (type === 'camera') {
+        // Subtle crisp camera snapshot audio generation
+        const clickOsc = audioCtx.createOscillator();
+        const clickGain = audioCtx.createGain();
+        clickOsc.type = 'triangle';
+        clickOsc.frequency.setValueAtTime(2000, now);
+        clickOsc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
+        clickGain.gain.setValueAtTime(0.15, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+        clickOsc.connect(clickGain);
+        clickGain.connect(audioCtx.destination);
+        clickOsc.start(now);
+        clickOsc.stop(now + 0.04);
+
+        const shutterOsc = audioCtx.createOscillator();
+        const shutterGain = audioCtx.createGain();
+        shutterOsc.type = 'sawtooth';
+        shutterOsc.frequency.setValueAtTime(800, now + 0.02);
+        shutterOsc.frequency.linearRampToValueAtTime(300, now + 0.08);
+        shutterGain.gain.setValueAtTime(0, now);
+        shutterGain.gain.linearRampToValueAtTime(0.05, now + 0.02);
+        shutterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+        shutterOsc.connect(shutterGain);
+        shutterGain.connect(audioCtx.destination);
+        shutterOsc.start(now + 0.02);
+        shutterOsc.stop(now + 0.08);
       }
     }
 
@@ -969,10 +991,13 @@
       reasonInput.focus();
     }
 
-    // Capture and squash heavy phone photos to a fast 160px thumb
+    // Capture and squash phone photos down to a fast thumbnail boundary
     cameraInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
+
+      // Play the camera shutter click audio effect directly
+      playSound('camera');
 
       const reader = new FileReader();
       reader.onload = function(event) {
@@ -1155,7 +1180,7 @@
       document.getElementById("metaAuditor").value = "";
     });
 
-    document.getElementById("metaCancel").addEventListener("click", () => metaDialog.style.display = "none");
+    document.getElementById("metaCancel").addEventListener("click", () => metaDialog.style.none);
     
     document.getElementById("metaSubmit").addEventListener("click", () => {
       auditMetadata.store = document.getElementById("metaStore").value.trim() || "Default Store";
@@ -1235,7 +1260,6 @@
 
       document.body.appendChild(box);
       
-      // Allow DOM rendering frame to align base64 strings cleanly before capturing canvas
       setTimeout(() => {
         html2canvas(box, { scale: 2, backgroundColor: "#0b0205", useCORS: true }).then(canvas => {
           photoPreviewImg.src = canvas.toDataURL("image/png");
