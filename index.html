@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FSV Mate">
   
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link class="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c8102e">
 
@@ -616,14 +616,18 @@
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
         osc.start(now);
         osc.stop(now + 0.18);
-      } else if (type === 'action') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(750, now);
-        osc.frequency.setValueAtTime(450, now + 0.03);
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+      } else if (type === 'action' || type === 'click') {
+        // High-frequency mechanical pop mixed with an instantaneous pitch envelope
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(1400, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.015);
+        
+        // Ultra-fast decay envelope to recreate a physical microswitch press
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
+        
         osc.start(now);
-        osc.stop(now + 0.06);
+        osc.stop(now + 0.018);
       }
     }
 
@@ -645,6 +649,7 @@
       if (newActiveTab) newActiveTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
 
       if (source === 'swipe') playSound('swipe');
+      else if (source === 'click') playSound('click');
     }
 
     tabs.forEach(tab => tab.addEventListener("click", () => setActiveTab(tab.dataset.target, 'click')));
