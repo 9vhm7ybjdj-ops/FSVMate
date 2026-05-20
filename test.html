@@ -191,7 +191,6 @@
                 <button class="btn-refresh" onclick="fetchActiveOrders()">🔄 Refresh Board</button>
             </div>
             <div class="orders-grid" id="ordersGrid">
-                <!-- Live tickets render here -->
                 <p style="color: #888;">Loading orders from Google Sheets...</p>
             </div>
         </div>
@@ -199,10 +198,10 @@
     </div>
 
     <script>
-        // ⚠️ PASTE YOUR RE-DEPLOYED WEB APP URL HERE
-        const GOOGLE_SCRIPT_API_URL = "YOUR_NEW_APPS_SCRIPT_WEB_APP_URL_HERE";
+        // Directly maps to your active web app script execution channel
+        const GOOGLE_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbxzryMLYT_cK8lTeIFWlMW-qG-rVLbHi5lg_xNQxFWBRCqT4kA3-PY1SF5-eDdoK7Xk4g/exec";
 
-        // Generate a simple unique short ID for the order
+        // Simple unique ID generator
         function generateShortId() {
             return Math.floor(100000 + Math.random() * 900000);
         }
@@ -229,21 +228,25 @@
                 order: orderObject
             };
 
+            // Using text/plain content layout tricks the browser into bypassing CORS preflight checks entirely
             fetch(GOOGLE_SCRIPT_API_URL, {
                 method: "POST",
-                mode: "no-cors", // Bypasses local browser policy restrictions
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
-            .then(() => {
-                alert("Order successfully written to Sheet1!");
-                document.getElementById('orderForm').reset();
-                // Fetch the updated dataset to populate the dashboard card array
-                fetchActiveOrders();
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "SUCCESS") {
+                    alert("Order successfully written to Sheet1!");
+                    document.getElementById('orderForm').reset();
+                    fetchActiveOrders();
+                } else {
+                    alert("Error from script: " + data.message);
+                }
             })
             .catch(err => {
                 console.error("Failed to send order:", err);
-                alert("Network error updating spreadsheet.");
+                alert("Network communication error updating spreadsheet.");
             })
             .finally(() => {
                 submitBtn.textContent = "Send Order to Sheet1";
@@ -286,7 +289,7 @@
             })
             .catch(err => {
                 console.error("Error reading Sheet1:", err);
-                grid.innerHTML = '<p style="color: red; grid-column: 1/-1;">Failed to load active layout. Ensure your API URL configuration is active.</p>';
+                grid.innerHTML = '<p style="color: red; grid-column: 1/-1;">Failed to load active layout. Check browser logs.</p>';
             });
         }
 
@@ -301,21 +304,24 @@
 
             fetch(GOOGLE_SCRIPT_API_URL, {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
-            .then(() => {
-                // Instantly re-fetch data so it disappears locally 
-                fetchActiveOrders();
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "SERVED") {
+                    fetchActiveOrders();
+                } else {
+                    alert("Error serving order: " + data.message);
+                }
             })
             .catch(err => console.error("Failed to serve order off database row:", err));
         }
 
-        // Auto-load orders when page finishes loading
+        // Initial setup execution loops
         window.onload = fetchActiveOrders;
         
-        // Polling rule: Automatically check Sheet1 for new entries every 10 seconds
+        // Check for new orders in the cloud every 10 seconds automatically
         setInterval(fetchActiveOrders, 10000);
     </script>
 </body>
