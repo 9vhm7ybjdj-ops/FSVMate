@@ -1,74 +1,81 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>POS+KVS</title><style>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>POS Display</title><style>
 body{margin:0;background:#000;color:#fff;font-family:system-ui}
 .screen{display:none;padding:1rem}.active{display:block}
 .nav-buttons{position:fixed;top:10px;left:10px;z-index:9999;display:flex;gap:.5rem}
 .nav-btn{background:#444;color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;font-size:.9rem;cursor:pointer}
 
-/* McCafé POS */
+/* POS THEME */
 #pos,#payment{background:#3b2f2f;min-height:100vh;color:#f3e9d2}
-#pos h1,#payment h1{margin-top:0;color:#d4a857;text-align:center;text-shadow:0 0 6px #000}
+#pos h1,#payment h1{text-align:center;color:#d4a857;margin-top:0;text-shadow:0 0 6px #000}
 .pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:1rem}
 .pos-btn{background:#5a4634;border:1px solid #d4a857;padding:1rem;border-radius:10px;text-align:center;font-size:1rem;cursor:pointer;color:#f3e9d2;box-shadow:0 2px 4px rgba(0,0,0,.6);transition:transform .1s ease,box-shadow .1s ease}
 .pos-btn:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.8)}
 #orderList{margin-top:1rem;font-size:1rem;border:1px solid #d4a857;padding:.5rem;min-height:2rem;background:#f3e9d2;color:#3b2f2f;border-radius:8px}
-.order-line{border-bottom:1px dashed #d4a857}
+.order-line{border-bottom:1px dashed #d4a857;padding:4px;cursor:pointer}
 .order-line:last-child{border-bottom:none}
-#storeBtn,#clearPosBtn,#voidItemBtn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
-#storeBtn{background:#1fb64b;color:#fff;box-shadow:0 2px 4px rgba(0,0,0,.6)}
-#clearPosBtn{background:#5a4634;color:#f3e9d2;margin-left:.5rem;border:1px solid #d4a857}
-#voidItemBtn{background:#b61f1f;color:#fff;margin-left:.5rem}
 .mod-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
 .mod-btn{background:#2a1f1f;border:1px solid #d4a857;padding:.4rem .7rem;border-radius:6px;font-size:.85rem;cursor:pointer;color:#f3e9d2}
+#storeBtn,#clearPosBtn,#voidItemBtn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
+#storeBtn{background:#1fb64b;color:#fff}
+#clearPosBtn{background:#5a4634;color:#f3e9d2;border:1px solid #d4a857;margin-left:.5rem}
+#voidItemBtn{background:#b61f1f;color:#fff;margin-left:.5rem}
 
-/* Payment */
-#payItems,#payTotalExact,#payTotalRounded{color:#f3e9d2}
-#payTotalRounded{color:#ffd447}
+/* PAYMENT */
 #cashEntered{font-size:2rem;margin:.5rem 0;color:#f3e9d2}
-.cash-grid button,.pay-btn,.cancel-btn{background:#5a4634;color:#f3e9d2;border:1px solid #d4a857;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer}
 .cash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem}
-.preset-row{display:flex;justify-content:space-between;margin-top:.75rem;gap:.5rem}
-.preset-btn{flex:1;background:#2a1f1f;border:1px solid #d4a857;padding:.6rem;border-radius:6px;font-size:1rem;cursor:pointer;text-align:center;color:#f3e9d2}
+.cash-grid button,.pay-btn,.cancel-btn{background:#5a4634;color:#f3e9d2;border:1px solid #d4a857;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer}
+.preset-row{display:flex;gap:.5rem;margin-top:.75rem}
+.preset-btn{flex:1;background:#2a1f1f;border:1px solid #d4a857;padding:.6rem;border-radius:6px;color:#f3e9d2}
 .pay-btn{background:#1fb64b;width:100%;margin-top:1rem}
 .cancel-btn{background:#b61f1f;width:100%;margin-top:.5rem}
 
 /* KVS */
 .kvs{background:#000;min-height:100vh}
 .kvs-list{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem}
-.tile{background:#000;border:2px solid #333;border-radius:8px;width:calc(25% - .75rem);min-width:160px;aspect-ratio:1/1;padding:.5rem;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;transition:transform .25s ease,opacity .25s ease}
+.tile{background:#000;border:2px solid #333;border-radius:8px;width:calc(25% - .75rem);min-width:160px;aspect-ratio:1/1;padding:.5rem;display:flex;flex-direction:column;justify-content:space-between;transition:transform .25s ease,opacity .25s ease}
 .tile.bump{transform:translateY(40px) scale(.8);opacity:0}
-.order-id{font-weight:700}.items{font-size:.85rem;flex:1;overflow:hidden}
+.order-id{font-weight:700}.items{font-size:.85rem;flex:1}
 .timer{font-family:monospace;font-size:1rem;color:#ffd447}
 .serve-btn{background:#1fb64b;color:#fff;border:none;padding:.4rem;border-radius:6px;cursor:pointer}
 
-/* Cash Drawer */
-#cashDrawer{position:fixed;bottom:-260px;left:0;right:0;height:260px;background:#222;border-top:4px solid #555;transition:bottom .3s ease;z-index:9998;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:2rem;color:#fff;padding:1rem}
-#drawerChange{font-size:2rem;margin-bottom:1rem}
-#closeDrawerBtn{background:#1fb64b;padding:.7rem 1.2rem;border:none;border-radius:8px;font-size:1.2rem;cursor:pointer}
+/* CASH DRAWER */
+#cashDrawer{position:fixed;bottom:-260px;left:0;right:0;height:260px;background:#222;border-top:4px solid #555;transition:bottom .3s ease;z-index:9998;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:2rem;color:#fff}
+#closeDrawerBtn{background:#1fb64b;padding:.7rem 1.2rem;border:none;border-radius:8px;font-size:1.2rem}
 
-/* McCafé Dashboard Modal */
+/* DASHBOARD */
 #dashboardModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;justify-content:center;align-items:center;z-index:99999;pointer-events:none}
-#dashboardContent{width:90%;height:85%;background:#3b2f2f;border:3px solid #d4a857;border-radius:12px;padding:1rem;display:flex;flex-direction:column;color:#f3e9d2;position:relative;pointer-events:auto}
+#dashboardContent{width:90%;height:85%;background:#3b2f2f;border:3px solid #d4a857;border-radius:12px;padding:1rem;display:flex;flex-direction:column;color:#f3e9d2;pointer-events:auto;position:relative}
 #dashboardTabs{display:flex;gap:.5rem;margin-bottom:1rem}
-.db-tab{flex:1;background:#5a4634;color:#f3e9d2;border:none;padding:.7rem;border-radius:6px;font-size:1rem;cursor:pointer;text-align:center}
+.db-tab{flex:1;background:#5a4634;color:#f3e9d2;border:none;padding:.7rem;border-radius:6px;font-size:1rem;cursor:pointer}
 .db-tab.active{background:#d4a857;color:#3b2f2f;font-weight:700}
 .db-panel{display:none;flex:1;overflow-y:auto}
 .db-panel.active{display:block}
 .db-card{background:#5a4634;padding:1rem;border-radius:8px;margin-bottom:.75rem;border:1px solid #d4a857}
 
-/* Product Mix Bars */
+/* PRODUCT MIX */
 .mix-row{margin-bottom:.75rem}
-.mix-label{font-size:1rem;margin-bottom:.25rem;color:#f3e9d2}
+.mix-label{margin-bottom:.25rem}
 .mix-bar-bg{width:100%;height:18px;background:#2a1f1f;border-radius:10px;overflow:hidden}
 .mix-bar-fill{height:100%;background:#d4a857;width:0%;transition:width .6s ease}
 
-/* Dashboard Buttons */
-#closeDashboard{position:absolute;top:10px;right:10px;background:#d4a857;color:#3b2f2f;border:none;padding:.5rem 1rem;border-radius:6px;font-weight:700;cursor:pointer}
-#clearDataBtn{position:absolute;bottom:10px;left:10px;background:#b61f1f;color:#fff;border:none;padding:.6rem 1rem;border-radius:6px;font-weight:700;cursor:pointer}
+/* DASHBOARD BOTTOM BUTTONS */
+#clearDataBtn,#closeDashboard{
+ position:absolute;
+ bottom:20px;
+ padding:.7rem 1.2rem;
+ border:none;
+ border-radius:8px;
+ font-size:1rem;
+ font-weight:700;
+ cursor:pointer;
+}
+#clearDataBtn{left:20px;background:#b61f1f;color:#fff}
+#closeDashboard{right:20px;background:#d4a857;color:#3b2f2f}
 
-/* Floating Dashboard FAB */
-#dashboardFab{position:fixed;bottom:20px;right:20px;background:#d4a857;color:#3b2f2f;border:none;padding:1rem 1.2rem;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;z-index:9999;box-shadow:0 0 10px #000}
+/* FAB */
+#dashboardFab{position:fixed;bottom:20px;right:20px;background:#d4a857;color:#3b2f2f;border:none;padding:1rem 1.2rem;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;z-index:9999}
 
-/* Reset Confirmation Modal */
+/* RESET MODAL */
 #resetConfirm{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:9999999}
 #resetBox{background:#f3e9d2;color:#3b2f2f;padding:1.5rem;border-radius:10px;width:80%;max-width:350px;text-align:center;border:3px solid #d4a857}
 .reset-btn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
@@ -111,7 +118,7 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 <div id="payItems"></div>
 <div id="payTotalExact" style="margin-top:1rem;font-size:1.3rem"></div>
 <div id="payTotalRounded" style="margin-top:.3rem;font-size:1.3rem"></div>
-<div id="cashEntered" style="margin:.5rem 0">0.00</div>
+<div id="cashEntered">0.00</div>
 <div class="cash-grid">
 <button class="cash-key" data-key="1">1</button><button class="cash-key" data-key="2">2</button><button class="cash-key" data-key="3">3</button>
 <button class="cash-key" data-key="4">4</button><button class="cash-key" data-key="5">5</button><button class="cash-key" data-key="6">6</button>
@@ -155,8 +162,8 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 <div class="mix-row"><div class="mix-label">Blueberry Muffin</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixBlueberryMuffin"></div></div></div>
 </div>
 
+<button id="clearDataBtn">Clear Data</button>
 <button id="closeDashboard">Close</button>
-<button id="clearDataBtn">Clear All Data</button>
 </div>
 </div>
 
@@ -170,7 +177,7 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 </div>
 
 <script>
-const BACKEND_URL="YOUR_DEPLOYED_WEB_APP_URL_HERE";
+const BACKEND_URL="https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec";
 
 const audioCtx=new(window.AudioContext||window.webkitAudioContext);
 const tone=(f,t,d,type="sine")=>{let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;o.type=type;o.connect(g);g.connect(audioCtx.destination);g.gain.setValueAtTime(1,audioCtx.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+t+d);o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+d)};
@@ -197,9 +204,7 @@ document.querySelectorAll(".pos-btn").forEach(b=>{
 function updateOrderList(){
  let box=document.getElementById("orderList");
  if(!currentOrder.length){box.innerHTML="(empty)";selectedIndex=null;return}
- box.innerHTML=currentOrder.map((o,i)=>
-  `<div class="order-line" data-index="${i}" style="padding:4px;cursor:pointer;${selectedIndex===i?"background:#e8dcc2;":""}">${formatItem(o)}</div>`
- ).join("");
+ box.innerHTML=currentOrder.map((o,i)=>`<div class="order-line" data-index="${i}" style="${selectedIndex===i?"background:#e8dcc2;":""}">${formatItem(o)}</div>`).join("");
  document.querySelectorAll(".order-line").forEach(l=>{
   l.onclick=()=>{selectedIndex=parseInt(l.dataset.index);updateOrderList()};
  });
@@ -251,7 +256,7 @@ function addKvsOrderAuto(order){
    items:order.items,
    totalExact:order.total,
    totalRounded:round5(order.total),
-   paymentType:"" // filled on serve
+   paymentType:""
   })
  });
 }
