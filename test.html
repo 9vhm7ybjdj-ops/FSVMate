@@ -1,534 +1,393 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>POS Display</title><style>
-body{margin:0;background:#000;color:#fff;font-family:system-ui}
-.screen{display:none;padding:1rem}.active{display:block}
-.nav-buttons{position:fixed;top:10px;left:10px;z-index:9999;display:flex;gap:.5rem}
-.nav-btn{background:#444;color:#fff;border:none;padding:.5rem 1rem;border-radius:6px;font-size:.9rem;cursor:pointer}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>McCafé POS System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-/* POS THEME */
-#pos,#payment{background:#3b2f2f;min-height:100vh;color:#f3e9d2}
-#pos h1,#payment h1{text-align:center;color:#d4a857;margin-top:0;text-shadow:0 0 6px #000}
-.pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:1rem}
-.pos-btn{background:#5a4634;border:1px solid #d4a857;padding:1rem;border-radius:10px;text-align:center;font-size:1rem;cursor:pointer;color:#f3e9d2;box-shadow:0 2px 4px rgba(0,0,0,.6);transition:transform .1s ease,box-shadow .1s ease}
-.pos-btn:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.8)}
-#orderList{margin-top:1rem;font-size:1rem;border:1px solid #d4a857;padding:.5rem;min-height:2rem;background:#f3e9d2;color:#3b2f2f;border-radius:8px}
-.order-line{border-bottom:1px dashed #d4a857;padding:4px;cursor:pointer}
-.order-line:last-child{border-bottom:none}
-.mod-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
-.mod-btn{background:#2a1f1f;border:1px solid #d4a857;padding:.4rem .7rem;border-radius:6px;font-size:.85rem;cursor:pointer;color:#f3e9d2}
-#storeBtn,#clearPosBtn,#voidItemBtn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
-#storeBtn{background:#1fb64b;color:#fff}
-#clearPosBtn{background:#5a4634;color:#f3e9d2;border:1px solid #d4a857;margin-left:.5rem}
-#voidItemBtn{background:#b61f1f;color:#fff;margin-left:.5rem}
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #3b2f2f;
+        color: #fff;
+        overflow: hidden;
+    }
 
-/* PAYMENT */
-#cashEntered{font-size:2rem;margin:.5rem 0;color:#f3e9d2}
-.cash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem}
-.cash-grid button,.pay-btn,.cancel-btn{background:#5a4634;color:#f3e9d2;border:1px solid #d4a857;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer}
-.preset-row{display:flex;gap:.5rem;margin-top:.75rem}
-.preset-btn{flex:1;background:#2a1f1f;border:1px solid #d4a857;padding:.6rem;border-radius:6px;color:#f3e9d2}
-.pay-btn{background:#1fb64b;width:100%;margin-top:1rem}
-.cancel-btn{background:#b61f1f;width:100%;margin-top:.5rem}
+    .app-container {
+        display: flex;
+        height: 100vh;
+    }
 
-/* KVS */
-.kvs{background:#000;min-height:100vh}
-.kvs-list{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem}
-.tile{background:#000;border:2px solid #333;border-radius:8px;width:calc(25% - .75rem);min-width:160px;aspect-ratio:1/1;padding:.5rem;display:flex;flex-direction:column;justify-content:space-between;transition:transform .25s ease,opacity .25s ease}
-.tile.bump{transform:translateY(40px) scale(.8);opacity:0}
-.order-id{font-weight:700;margin-bottom:.25rem}
-.items{font-size:.85rem;flex:1}
-.timer{font-family:monospace;font-size:1rem;color:#ffd447;margin-top:.25rem}
-.serve-btn{background:#1fb64b;color:#fff;border:none;padding:.4rem .6rem;border-radius:6px;cursor:pointer;align-self:flex-end;margin-top:.4rem;font-size:.9rem}
-.serve-btn.disabled{background:#777;color:#ddd;cursor:not-allowed}
+    /* POS PANEL */
+    .pos-panel {
+        flex: 1;
+        padding: 20px;
+        border-right: 2px solid #2b2222;
+        display: flex;
+        flex-direction: column;
+    }
 
-/* CASH DRAWER */
-#cashDrawer{position:fixed;bottom:-260px;left:0;right:0;height:260px;background:#222;border-top:4px solid #555;transition:bottom .3s ease;z-index:9998;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:2rem;color:#fff}
-#closeDrawerBtn{background:#1fb64b;padding:.7rem 1.2rem;border:none;border-radius:8px;font-size:1.2rem}
+    .pos-header {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
-/* DASHBOARD */
-#dashboardModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);display:none;justify-content:center;align-items:center;z-index:99999;pointer-events:none}
-#dashboardContent{width:90%;height:85%;background:#3b2f2f;border:3px solid #d4a857;border-radius:12px;padding:1rem;display:flex;flex-direction:column;color:#f3e9d2;pointer-events:auto;position:relative}
-#dashboardTabs{display:flex;gap:.5rem;margin-bottom:1rem}
-.db-tab{flex:1;background:#5a4634;color:#f3e9d2;border:none;padding:.7rem;border-radius:6px;font-size:1rem;cursor:pointer}
-.db-tab.active{background:#d4a857;color:#3b2f2f;font-weight:700}
-.db-panel{display:none;flex:1;overflow-y:auto}
-.db-panel.active{display:block}
-.db-card{background:#5a4634;padding:1rem;border-radius:8px;margin-bottom:.75rem;border:1px solid #d4a857}
+    .order-display {
+        flex: 1;
+        background: #4a3a3a;
+        border-radius: 12px;
+        padding: 16px;
+        overflow-y: auto;
+        margin-bottom: 16px;
+    }
 
-/* PRODUCT MIX */
-.mix-row{margin-bottom:.75rem}
-.mix-label{margin-bottom:.25rem}
-.mix-bar-bg{width:100%;height:18px;background:#2a1f1f;border-radius:10px;overflow:hidden}
-.mix-bar-fill{height:100%;background:#d4a857;width:0%;transition:width .6s ease}
+    .order-item {
+        background: #5a4646;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 18px;
+        display: flex;
+        justify-content: space-between;
+    }
 
-/* DASHBOARD BOTTOM BUTTONS */
-#clearDataBtn,#closeDashboard{position:absolute;bottom:20px;padding:.7rem 1.2rem;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer}
-#clearDataBtn{left:20px;background:#b61f1f;color:#fff}
-#closeDashboard{right:20px;background:#d4a857;color:#3b2f2f}
+    .order-totals {
+        font-size: 20px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
 
-/* FAB */
-#dashboardFab{position:fixed;bottom:20px;right:20px;background:#d4a857;color:#3b2f2f;border:none;padding:1rem 1.2rem;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;z-index:9999}
+    .payment-buttons {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 10px;
+    }
 
-/* RESET MODAL */
-#resetConfirm{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:9999999}
-#resetBox{background:#f3e9d2;color:#3b2f2f;padding:1.5rem;border-radius:10px;width:80%;max-width:350px;text-align:center;border:3px solid #d4a857}
-.reset-btn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
-#resetYes{background:#b61f1f;color:#fff}
-#resetNo{background:#5a4634;color:#3b2f2f;margin-left:.5rem}
+    .pay-btn {
+        flex: 1;
+        padding: 20px;
+        font-size: 24px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
 
-/* NAME MODAL */
-#nameModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:999999}
-#nameBox{background:#f3e9d2;color:#3b2f2f;padding:1.5rem;border-radius:10px;width:80%;max-width:350px;text-align:center;border:3px solid #d4a857}
-#custNameInput{width:100%;padding:.5rem;margin-top:.5rem;border-radius:6px;border:1px solid #ccc;font-size:1rem}
-.name-btn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
-#nameOk{background:#1fb64b;color:#fff}
-#nameCancel{background:#5a4634;color:#3b2f2f;margin-left:.5rem}
-</style></head><body>
+    .cash { background: #d4a373; color: #3b2f2f; }
+    .card { background: #c08552; color: #3b2f2f; }
 
-<div class="nav-buttons">
-<button class="nav-btn" id="btnPOS">POS</button>
-<button class="nav-btn" id="btnKVS1">KVS 1</button>
-<button class="nav-btn" id="btnKVS2">KVS 2</button>
+    .pay-btn:active { transform: scale(0.95); }
+
+    #drawer {
+        width: 100%;
+        height: 40px;
+        background: #222;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    #drawer.open {
+        animation: drawerOpen 0.4s forwards;
+    }
+
+    @keyframes drawerOpen {
+        from { height: 40px; }
+        to { height: 140px; }
+    }
+
+    /* KVS PANEL */
+    .kvs-panel {
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kvs-header {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .kvs-list {
+        flex: 1;
+        background: #4a3a3a;
+        border-radius: 12px;
+        padding: 16px;
+        overflow-y: auto;
+    }
+
+    .kvs-order {
+        background: #5a4646;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .kvs-order-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-weight: bold;
+    }
+
+    .kvs-items { margin-bottom: 8px; }
+
+    .kvs-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .serve-btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .serve-disabled { background: #777; color: #ccc; cursor: not-allowed; }
+    .serve-ready { background: #4caf50; color: #fff; }
+
+    .status-pill {
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 14px;
+    }
+
+    .status-unpaid { background: #b23b3b; }
+    .status-paid { background: #2e7d32; }
+
+    /* DASHBOARD MODAL */
+    #dashboardModal {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .dashboard-box {
+        background: #4a3a3a;
+        padding: 30px;
+        border-radius: 12px;
+        width: 400px;
+        text-align: center;
+    }
+
+    .dash-title {
+        font-size: 26px;
+        margin-bottom: 20px;
+    }
+
+    .dash-stat {
+        font-size: 22px;
+        margin: 10px 0;
+    }
+
+    .close-btn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        background: #d4a373;
+        color: #3b2f2f;
+        cursor: pointer;
+    }
+
+    .dashboard-button {
+        margin-top: 10px;
+        padding: 12px;
+        font-size: 20px;
+        border-radius: 8px;
+        border: none;
+        background: #c08552;
+        color: #3b2f2f;
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- POS PANEL -->
+    <div class="pos-panel">
+        <div class="pos-header">McCafé POS</div>
+
+        <div class="order-display" id="orderDisplay">
+            <div class="order-item"><span>Latte</span><span>x1</span></div>
+            <div class="order-item"><span>Flat White</span><span>x2</span></div>
+            <div class="order-item"><span>Mocha</span><span>x1</span></div>
+        </div>
+
+        <div class="order-totals">
+            <span>Items: <span id="itemCount">4</span></span>
+            <span>Total: $<span id="orderTotal">18.00</span></span>
+        </div>
+
+        <div class="payment-buttons">
+            <button class="pay-btn cash" onclick="proceedStoreOrder('cash')">CASH</button>
+            <button class="pay-btn card" onclick="proceedStoreOrder('card')">CARD</button>
+        </div>
+
+        <button class="dashboard-button" onclick="openDashboard()">Dashboard</button>
+
+        <div id="drawer"></div>
+    </div>
+
+    <!-- KVS PANEL -->
+    <div class="kvs-panel">
+        <div class="kvs-header">KVS Queue</div>
+        <div class="kvs-list" id="kvsList"></div>
+    </div>
+
 </div>
 
-<button id="dashboardFab">Dashboard</button>
-
-<div id="pos" class="screen active"><h1>POS Display</h1>
-<div class="pos-grid">
-<div class="pos-btn" data-item="Latte">Latte</div>
-<div class="pos-btn" data-item="Cappuccino">Cappuccino</div>
-<div class="pos-btn" data-item="Mocha">Mocha</div>
-<div class="pos-btn" data-item="Iced Coffee">Iced Coffee</div>
-<div class="pos-btn" data-item="Caramel Frappe">Caramel Frappe</div>
-<div class="pos-btn" data-item="Blueberry Muffin">Blueberry Muffin</div>
-</div>
-<h2>Current Order</h2>
-<div id="orderList">(empty)</div>
-<div class="mod-grid">
-<button class="mod-btn" data-mod="Extra Shot">Extra Shot</button>
-<button class="mod-btn" data-mod="Soy">Soy</button>
-<button class="mod-btn" data-mod="Almond">Almond</button>
-<button class="mod-btn" data-mod="No Sugar">No Sugar</button>
-<button class="mod-btn" data-mod="Decaf">Decaf</button>
-</div>
-<button id="storeBtn">Store Order</button>
-<button id="clearPosBtn">Clear</button>
-<button id="voidItemBtn">Void Item</button>
-</div>
-
-<div id="payment" class="screen"><h1>POS Display</h1>
-<div id="payCustomer" style="font-size:1.2rem;margin-bottom:.5rem"></div>
-<div id="payItems"></div>
-<div id="payTotalExact" style="margin-top:1rem;font-size:1.3rem"></div>
-<div id="payTotalRounded" style="margin-top:.3rem;font-size:1.3rem"></div>
-<div id="cashEntered">0.00</div>
-<div class="cash-grid">
-<button class="cash-key" data-key="1">1</button><button class="cash-key" data-key="2">2</button><button class="cash-key" data-key="3">3</button>
-<button class="cash-key" data-key="4">4</button><button class="cash-key" data-key="5">5</button><button class="cash-key" data-key="6">6</button>
-<button class="cash-key" data-key="7">7</button><button class="cash-key" data-key="8">8</button><button class="cash-key" data-key="9">9</button>
-<button class="cash-key" data-key="0">0</button><button class="cash-key" data-key=".">.</button><button class="cash-key" data-key="clear">Clear</button>
-</div>
-<div class="preset-row">
-<button class="preset-btn" data-cash="5">5</button><button class="preset-btn" data-cash="10">10</button><button class="preset-btn" data-cash="20">20</button><button class="preset-btn" data-cash="50">50</button><button class="preset-btn" data-cash="100">100</button>
-</div>
-<button class="pay-btn" id="amountTenderedBtn">Amount Tendered</button>
-<button class="pay-btn" id="payCard">Card Payment</button>
-<button class="cancel-btn" id="cancelPay">Cancel Order</button>
-</div>
-
-<div id="kvs1" class="screen kvs"><h1>KVS – Side 1</h1><div class="kvs-list" id="kvsList1"></div></div>
-<div id="kvs2" class="screen kvs"><h1>KVS – Side 2</h1><div class="kvs-list" id="kvsList2"></div></div>
-
-<div id="cashDrawer"><div id="drawerChange">Change: $0.00</div><button id="closeDrawerBtn">Close Drawer</button></div>
-
+<!-- DASHBOARD MODAL -->
 <div id="dashboardModal">
-<div id="dashboardContent">
-<div id="dashboardTabs">
-<button class="db-tab active" data-tab="salesTab">Sales Summary</button>
-<button class="db-tab" data-tab="mixTab">Product Mix</button>
-</div>
-<div id="salesTab" class="db-panel active">
-<div class="db-card" id="dbCash"></div>
-<div class="db-card" id="dbCard"></div>
-<div class="db-card" id="dbGrand"></div>
-<div class="db-card" id="dbOrdersToday"></div>
-<div class="db-card" id="dbAvgOrder"></div>
-</div>
-<div id="mixTab" class="db-panel">
-<div class="mix-row"><div class="mix-label">Latte</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixLatte"></div></div></div>
-<div class="mix-row"><div class="mix-label">Cappuccino</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixCappuccino"></div></div></div>
-<div class="mix-row"><div class="mix-label">Mocha</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixMocha"></div></div></div>
-<div class="mix-row"><div class="mix-label">Iced Coffee</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixIcedCoffee"></div></div></div>
-<div class="mix-row"><div class="mix-label">Caramel Frappe</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixCaramelFrappe"></div></div></div>
-<div class="mix-row"><div class="mix-label">Blueberry Muffin</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixBlueberryMuffin"></div></div></div>
-</div>
-<button id="clearDataBtn">Clear Data</button>
-<button id="closeDashboard">Close</button>
-</div>
+    <div class="dashboard-box">
+        <div class="dash-title">Dashboard Summary</div>
+        <div class="dash-stat">Orders: <span id="dashOrders">0</span></div>
+        <div class="dash-stat">Revenue: $<span id="dashRevenue">0.00</span></div>
+        <div class="dash-stat">Cash: <span id="dashCash">0</span></div>
+        <div class="dash-stat">Card: <span id="dashCard">0</span></div>
+        <button class="close-btn" onclick="closeDashboard()">Close</button>
+    </div>
 </div>
 
-<div id="resetConfirm">
-<div id="resetBox">
-<h3>Clear ALL data?</h3>
-<p>This will wipe orders, sales totals, and product counts.</p>
-<button class="reset-btn" id="resetYes">Yes, Clear Everything</button>
-<button class="reset-btn" id="resetNo">Cancel</button>
-</div>
-</div>
-
-<div id="nameModal">
-<div id="nameBox">
-<h3>Enter customer name (optional)</h3>
-<input id="custNameInput" type="text" placeholder="e.g. Sarah">
-<div>
-<button class="name-btn" id="nameOk">OK</button>
-<button class="name-btn" id="nameCancel">Skip</button>
-</div>
-</div>
-</div>
+<!-- AUDIO -->
+<audio id="beepAudio">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
 
 <script>
-const BACKEND_URL="https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec";
 
-const audioCtx=new(window.AudioContext||window.webkitAudioContext);
-const tone=(f,t,d,type="sine")=>{let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;o.type=type;o.connect(g);g.connect(audioCtx.destination);g.gain.setValueAtTime(1,audioCtx.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+t+d);o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+d)};
-const playDing1=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(880,0,.15);tone(660,.18,.25)};
-const playDing2=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(500,0,.15,"square");tone(900,.18,.25,"square")};
-const playDrawer=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(120,0,.15,"square");tone(800,.1,.08,"square")};
+let nextOrderId = 1;
+let kvsOrders = [];
 
-const round5=e=>Math.round(e*20)/20;
+/* PAYMENT HANDLER */
+function proceedStoreOrder(paymentType) {
+    const order = {
+        id: nextOrderId++,
+        items: [
+            { name: "Latte", qty: 1 },
+            { name: "Flat White", qty: 2 },
+            { name: "Mocha", qty: 1 }
+        ],
+        total: 18.00,
+        paymentType: paymentType
+    };
 
-const menuPrices={Latte:5,Cappuccino:5,Mocha:5.5,"Iced Coffee":5.5,"Caramel Frappe":6,"Blueberry Muffin":4};
-let currentOrder=[],selectedIndex=null,lastSideUsed=2,currentPaymentOrder=null,pendingCustomerName="";
-let kvs1Orders=[],kvs2Orders=[];
-
-function formatItem(i){return i.modifiers.length?`${i.name} (${i.modifiers.join(", ")})`:i.name}
-
-document.querySelectorAll(".pos-btn").forEach(b=>{
- b.onclick=()=>{
-  let item=b.dataset.item;
-  currentOrder.push({name:item,modifiers:[],price:menuPrices[item]||5});
-  selectedIndex=currentOrder.length-1;
-  updateOrderList();
- };
-});
-
-function updateOrderList(){
- let box=document.getElementById("orderList");
- if(!currentOrder.length){box.innerHTML="(empty)";selectedIndex=null;return}
- box.innerHTML=currentOrder.map((o,i)=>`<div class="order-line" data-index="${i}" style="${selectedIndex===i?"background:#e8dcc2;":""}">${formatItem(o)}</div>`).join("");
- document.querySelectorAll(".order-line").forEach(l=>{
-  l.onclick=()=>{selectedIndex=parseInt(l.dataset.index);updateOrderList()};
- });
+    sendOrderToBackend(order);
+    addOrderToKvs(order);
+    triggerDrawer(paymentType);
 }
 
-document.getElementById("clearPosBtn").onclick=()=>{currentOrder=[];selectedIndex=null;updateOrderList()};
-document.getElementById("voidItemBtn").onclick=()=>{if(selectedIndex!==null){currentOrder.splice(selectedIndex,1);selectedIndex=null;updateOrderList()}};
-
-document.querySelectorAll(".mod-btn").forEach(m=>{
- m.onclick=()=>{
-  if(selectedIndex===null)return;
-  let mod=m.dataset.mod;
-  let item=currentOrder[selectedIndex];
-  if(!item.modifiers.includes(mod)){item.modifiers.push(mod);updateOrderList()}
- };
-});
-
-function buildOrder(){
- let total=currentOrder.reduce((a,b)=>a+b.price,0);
- return{
-  id:"ORD-"+(1000+Math.floor(Math.random()*9000)),
-  items:currentOrder.map(formatItem),
-  createdAt:Date.now(),
-  total,
-  paymentType:"",
-  customerName:pendingCustomerName||""
- };
+/* SEND ORDER */
+function sendOrderToBackend(order) {
+    fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "addOrder", order })
+    });
 }
 
-function addKvsOrderAuto(order,sideOverride=null){
- let side;
- if(sideOverride)side=sideOverride;else{
-  if(kvs1Orders.length<kvs2Orders.length)side=1;
-  else if(kvs2Orders.length<kvs1Orders.length)side=2;
-  else side=lastSideUsed===1?2:1;
- }
- lastSideUsed=side;
- let kvsObj={id:order.id,items:order.items,createdAt:order.createdAt,total:order.total,paymentType:order.paymentType,customerName:order.customerName};
- side===1?kvs1Orders.push(kvsObj):kvs2Orders.push(kvsObj);
- side===1?playDing1():playDing2();
- renderKvs();
- fetch(BACKEND_URL,{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-   action:"add",
-   id:order.id,
-   side,
-   items:order.items.join(", "),
-   totalExact:order.total,
-   totalRounded:round5(order.total),
-   customerName:order.customerName
-  })
- });
+/* KVS */
+function addOrderToKvs(order) {
+    order.paid = true;
+    kvsOrders.push(order);
+    renderKvs();
+    playBeep();
 }
 
-const nameModal=document.getElementById("nameModal");
-const custNameInput=document.getElementById("custNameInput");
-document.getElementById("storeBtn").onclick=()=>{
- if(!currentOrder.length)return;
- pendingCustomerName="";
- custNameInput.value="";
- nameModal.style.display="flex";
-};
-document.getElementById("nameOk").onclick=()=>{
- pendingCustomerName=custNameInput.value.trim();
- proceedStoreOrder();
-};
-document.getElementById("nameCancel").onclick=()=>{
- pendingCustomerName="";
- proceedStoreOrder();
-};
-function proceedStoreOrder(){
- nameModal.style.display="none";
- let order=buildOrder();
- currentPaymentOrder=order;
- addKvsOrderAuto(order);
- document.getElementById("pos").classList.remove("active");
- document.getElementById("payment").classList.add("active");
- document.getElementById("payCustomer").textContent=order.customerName?`Customer: ${order.customerName}`:"";
- document.getElementById("payItems").textContent=order.items.join(", ");
- document.getElementById("payTotalExact").textContent=`Exact Total: $${order.total.toFixed(2)}`;
- document.getElementById("payTotalRounded").textContent=`Cash Total (Rounded): $${round5(order.total).toFixed(2)}`;
- currentOrder=[];selectedIndex=null;updateOrderList();
+function renderKvs() {
+    const list = document.getElementById("kvsList");
+    list.innerHTML = "";
+
+    kvsOrders.forEach(order => {
+        const div = document.createElement("div");
+        div.className = "kvs-order";
+
+        div.innerHTML = `
+            <div class="kvs-order-header">
+                <span>Order #${order.id}</span>
+                <span>$${order.total.toFixed(2)}</span>
+            </div>
+            <div class="kvs-items">
+                ${order.items.map(i => `${i.name} x${i.qty}`).join("<br>")}
+            </div>
+            <div class="kvs-footer">
+                <span class="status-pill status-paid">PAID</span>
+                <button class="serve-btn serve-ready" onclick="serveOrder(${order.id})">SERVE</button>
+            </div>
+        `;
+
+        list.appendChild(div);
+    });
 }
 
-let cashInput="";
-function updateCashDisplay(){
- document.getElementById("cashEntered").style.color="#f3e9d2";
- document.getElementById("cashEntered").textContent=cashInput||"0.00";
-}
-document.querySelectorAll(".cash-key").forEach(k=>{
- k.onclick=()=>{
-  let key=k.dataset.key;
-  if(key==="clear")cashInput="";
-  else if(key==="."&&!cashInput.includes("."))cashInput+=".";
-  else if(key!=="." )cashInput+=key;
-  updateCashDisplay();
- };
-});
-document.querySelectorAll(".preset-btn").forEach(p=>{
- p.onclick=()=>{cashInput=parseFloat(p.dataset.cash).toFixed(2);updateCashDisplay()};
-});
+function serveOrder(id) {
+    kvsOrders = kvsOrders.filter(o => o.id !== id);
+    renderKvs();
 
-function openCashDrawer(change){
- let d=document.getElementById("cashDrawer");
- document.getElementById("drawerChange").textContent=`Change: $${change.toFixed(2)}`;
- d.style.bottom="0px";playDrawer();
-}
-document.getElementById("closeDrawerBtn").onclick=()=>{
- document.getElementById("cashDrawer").style.bottom="-260px";
- resetToPOS();
-};
-
-document.getElementById("amountTenderedBtn").onclick=()=>{
- if(!currentPaymentOrder)return;
- let paid=parseFloat(cashInput);
- if(isNaN(paid))return;
- let exact=currentPaymentOrder.total;
- let rounded=round5(exact);
- let change=paid-rounded;
- if(change<0){
-  document.getElementById("cashEntered").style.color="red";
-  document.getElementById("cashEntered").textContent=`Short by $${Math.abs(change).toFixed(2)}`;
-  return;
- }
- fetch(BACKEND_URL,{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-   action:"pay",
-   id:currentPaymentOrder.id,
-   paymentType:"cash"
-  })
- }).then(()=>{openCashDrawer(change);syncKvsFromBackend();});
-};
-
-document.getElementById("payCard").onclick=()=>{
- if(currentPaymentOrder){
-  fetch(BACKEND_URL,{
-   method:"POST",
-   headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({
-    action:"pay",
-    id:currentPaymentOrder.id,
-    paymentType:"card"
-   })
-  }).then(()=>{resetToPOS();syncKvsFromBackend();});
- }
-};
-document.getElementById("cancelPay").onclick=resetToPOS;
-
-function resetToPOS(){
- cashInput="";updateCashDisplay();
- currentPaymentOrder=null;
- document.getElementById("payment").classList.remove("active");
- document.getElementById("pos").classList.add("active");
+    fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "serveOrder", orderId: id })
+    });
 }
 
-function removeKvsOrder(side,id){
- let tile=document.querySelector(`.tile[data-id="${id}"]`);
- if(tile){
-  tile.classList.add("bump");
-  setTimeout(()=>{
-   if(side===1)kvs1Orders=kvs1Orders.filter(o=>o.id!==id);
-   else kvs2Orders=kvs2Orders.filter(o=>o.id!==id);
-   renderKvs();
-  },250);
- }
+/* DASHBOARD */
+function openDashboard() {
+    document.getElementById("dashboardModal").style.display = "flex";
+    refreshDashboard();
 }
 
-function renderKvs(){
- renderSide(1,kvs1Orders,document.getElementById("kvsList1"));
- renderSide(2,kvs2Orders,document.getElementById("kvsList2"));
+function closeDashboard() {
+    document.getElementById("dashboardModal").style.display = "none";
 }
 
-function renderSide(side,list,box){
- box.innerHTML="";
- list.forEach(o=>{
-  let t=document.createElement("div");
-  t.className="tile";t.dataset.id=o.id;
-  let header=o.customerName?`${o.customerName} (${o.id})`:o.id;
-  let btnHtml=o.paymentType?'<button class="serve-btn">SERVE</button>':'<button class="serve-btn disabled" disabled>Awaiting Payment</button>';
-  t.innerHTML=
-   `<div class="order-id">${header}</div>
-    <div class="items">${o.items.join(", ")}</div>
-    <div class="timer" data-id="${o.id}"></div>
-    ${btnHtml}`;
-  let btn=t.querySelector(".serve-btn");
-  if(o.paymentType){
-   btn.onclick=()=>{
-    fetch(BACKEND_URL,{
-     method:"POST",
-     headers:{"Content-Type":"application/json"},
-     body:JSON.stringify({action:"serve",id:o.id})
-    }).then(()=>{removeKvsOrder(side,o.id);syncKvsFromBackend();});
-   };
-  }
-  box.appendChild(t);
- });
+function refreshDashboard() {
+    fetch(BACKEND_URL + "?summary=1")
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById("dashOrders").textContent = data.totalOrders;
+            document.getElementById("dashRevenue").textContent = data.totalRevenue.toFixed(2);
+            document.getElementById("dashCash").textContent = data.cashCount;
+            document.getElementById("dashCard").textContent = data.cardCount;
+        });
 }
 
-setInterval(()=>{
- let now=Date.now();
- [...kvs1Orders,...kvs2Orders].forEach(o=>{
-  let el=document.querySelector(`.timer[data-id="${o.id}"]`);
-  if(el){
-   let s=Math.floor((now-o.createdAt)/1000);
-   let m=String(Math.floor(s/60)).padStart(2,"0");
-   let ss=String(s%60).padStart(2,"0");
-   el.textContent=`${m}:${ss}`;
-  }
- });
-},500);
-
-function syncKvsFromBackend(){
- fetch(BACKEND_URL).then(r=>r.json()).then(data=>{
-  let open=data.orders||[];
-  kvs1Orders=[];kvs2Orders=[];
-  open.forEach(o=>{
-   let obj={
-    id:o.id,
-    items:o.items.split(", "),
-    createdAt:new Date(o.createdAt).getTime(),
-    total:o.totalExact,
-    paymentType:o.paymentType||"",
-    customerName:o.customerName||""
-   };
-   (o.side==1?kvs1Orders:kvs2Orders).push(obj);
-  });
-  renderKvs();
- });
+/* DRAWER */
+function triggerDrawer(type) {
+    if (type !== "cash") return;
+    const drawer = document.getElementById("drawer");
+    drawer.classList.remove("open");
+    void drawer.offsetWidth;
+    drawer.classList.add("open");
 }
-setInterval(syncKvsFromBackend,500);
 
-/* Screen Switching */
-document.getElementById("btnPOS").onclick=()=>{
- document.getElementById("pos").classList.add("active");
- document.getElementById("payment").classList.remove("active");
- document.getElementById("kvs1").classList.remove("active");
- document.getElementById("kvs2").classList.remove("active");
-};
-document.getElementById("btnKVS1").onclick=()=>{
- document.getElementById("pos").classList.remove("active");
- document.getElementById("payment").classList.remove("active");
- document.getElementById("kvs1").classList.add("active");
- document.getElementById("kvs2").classList.remove("active");
-};
-document.getElementById("btnKVS2").onclick=()=>{
- document.getElementById("pos").classList.remove("active");
- document.getElementById("payment").classList.remove("active");
- document.getElementById("kvs1").classList.remove("active");
- document.getElementById("kvs2").classList.add("active");
-};
-
-/* Dashboard Modal */
-const dashModal=document.getElementById("dashboardModal");
-document.getElementById("dashboardFab").onclick=()=>{dashModal.style.display="flex";refreshDashboard()};
-document.getElementById("closeDashboard").onclick=()=>{dashModal.style.display="none"};
-
-/* Dashboard Tabs */
-document.querySelectorAll(".db-tab").forEach(t=>{
- t.onclick=()=>{
-  document.querySelectorAll(".db-tab").forEach(x=>x.classList.remove("active"));
-  t.classList.add("active");
-  document.querySelectorAll(".db-panel").forEach(p=>p.classList.remove("active"));
-  document.getElementById(t.dataset.tab).classList.add("active");
- };
-});
-
-/* Dashboard Refresh */
-function refreshDashboard(){
- fetch(BACKEND_URL+"?summary=1").then(r=>r.json()).then(data=>{
-  let cash=data.cash||0,card=data.card||0,grand=data.grand||0;
-  let orders=data.ordersToday||0;
-  let avg=orders?grand/orders:0;
-  document.getElementById("dbCash").textContent=`Cash Sales: $${cash.toFixed(2)}`;
-  document.getElementById("dbCard").textContent=`Card Sales: $${card.toFixed(2)}`;
-  document.getElementById("dbGrand").textContent=`Grand Total: $${grand.toFixed(2)}`;
-  document.getElementById("dbOrdersToday").textContent=`Orders Today: ${orders}`;
-  document.getElementById("dbAvgOrder").textContent=`Avg Order Value: $${avg.toFixed(2)}`;
-  let totals=data.productTotals||{};
-  let max=Math.max(...Object.values(totals),1);
-  const bars={Latte:"mixLatte",Cappuccino:"mixCappuccino",Mocha:"mixMocha","Iced Coffee":"mixIcedCoffee","Caramel Frappe":"mixCaramelFrappe","Blueberry Muffin":"mixBlueberryMuffin"};
-  Object.keys(bars).forEach(p=>{
-   let val=totals[p]||0;
-   let pct=(val/max)*100;
-   document.getElementById(bars[p]).style.width=pct+"%";
-  });
- });
+/* AUDIO */
+function playBeep() {
+    const audio = document.getElementById("beepAudio");
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
 }
-setInterval(()=>{if(dashModal.style.display==="flex")refreshDashboard();},2000);
+</script>
 
-/* Reset Confirmation */
-document.getElementById("clearDataBtn").onclick=()=>{
- document.getElementById("resetConfirm").style.display="flex";
-};
-document.getElementById("resetNo").addEventListener("click",()=>{
- document.getElementById("resetConfirm").style.display="none";
-});
-document.getElementById("resetYes").addEventListener("click",()=>{
- fetch(BACKEND_URL,{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({action:"reset"})
- }).then(()=>{
-  document.getElementById("resetConfirm").style.display="none";
-  refreshDashboard();
-  syncKvsFromBackend();
- });
-});
-
-updateOrderList();updateCashDisplay();syncKvsFromBackend();refreshDashboard();
-</script></body></html>
+</body>
+</html>
 
 
