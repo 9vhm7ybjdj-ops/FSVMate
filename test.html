@@ -34,9 +34,11 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 .kvs-list{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem}
 .tile{background:#000;border:2px solid #333;border-radius:8px;width:calc(25% - .75rem);min-width:160px;aspect-ratio:1/1;padding:.5rem;display:flex;flex-direction:column;justify-content:space-between;transition:transform .25s ease,opacity .25s ease}
 .tile.bump{transform:translateY(40px) scale(.8);opacity:0}
-.order-id{font-weight:700}.items{font-size:.85rem;flex:1}
-.timer{font-family:monospace;font-size:1rem;color:#ffd447}
-.serve-btn{background:#1fb64b;color:#fff;border:none;padding:.4rem;border-radius:6px;cursor:pointer}
+.order-id{font-weight:700;margin-bottom:.25rem}
+.items{font-size:.85rem;flex:1}
+.timer{font-family:monospace;font-size:1rem;color:#ffd447;margin-top:.25rem}
+.serve-btn{background:#1fb64b;color:#fff;border:none;padding:.4rem .6rem;border-radius:6px;cursor:pointer;align-self:flex-end;margin-top:.4rem;font-size:.9rem}
+.serve-btn.disabled{background:#777;color:#ddd;cursor:not-allowed}
 
 /* CASH DRAWER */
 #cashDrawer{position:fixed;bottom:-260px;left:0;right:0;height:260px;background:#222;border-top:4px solid #555;transition:bottom .3s ease;z-index:9998;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:2rem;color:#fff}
@@ -59,16 +61,7 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 .mix-bar-fill{height:100%;background:#d4a857;width:0%;transition:width .6s ease}
 
 /* DASHBOARD BOTTOM BUTTONS */
-#clearDataBtn,#closeDashboard{
- position:absolute;
- bottom:20px;
- padding:.7rem 1.2rem;
- border:none;
- border-radius:8px;
- font-size:1rem;
- font-weight:700;
- cursor:pointer;
-}
+#clearDataBtn,#closeDashboard{position:absolute;bottom:20px;padding:.7rem 1.2rem;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer}
 #clearDataBtn{left:20px;background:#b61f1f;color:#fff}
 #closeDashboard{right:20px;background:#d4a857;color:#3b2f2f}
 
@@ -80,7 +73,15 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 #resetBox{background:#f3e9d2;color:#3b2f2f;padding:1.5rem;border-radius:10px;width:80%;max-width:350px;text-align:center;border:3px solid #d4a857}
 .reset-btn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
 #resetYes{background:#b61f1f;color:#fff}
-#resetNo{background:#5a4634;color:#f3e9d2;margin-left:.5rem}
+#resetNo{background:#5a4634;color:#3b2f2f;margin-left:.5rem}
+
+/* NAME MODAL */
+#nameModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:999999}
+#nameBox{background:#f3e9d2;color:#3b2f2f;padding:1.5rem;border-radius:10px;width:80%;max-width:350px;text-align:center;border:3px solid #d4a857}
+#custNameInput{width:100%;padding:.5rem;margin-top:.5rem;border-radius:6px;border:1px solid #ccc;font-size:1rem}
+.name-btn{margin-top:1rem;padding:.7rem 1rem;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
+#nameOk{background:#1fb64b;color:#fff}
+#nameCancel{background:#5a4634;color:#3b2f2f;margin-left:.5rem}
 </style></head><body>
 
 <div class="nav-buttons">
@@ -115,6 +116,7 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 </div>
 
 <div id="payment" class="screen"><h1>POS Display</h1>
+<div id="payCustomer" style="font-size:1.2rem;margin-bottom:.5rem"></div>
 <div id="payItems"></div>
 <div id="payTotalExact" style="margin-top:1rem;font-size:1.3rem"></div>
 <div id="payTotalRounded" style="margin-top:.3rem;font-size:1.3rem"></div>
@@ -144,7 +146,6 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 <button class="db-tab active" data-tab="salesTab">Sales Summary</button>
 <button class="db-tab" data-tab="mixTab">Product Mix</button>
 </div>
-
 <div id="salesTab" class="db-panel active">
 <div class="db-card" id="dbCash"></div>
 <div class="db-card" id="dbCard"></div>
@@ -152,7 +153,6 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 <div class="db-card" id="dbOrdersToday"></div>
 <div class="db-card" id="dbAvgOrder"></div>
 </div>
-
 <div id="mixTab" class="db-panel">
 <div class="mix-row"><div class="mix-label">Latte</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixLatte"></div></div></div>
 <div class="mix-row"><div class="mix-label">Cappuccino</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixCappuccino"></div></div></div>
@@ -161,7 +161,6 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 <div class="mix-row"><div class="mix-label">Caramel Frappe</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixCaramelFrappe"></div></div></div>
 <div class="mix-row"><div class="mix-label">Blueberry Muffin</div><div class="mix-bar-bg"><div class="mix-bar-fill" id="mixBlueberryMuffin"></div></div></div>
 </div>
-
 <button id="clearDataBtn">Clear Data</button>
 <button id="closeDashboard">Close</button>
 </div>
@@ -173,6 +172,17 @@ body{margin:0;background:#000;color:#fff;font-family:system-ui}
 <p>This will wipe orders, sales totals, and product counts.</p>
 <button class="reset-btn" id="resetYes">Yes, Clear Everything</button>
 <button class="reset-btn" id="resetNo">Cancel</button>
+</div>
+</div>
+
+<div id="nameModal">
+<div id="nameBox">
+<h3>Enter customer name (optional)</h3>
+<input id="custNameInput" type="text" placeholder="e.g. Sarah">
+<div>
+<button class="name-btn" id="nameOk">OK</button>
+<button class="name-btn" id="nameCancel">Skip</button>
+</div>
 </div>
 </div>
 
@@ -188,7 +198,8 @@ const playDrawer=()=>{audioCtx.state==="suspended"&&audioCtx.resume();tone(120,0
 const round5=e=>Math.round(e*20)/20;
 
 const menuPrices={Latte:5,Cappuccino:5,Mocha:5.5,"Iced Coffee":5.5,"Caramel Frappe":6,"Blueberry Muffin":4};
-let currentOrder=[],selectedIndex=null,lastSideUsed=2,currentPaymentOrder=null;
+let currentOrder=[],selectedIndex=null,lastSideUsed=2,currentPaymentOrder=null,pendingCustomerName="";
+let kvs1Orders=[],kvs2Orders=[];
 
 function formatItem(i){return i.modifiers.length?`${i.name} (${i.modifiers.join(", ")})`:i.name}
 
@@ -229,60 +240,73 @@ function buildOrder(){
   items:currentOrder.map(formatItem),
   createdAt:Date.now(),
   total,
-  paymentType:null
+  paymentType:"",
+  customerName:pendingCustomerName||""
  };
 }
 
-let kvs1Orders=[],kvs2Orders=[];
-
-function addKvsOrderAuto(order){
+function addKvsOrderAuto(order,sideOverride=null){
  let side;
- if(kvs1Orders.length<kvs2Orders.length)side=1;
- else if(kvs2Orders.length<kvs1Orders.length)side=2;
- else side=lastSideUsed===1?2:1;
+ if(sideOverride)side=sideOverride;else{
+  if(kvs1Orders.length<kvs2Orders.length)side=1;
+  else if(kvs2Orders.length<kvs1Orders.length)side=2;
+  else side=lastSideUsed===1?2:1;
+ }
  lastSideUsed=side;
-
- side===1?kvs1Orders.push(order):kvs2Orders.push(order);
+ let kvsObj={id:order.id,items:order.items,createdAt:order.createdAt,total:order.total,paymentType:order.paymentType,customerName:order.customerName};
+ side===1?kvs1Orders.push(kvsObj):kvs2Orders.push(kvsObj);
  side===1?playDing1():playDing2();
  renderKvs();
-
  fetch(BACKEND_URL,{
   method:"POST",
-  contentType:"application/json",
+  headers:{"Content-Type":"application/json"},
   body:JSON.stringify({
    action:"add",
    id:order.id,
    side,
-   items:order.items,
+   items:order.items.join(", "),
    totalExact:order.total,
    totalRounded:round5(order.total),
-   paymentType:""
+   customerName:order.customerName
   })
  });
 }
 
+const nameModal=document.getElementById("nameModal");
+const custNameInput=document.getElementById("custNameInput");
 document.getElementById("storeBtn").onclick=()=>{
  if(!currentOrder.length)return;
+ pendingCustomerName="";
+ custNameInput.value="";
+ nameModal.style.display="flex";
+};
+document.getElementById("nameOk").onclick=()=>{
+ pendingCustomerName=custNameInput.value.trim();
+ proceedStoreOrder();
+};
+document.getElementById("nameCancel").onclick=()=>{
+ pendingCustomerName="";
+ proceedStoreOrder();
+};
+function proceedStoreOrder(){
+ nameModal.style.display="none";
  let order=buildOrder();
  currentPaymentOrder=order;
  addKvsOrderAuto(order);
-
  document.getElementById("pos").classList.remove("active");
  document.getElementById("payment").classList.add("active");
-
+ document.getElementById("payCustomer").textContent=order.customerName?`Customer: ${order.customerName}`:"";
  document.getElementById("payItems").textContent=order.items.join(", ");
  document.getElementById("payTotalExact").textContent=`Exact Total: $${order.total.toFixed(2)}`;
  document.getElementById("payTotalRounded").textContent=`Cash Total (Rounded): $${round5(order.total).toFixed(2)}`;
-
  currentOrder=[];selectedIndex=null;updateOrderList();
-};
+}
 
 let cashInput="";
 function updateCashDisplay(){
  document.getElementById("cashEntered").style.color="#f3e9d2";
  document.getElementById("cashEntered").textContent=cashInput||"0.00";
 }
-
 document.querySelectorAll(".cash-key").forEach(k=>{
  k.onclick=()=>{
   let key=k.dataset.key;
@@ -292,7 +316,6 @@ document.querySelectorAll(".cash-key").forEach(k=>{
   updateCashDisplay();
  };
 });
-
 document.querySelectorAll(".preset-btn").forEach(p=>{
  p.onclick=()=>{cashInput=parseFloat(p.dataset.cash).toFixed(2);updateCashDisplay()};
 });
@@ -302,7 +325,6 @@ function openCashDrawer(change){
  document.getElementById("drawerChange").textContent=`Change: $${change.toFixed(2)}`;
  d.style.bottom="0px";playDrawer();
 }
-
 document.getElementById("closeDrawerBtn").onclick=()=>{
  document.getElementById("cashDrawer").style.bottom="-260px";
  resetToPOS();
@@ -320,33 +342,30 @@ document.getElementById("amountTenderedBtn").onclick=()=>{
   document.getElementById("cashEntered").textContent=`Short by $${Math.abs(change).toFixed(2)}`;
   return;
  }
- currentPaymentOrder.paymentType="cash";
  fetch(BACKEND_URL,{
   method:"POST",
-  contentType:"application/json",
+  headers:{"Content-Type":"application/json"},
   body:JSON.stringify({
-   action:"serve",
+   action:"pay",
    id:currentPaymentOrder.id,
    paymentType:"cash"
   })
- }).then(()=>{openCashDrawer(change);});
+ }).then(()=>{openCashDrawer(change);syncKvsFromBackend();});
 };
 
 document.getElementById("payCard").onclick=()=>{
  if(currentPaymentOrder){
-  currentPaymentOrder.paymentType="card";
   fetch(BACKEND_URL,{
    method:"POST",
-   contentType:"application/json",
+   headers:{"Content-Type":"application/json"},
    body:JSON.stringify({
-    action:"serve",
+    action:"pay",
     id:currentPaymentOrder.id,
     paymentType:"card"
    })
-  }).then(()=>{resetToPOS();});
+  }).then(()=>{resetToPOS();syncKvsFromBackend();});
  }
 };
-
 document.getElementById("cancelPay").onclick=resetToPOS;
 
 function resetToPOS(){
@@ -378,19 +397,23 @@ function renderSide(side,list,box){
  list.forEach(o=>{
   let t=document.createElement("div");
   t.className="tile";t.dataset.id=o.id;
+  let header=o.customerName?`${o.customerName} (${o.id})`:o.id;
+  let btnHtml=o.paymentType?'<button class="serve-btn">SERVE</button>':'<button class="serve-btn disabled" disabled>Awaiting Payment</button>';
   t.innerHTML=
-   `<div class="order-id">${o.id}</div>
+   `<div class="order-id">${header}</div>
     <div class="items">${o.items.join(", ")}</div>
     <div class="timer" data-id="${o.id}"></div>
-    <button class="serve-btn">SERVE</button>`;
-  t.querySelector(".serve-btn").onclick=()=>{
-   removeKvsOrder(side,o.id);
-   fetch(BACKEND_URL,{
-    method:"POST",
-    contentType:"application/json",
-    body:JSON.stringify({action:"serve",id:o.id})
-   });
-  };
+    ${btnHtml}`;
+  let btn=t.querySelector(".serve-btn");
+  if(o.paymentType){
+   btn.onclick=()=>{
+    fetch(BACKEND_URL,{
+     method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({action:"serve",id:o.id})
+    }).then(()=>{removeKvsOrder(side,o.id);syncKvsFromBackend();});
+   };
+  }
   box.appendChild(t);
  });
 }
@@ -410,14 +433,16 @@ setInterval(()=>{
 
 function syncKvsFromBackend(){
  fetch(BACKEND_URL).then(r=>r.json()).then(data=>{
-  let open=data.orders.filter(o=>o.status==="OPEN");
+  let open=data.orders||[];
   kvs1Orders=[];kvs2Orders=[];
   open.forEach(o=>{
    let obj={
     id:o.id,
     items:o.items.split(", "),
     createdAt:new Date(o.createdAt).getTime(),
-    total:o.totalExact
+    total:o.totalExact,
+    paymentType:o.paymentType||"",
+    customerName:o.customerName||""
    };
    (o.side==1?kvs1Orders:kvs2Orders).push(obj);
   });
@@ -467,25 +492,14 @@ function refreshDashboard(){
   let cash=data.cash||0,card=data.card||0,grand=data.grand||0;
   let orders=data.ordersToday||0;
   let avg=orders?grand/orders:0;
-
   document.getElementById("dbCash").textContent=`Cash Sales: $${cash.toFixed(2)}`;
   document.getElementById("dbCard").textContent=`Card Sales: $${card.toFixed(2)}`;
   document.getElementById("dbGrand").textContent=`Grand Total: $${grand.toFixed(2)}`;
   document.getElementById("dbOrdersToday").textContent=`Orders Today: ${orders}`;
   document.getElementById("dbAvgOrder").textContent=`Avg Order Value: $${avg.toFixed(2)}`;
-
   let totals=data.productTotals||{};
   let max=Math.max(...Object.values(totals),1);
-
-  const bars={
-   Latte:"mixLatte",
-   Cappuccino:"mixCappuccino",
-   Mocha:"mixMocha",
-   "Iced Coffee":"mixIcedCoffee",
-   "Caramel Frappe":"mixCaramelFrappe",
-   "Blueberry Muffin":"mixBlueberryMuffin"
-  };
-
+  const bars={Latte:"mixLatte",Cappuccino:"mixCappuccino",Mocha:"mixMocha","Iced Coffee":"mixIcedCoffee","Caramel Frappe":"mixCaramelFrappe","Blueberry Muffin":"mixBlueberryMuffin"};
   Object.keys(bars).forEach(p=>{
    let val=totals[p]||0;
    let pct=(val/max)*100;
@@ -493,10 +507,7 @@ function refreshDashboard(){
   });
  });
 }
-
-setInterval(()=>{
- if(dashModal.style.display==="flex")refreshDashboard();
-},2000);
+setInterval(()=>{if(dashModal.style.display==="flex")refreshDashboard();},2000);
 
 /* Reset Confirmation */
 document.getElementById("clearDataBtn").onclick=()=>{
@@ -508,7 +519,7 @@ document.getElementById("resetNo").addEventListener("click",()=>{
 document.getElementById("resetYes").addEventListener("click",()=>{
  fetch(BACKEND_URL,{
   method:"POST",
-  contentType:"application/json",
+  headers:{"Content-Type":"application/json"},
   body:JSON.stringify({action:"reset"})
  }).then(()=>{
   document.getElementById("resetConfirm").style.display="none";
@@ -517,6 +528,7 @@ document.getElementById("resetYes").addEventListener("click",()=>{
  });
 });
 
-updateOrderList();updateCashDisplay();
+updateOrderList();updateCashDisplay();syncKvsFromBackend();refreshDashboard();
 </script></body></html>
+
 
