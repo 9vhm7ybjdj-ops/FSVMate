@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>McCafé POS System</title>
+<title>McCafé POS – Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -19,68 +19,113 @@
         height: 100vh;
     }
 
-    /* POS PANEL */
+    /* POS SIDE */
     .pos-panel {
         flex: 1;
-        padding: 20px;
+        padding: 16px;
         border-right: 2px solid #2b2222;
         display: flex;
         flex-direction: column;
+        box-sizing: border-box;
     }
 
     .pos-header {
-        font-size: 28px;
+        font-size: 26px;
         font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
         margin-bottom: 10px;
+    }
+
+    .product-btn {
+        background: #d4a373;
+        color: #3b2f2f;
+        border: none;
+        border-radius: 10px;
+        padding: 16px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .product-btn:active {
+        transform: scale(0.96);
     }
 
     .order-display {
         flex: 1;
         background: #4a3a3a;
-        border-radius: 12px;
-        padding: 16px;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
         overflow-y: auto;
-        margin-bottom: 16px;
     }
 
-    .order-item {
-        background: #5a4646;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        font-size: 18px;
+    .order-line {
         display: flex;
         justify-content: space-between;
+        margin-bottom: 6px;
+        background: #5a4646;
+        padding: 6px 8px;
+        border-radius: 6px;
+        font-size: 16px;
     }
 
     .order-totals {
-        font-size: 20px;
         display: flex;
         justify-content: space-between;
-        margin-bottom: 16px;
+        margin-bottom: 8px;
+        font-size: 18px;
+    }
+
+    .tender-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+        align-items: center;
+    }
+
+    .tender-row input {
+        padding: 6px;
+        font-size: 18px;
+        border-radius: 6px;
+        border: none;
+        width: 120px;
+    }
+
+    .tender-label {
+        font-size: 18px;
     }
 
     .payment-buttons {
         display: flex;
-        gap: 16px;
-        margin-bottom: 10px;
+        gap: 10px;
+        margin-bottom: 8px;
     }
 
     .pay-btn {
         flex: 1;
-        padding: 20px;
-        font-size: 24px;
+        padding: 14px;
+        font-size: 20px;
+        border-radius: 10px;
         border: none;
-        border-radius: 12px;
         cursor: pointer;
         font-weight: bold;
-        transition: 0.2s;
     }
 
     .cash { background: #d4a373; color: #3b2f2f; }
     .card { background: #c08552; color: #3b2f2f; }
 
-    .pay-btn:active { transform: scale(0.95); }
+    .pay-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
 
     #drawer {
         width: 100%;
@@ -99,43 +144,106 @@
         to { height: 140px; }
     }
 
-    /* KVS PANEL */
+    .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+
+    .side-toggle {
+        display: flex;
+        gap: 6px;
+    }
+
+    .side-btn {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        background: #5a4646;
+        color: #fff;
+    }
+
+    .side-btn.active {
+        background: #d4a373;
+        color: #3b2f2f;
+    }
+
+    .dashboard-button {
+        padding: 8px 12px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        background: #c08552;
+        color: #3b2f2f;
+        cursor: pointer;
+    }
+
+    /* KVS SIDE */
     .kvs-panel {
         flex: 1;
-        padding: 20px;
+        padding: 16px;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
     }
 
     .kvs-header {
-        font-size: 28px;
+        font-size: 26px;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+    }
+
+    .kvs-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .kvs-tab {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: none;
+        cursor: pointer;
+        background: #5a4646;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .kvs-tab.active {
+        background: #d4a373;
+        color: #3b2f2f;
     }
 
     .kvs-list {
         flex: 1;
         background: #4a3a3a;
-        border-radius: 12px;
-        padding: 16px;
+        border-radius: 10px;
+        padding: 10px;
         overflow-y: auto;
     }
 
     .kvs-order {
         background: #5a4646;
-        padding: 10px;
+        padding: 8px;
         border-radius: 8px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        font-size: 16px;
     }
 
     .kvs-order-header {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
         font-weight: bold;
     }
 
-    .kvs-items { margin-bottom: 8px; }
+    .kvs-items {
+        margin-bottom: 6px;
+    }
 
     .kvs-footer {
         display: flex;
@@ -144,25 +252,21 @@
     }
 
     .serve-btn {
-        padding: 8px 14px;
+        padding: 6px 10px;
         border-radius: 8px;
         border: none;
         cursor: pointer;
         font-weight: bold;
-        font-size: 16px;
-    }
-
-    .serve-disabled { background: #777; color: #ccc; cursor: not-allowed; }
-    .serve-ready { background: #4caf50; color: #fff; }
-
-    .status-pill {
-        padding: 4px 10px;
-        border-radius: 999px;
         font-size: 14px;
     }
 
-    .status-unpaid { background: #b23b3b; }
-    .status-paid { background: #2e7d32; }
+    .serve-ready { background: #4caf50; color: #fff; }
+    .status-pill {
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 13px;
+        background: #2e7d32;
+    }
 
     /* DASHBOARD MODAL */
     #dashboardModal {
@@ -177,78 +281,92 @@
 
     .dashboard-box {
         background: #4a3a3a;
-        padding: 30px;
-        border-radius: 12px;
-        width: 400px;
+        padding: 24px;
+        border-radius: 10px;
+        width: 360px;
         text-align: center;
     }
 
     .dash-title {
-        font-size: 26px;
-        margin-bottom: 20px;
+        font-size: 24px;
+        margin-bottom: 16px;
     }
 
     .dash-stat {
-        font-size: 22px;
-        margin: 10px 0;
+        font-size: 20px;
+        margin: 6px 0;
     }
 
     .close-btn {
-        margin-top: 20px;
-        padding: 10px 20px;
-        font-size: 18px;
-        border: none;
+        margin-top: 16px;
+        padding: 8px 16px;
+        font-size: 16px;
         border-radius: 8px;
+        border: none;
         background: #d4a373;
-        color: #3b2f2f;
-        cursor: pointer;
-    }
-
-    .dashboard-button {
-        margin-top: 10px;
-        padding: 12px;
-        font-size: 20px;
-        border-radius: 8px;
-        border: none;
-        background: #c08552;
         color: #3b2f2f;
         cursor: pointer;
     }
 </style>
 </head>
-
 <body>
 
 <div class="app-container">
 
-    <!-- POS PANEL -->
+    <!-- POS -->
     <div class="pos-panel">
-        <div class="pos-header">McCafé POS</div>
-
-        <div class="order-display" id="orderDisplay">
-            <div class="order-item"><span>Latte</span><span>x1</span></div>
-            <div class="order-item"><span>Flat White</span><span>x2</span></div>
-            <div class="order-item"><span>Mocha</span><span>x1</span></div>
+        <div class="top-row">
+            <div class="pos-header">McCafé POS</div>
+            <div>
+                <button class="dashboard-button" onclick="openDashboard()">Dashboard</button>
+            </div>
         </div>
 
+        <div class="product-grid">
+            <button class="product-btn" data-name="Latte" data-price="4.50" onclick="addItem(this)">Latte<br>$4.50</button>
+            <button class="product-btn" data-name="Flat White" data-price="4.50" onclick="addItem(this)">Flat White<br>$4.50</button>
+            <button class="product-btn" data-name="Cappuccino" data-price="4.50" onclick="addItem(this)">Cappuccino<br>$4.50</button>
+            <button class="product-btn" data-name="Mocha" data-price="5.00" onclick="addItem(this)">Mocha<br>$5.00</button>
+            <button class="product-btn" data-name="Long Black" data-price="4.00" onclick="addItem(this)">Long Black<br>$4.00</button>
+            <button class="product-btn" data-name="Hot Chocolate" data-price="4.50" onclick="addItem(this)">Hot Chocolate<br>$4.50</button>
+        </div>
+
+        <div class="order-display" id="orderDisplay"></div>
+
         <div class="order-totals">
-            <span>Items: <span id="itemCount">4</span></span>
-            <span>Total: $<span id="orderTotal">18.00</span></span>
+            <span>Items: <span id="itemCount">0</span></span>
+            <span>Total: $<span id="orderTotal">0.00</span></span>
+        </div>
+
+        <div class="tender-row">
+            <span class="tender-label">Cash received:</span>
+            <input type="number" id="cashReceived" step="0.05" oninput="updateChange()">
+            <span class="tender-label">Change: $<span id="changeDue">0.00</span></span>
+        </div>
+
+        <div class="tender-row">
+            <span class="tender-label">Side:</span>
+            <div class="side-toggle">
+                <button class="side-btn active" id="side1Btn" onclick="setSide(1)">Side 1</button>
+                <button class="side-btn" id="side2Btn" onclick="setSide(2)">Side 2</button>
+            </div>
         </div>
 
         <div class="payment-buttons">
-            <button class="pay-btn cash" onclick="proceedStoreOrder('cash')">CASH</button>
-            <button class="pay-btn card" onclick="proceedStoreOrder('card')">CARD</button>
+            <button class="pay-btn cash" id="cashBtn" onclick="proceedPayment('cash')" disabled>CASH</button>
+            <button class="pay-btn card" onclick="proceedPayment('card')">CARD</button>
         </div>
-
-        <button class="dashboard-button" onclick="openDashboard()">Dashboard</button>
 
         <div id="drawer"></div>
     </div>
 
-    <!-- KVS PANEL -->
+    <!-- KVS -->
     <div class="kvs-panel">
-        <div class="kvs-header">KVS Queue</div>
+        <div class="kvs-header">KVS</div>
+        <div class="kvs-tabs">
+            <button class="kvs-tab active" id="kvsSide1Tab" onclick="setKvsView(1)">Side 1</button>
+            <button class="kvs-tab" id="kvsSide2Tab" onclick="setKvsView(2)">Side 2</button>
+        </div>
         <div class="kvs-list" id="kvsList"></div>
     </div>
 
@@ -266,7 +384,6 @@
     </div>
 </div>
 
-<!-- AUDIO -->
 <audio id="beepAudio">
     <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
 </audio>
@@ -274,68 +391,154 @@
 <script>
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec";
 
-let nextOrderId = 1;
+let currentOrder = [];
+let currentSide = 1;
+let kvsSideView = 1;
 let kvsOrders = [];
+let nextOrderId = 1;
 
-/* PAYMENT HANDLER */
-function proceedStoreOrder(paymentType) {
+/* POS LOGIC */
+
+function addItem(btn) {
+    const name = btn.getAttribute("data-name");
+    const price = parseFloat(btn.getAttribute("data-price"));
+
+    const existing = currentOrder.find(i => i.name === name);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        currentOrder.push({ name, price, qty: 1 });
+    }
+    renderOrder();
+}
+
+function renderOrder() {
+    const container = document.getElementById("orderDisplay");
+    container.innerHTML = "";
+
+    let total = 0;
+    let count = 0;
+
+    currentOrder.forEach(item => {
+        total += item.price * item.qty;
+        count += item.qty;
+
+        const line = document.createElement("div");
+        line.className = "order-line";
+        line.innerHTML = `
+            <span>${item.name} x${item.qty}</span>
+            <span>$${(item.price * item.qty).toFixed(2)}</span>
+        `;
+        container.appendChild(line);
+    });
+
+    document.getElementById("orderTotal").textContent = total.toFixed(2);
+    document.getElementById("itemCount").textContent = count;
+
+    updateChange();
+}
+
+function updateChange() {
+    const total = parseFloat(document.getElementById("orderTotal").textContent) || 0;
+    const cash = parseFloat(document.getElementById("cashReceived").value) || 0;
+    const change = cash - total;
+
+    document.getElementById("changeDue").textContent = (change > 0 ? change : 0).toFixed(2);
+
+    const cashBtn = document.getElementById("cashBtn");
+    if (cash >= total && total > 0) {
+        cashBtn.disabled = false;
+    } else {
+        cashBtn.disabled = true;
+    }
+}
+
+function setSide(side) {
+    currentSide = side;
+    document.getElementById("side1Btn").classList.toggle("active", side === 1);
+    document.getElementById("side2Btn").classList.toggle("active", side === 2);
+}
+
+function proceedPayment(type) {
+    const total = parseFloat(document.getElementById("orderTotal").textContent) || 0;
+    if (total <= 0 || currentOrder.length === 0) return;
+
+    if (type === "cash") {
+        const cash = parseFloat(document.getElementById("cashReceived").value) || 0;
+        if (cash < total) return;
+        triggerDrawer();
+    }
+
+    const orderId = nextOrderId++;
     const order = {
-        id: nextOrderId++,
-        items: [
-            { name: "Latte", qty: 1 },
-            { name: "Flat White", qty: 2 },
-            { name: "Mocha", qty: 1 }
-        ],
-        total: 18.00,
-        paymentType: paymentType
+        id: orderId,
+        side: currentSide,
+        items: currentOrder.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+        total: total,
+        paymentType: type
     };
 
     sendOrderToBackend(order);
-    addOrderToKvs(order);
-    triggerDrawer(paymentType);
+    addToKvs(order);
+
+    // reset order
+    currentOrder = [];
+    document.getElementById("cashReceived").value = "";
+    document.getElementById("changeDue").textContent = "0.00";
+    renderOrder();
 }
 
-/* SEND ORDER */
+/* BACKEND */
+
 function sendOrderToBackend(order) {
     fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "addOrder", order })
-    });
+    }).catch(() => {});
 }
 
 /* KVS */
-function addOrderToKvs(order) {
-    order.paid = true;
+
+function addToKvs(order) {
     kvsOrders.push(order);
-    renderKvs();
     playBeep();
+    renderKvs();
+}
+
+function setKvsView(side) {
+    kvsSideView = side;
+    document.getElementById("kvsSide1Tab").classList.toggle("active", side === 1);
+    document.getElementById("kvsSide2Tab").classList.toggle("active", side === 2);
+    renderKvs();
 }
 
 function renderKvs() {
     const list = document.getElementById("kvsList");
     list.innerHTML = "";
 
-    kvsOrders.forEach(order => {
-        const div = document.createElement("div");
-        div.className = "kvs-order";
+    kvsOrders
+        .filter(o => o.side === kvsSideView)
+        .forEach(order => {
+            const div = document.createElement("div");
+            div.className = "kvs-order";
 
-        div.innerHTML = `
-            <div class="kvs-order-header">
-                <span>Order #${order.id}</span>
-                <span>$${order.total.toFixed(2)}</span>
-            </div>
-            <div class="kvs-items">
-                ${order.items.map(i => `${i.name} x${i.qty}`).join("<br>")}
-            </div>
-            <div class="kvs-footer">
-                <span class="status-pill status-paid">PAID</span>
-                <button class="serve-btn serve-ready" onclick="serveOrder(${order.id})">SERVE</button>
-            </div>
-        `;
+            const itemsHtml = order.items.map(i => `${i.name} x${i.qty}`).join("<br>");
 
-        list.appendChild(div);
-    });
+            div.innerHTML = `
+                <div class="kvs-order-header">
+                    <span>Order #${order.id}</span>
+                    <span>$${order.total.toFixed(2)}</span>
+                </div>
+                <div class="kvs-items">${itemsHtml}</div>
+                <div class="kvs-footer">
+                    <span class="status-pill">PAID</span>
+                    <button class="serve-btn serve-ready" onclick="serveOrder(${order.id})">SERVE</button>
+                </div>
+            `;
+
+            list.appendChild(div);
+        });
 }
 
 function serveOrder(id) {
@@ -346,10 +549,11 @@ function serveOrder(id) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "serveOrder", orderId: id })
-    });
+    }).catch(() => {});
 }
 
 /* DASHBOARD */
+
 function openDashboard() {
     document.getElementById("dashboardModal").style.display = "flex";
     refreshDashboard();
@@ -363,23 +567,23 @@ function refreshDashboard() {
     fetch(BACKEND_URL + "?summary=1")
         .then(r => r.json())
         .then(data => {
-            document.getElementById("dashOrders").textContent = data.totalOrders;
-            document.getElementById("dashRevenue").textContent = data.totalRevenue.toFixed(2);
-            document.getElementById("dashCash").textContent = data.cashCount;
-            document.getElementById("dashCard").textContent = data.cardCount;
-        });
+            document.getElementById("dashOrders").textContent = data.totalOrders ?? 0;
+            document.getElementById("dashRevenue").textContent = (data.totalRevenue ?? 0).toFixed(2);
+            document.getElementById("dashCash").textContent = data.cashCount ?? 0;
+            document.getElementById("dashCard").textContent = data.cardCount ?? 0;
+        })
+        .catch(() => {});
 }
 
-/* DRAWER */
-function triggerDrawer(type) {
-    if (type !== "cash") return;
+/* DRAWER + AUDIO */
+
+function triggerDrawer() {
     const drawer = document.getElementById("drawer");
     drawer.classList.remove("open");
     void drawer.offsetWidth;
     drawer.classList.add("open");
 }
 
-/* AUDIO */
 function playBeep() {
     const audio = document.getElementById("beepAudio");
     audio.currentTime = 0;
