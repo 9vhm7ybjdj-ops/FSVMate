@@ -187,7 +187,7 @@
         .store-btn { background: var(--success); color: var(--text-light); }
         .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* --- KVS MODULE STYLING (Dedicated Full Screen Grid) --- */
+        /* --- KVS MODULE STYLING --- */
         .kvs-container {
             flex: 1;
             padding: 20px;
@@ -312,6 +312,7 @@
             bottom: -250px;
             left: 0;
             width: 100%;
+            height: 250px;
             background: #111;
             color: var(--text-light);
             padding: 20px;
@@ -343,7 +344,6 @@
 </head>
 <body>
 
-<!-- Device Management Navigation Top-Bar -->
 <nav class="system-nav">
     <div class="nav-brand">McCafé Network</div>
     <button class="nav-btn active" id="btn-pos" onclick="switchView('pos')">POS Terminal View</button>
@@ -381,7 +381,6 @@
             <button class="action-btn store-btn" id="storeBtn" onclick="storeOrder()">STORE ORDER</button>
         </div>
 
-        <!-- Sliding Register Drawer Sub-Module -->
         <div class="payment-panel" id="paymentPanel">
             <div class="payment-header">Payment Checkout</div>
             <div class="payment-summary">Order #<span id="payOrderId">0</span> — Total: $<span id="payTotal">0.00</span></div>
@@ -427,7 +426,7 @@
     </div>
 </div>
 
-<!-- PANEL 2: KVS SIDE 1 ASSEMBLY MONITOR -->
+<!-- PANEL 2: KVS SIDE 1 -->
 <div class="view-panel" id="panel-kvs1">
     <div class="kvs-container">
         <div class="kvs-title-bar">Side 1 Assembly Queue</div>
@@ -435,7 +434,7 @@
     </div>
 </div>
 
-<!-- PANEL 3: KVS SIDE 2 ASSEMBLY MONITOR -->
+<!-- PANEL 3: KVS SIDE 2 -->
 <div class="view-panel" id="panel-kvs2">
     <div class="kvs-container">
         <div class="kvs-title-bar">Side 2 Assembly Queue</div>
@@ -492,12 +491,10 @@
     </div>
 </div>
 
-<!-- Network Audio Triggers -->
 <audio id="beepAudio"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio>
 <audio id="soundAlert"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio>
 
 <script>
-// Target backend explicitly bound to your Google Sheets pipeline 
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwNL07D3Xx_bi5dNN6ApLBgSIxEweETHMixuZ1sVLEE6hwBdLub6ISLnz_9BDozVfZv/exec";
 
 let currentOrder = [], selectedIndex = -1, kvsOrders = [], nextOrderId = 1;
@@ -505,16 +502,16 @@ let inPayment = false, pendingOrder = null, tendered = 0, pendingItem = null, la
 let keypadString = "0";
 let activeSystemView = "pos";
 
-// Hardware Configuration Navigation Switch
+// Local tracking sets to prevent backend polling from overwriting unsaved local state
+let unconfirmedLocalIds = new Set(); 
+let locallyServedIds = new Set();
+
 function switchView(targetRole) {
     activeSystemView = targetRole;
-    
-    // Toggle Tab Buttons
     document.getElementById("btn-pos").classList.toggle("active", targetRole === 'pos');
     document.getElementById("btn-kvs1").classList.toggle("active", targetRole === 'kvs1');
     document.getElementById("btn-kvs2").classList.toggle("active", targetRole === 'kvs2');
     
-    // Toggle Fullscreen Views
     document.getElementById("panel-pos").classList.toggle("active-view", targetRole === 'pos');
     document.getElementById("panel-kvs1").classList.toggle("active-view", targetRole === 'kvs1');
     document.getElementById("panel-kvs2").classList.toggle("active-view", targetRole === 'kvs2');
@@ -607,10 +604,19 @@ function saveCustomerName() {
     createOrderAfterName(name);
 }
 
+function buildItemSummaryString(items) {
+    if (!Array.isArray(items)) return "";
+    return items.map(i => {
+        let m = [];
+        if (i.modifiers && i.modifiers.milk) m.push(i.modifiers.milk);
+        if (i.modifiers && i.modifiers.extra) m.push(i.modifiers.extra);
+        return `${i.name} x${i.qty}` + (m.length > 0 ? ` (${m.join(", ")})` : "");
+    }).join(" | ");
+}
+
 function createOrderAfterName(customerName) {
     const currentTotal = parseFloat(document.getElementById("orderTotal").textContent) || 0;
     
-    // Balanced production side assignment engine
     const side1Count = kvsOrders.filter(o => o.side === 1).length;
     const side2Count = kvsOrders.filter(o => o.side === 2).length;
     const balancedSide = side1Count <= side2Count ? 1 : 2;
@@ -627,6 +633,9 @@ function createOrderAfterName(customerName) {
     };
 
     pendingOrder = orderData;
+    
+    // Safety buffer locks out background loops until network pipeline reconciles
+    unconfirmedLocalIds.add(assignedId);
     addToKvs(orderData);
     playBeep();
     
@@ -691,12 +700,17 @@ function completeCard() {
 }
 
 function cancelPayment() {
+    if (pendingOrder) {
+        unconfirmedLocalIds.delete(pendingOrder.id);
+        kvsOrders = kvsOrders.filter(o => o.id !== pendingOrder.id);
+    }
     pendingOrder = null;
     inPayment = false;
     tendered = 0;
     keypadString = "0";
     document.getElementById("paymentPanel").classList.remove("show");
     renderOrder();
+    renderKvs();
 }
 
 function openDrawer() { document.getElementById("drawerOverlay").classList.add("open"); }
@@ -718,18 +732,19 @@ function sendOrderToBackend(orderPayload) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "addOrder", order: orderPayload })
-    }).catch(err => console.error("Upstream POS Save Sync Fault:", err));
+    })
+    .then(() => {
+        // Safe to remove from local buffer lock now that it exists on spreadsheet backend
+        unconfirmedLocalIds.delete(orderPayload.id);
+    })
+    .catch(err => {
+        console.error("Upstream POS Save Sync Fault:", err);
+        unconfirmedLocalIds.delete(orderPayload.id); 
+    });
 }
 
 function addToKvs(orderObject) {
-    if (Array.isArray(orderObject.items)) {
-        orderObject.itemSummaryString = orderObject.items.map(i => {
-            let m = [];
-            if (i.modifiers.milk) m.push(i.modifiers.milk);
-            if (i.modifiers.extra) m.push(i.modifiers.extra);
-            return `${i.name} x${i.qty}` + (m.length > 0 ? ` (${m.join(", ")})` : "");
-        }).join(" | ");
-    }
+    orderObject.itemSummaryString = buildItemSummaryString(orderObject.items);
     kvsOrders.push(orderObject);
     renderKvs();
 }
@@ -742,10 +757,12 @@ function renderKvs() {
     grid2.innerHTML = "";
     
     kvsOrders.forEach(order => {
+        if (locallyServedIds.has(order.id)) return;
+
         const card = document.createElement("div");
         card.className = "kvs-card";
         
-        const displayItems = order.itemSummaryString || (order.items && order.items[0] ? order.items[0].name : "");
+        const displayItems = order.itemSummaryString || "";
 
         card.innerHTML = `
             <div class="kvs-card-header">
@@ -767,6 +784,7 @@ function renderKvs() {
 }
 
 function serveOrder(id) {
+    locallyServedIds.add(id);
     kvsOrders = kvsOrders.filter(o => o.id !== id);
     renderKvs();
 
@@ -774,7 +792,8 @@ function serveOrder(id) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "serveOrder", orderId: id })
-    }).catch(err => console.error("Upstream KVS Clear Fault:", err));
+    })
+    .catch(err => console.error("Upstream KVS Clear Fault:", err));
 }
 
 function refreshKvsFromBackend() {
@@ -785,14 +804,20 @@ function refreshKvsFromBackend() {
     })
     .then(res => res.json())
     .then(data => {
+        if (!Array.isArray(data)) return;
+
         const activeIds = data.map(o => o.id);
         let audioPlayed = false;
 
+        // Clean out ancient serve records no longer tracked by spreadsheet
+        locallyServedIds.forEach(id => {
+            if (!activeIds.includes(id)) locallyServedIds.delete(id);
+        });
+
         activeIds.forEach(id => {
-            if (!lastOrderIds.includes(id)) {
+            if (!lastOrderIds.includes(id) && !unconfirmedLocalIds.has(id)) {
                 const specOrder = data.find(o => o.id === id);
                 if (specOrder && !audioPlayed) {
-                    // Sounds only trigger if this device is monitoring the targeted assembly track
                     if ((specOrder.side === 1 && activeSystemView === "kvs1") || 
                         (specOrder.side === 2 && activeSystemView === "kvs2")) {
                         document.getElementById("soundAlert").play().catch(() => {});
@@ -800,14 +825,24 @@ function refreshKvsFromBackend() {
                     }
                 }
             }
+            // Advance auto-increment tracker if remote IDs are larger
+            if (id >= nextOrderId) {
+                nextOrderId = id + 1;
+            }
         });
         lastOrderIds = activeIds;
         
-        kvsOrders = data.map(o => {
-            if (o.items && o.items[0]) o.itemSummaryString = o.items[0].name;
-            return o;
-        });
+        // Build fresh array balancing remote states with locally locked items
+        let remoteOrdersMapped = data
+            .filter(o => !locallyServedIds.has(o.id) && !unconfirmedLocalIds.has(o.id))
+            .map(o => {
+                o.itemSummaryString = buildItemSummaryString(o.items);
+                return o;
+            });
+
+        let localUnconfirmedOrders = kvsOrders.filter(o => unconfirmedLocalIds.has(o.id));
         
+        kvsOrders = [...localUnconfirmedOrders, ...remoteOrdersMapped];
         renderKvs();
     })
     .catch(() => {});
@@ -856,7 +891,7 @@ setInterval(() => {
 // Initialize System
 renderOrder();
 refreshKvsFromBackend();
-setInterval(refreshKvsFromBackend, 3000); // Polling synchronization loop
+setInterval(refreshKvsFromBackend, 3000);
 </script>
 </body>
 </html>
