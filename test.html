@@ -2,896 +2,321 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>McCafé Unified System (POS/KVS)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Kitchen Display System</title>
     <style>
         :root {
-            --bg-dark: #3b2f2f;
-            --bg-panel: #4a3a3a;
-            --bg-item: #5a4646;
-            --accent: #d4a373;
-            --accent-dark: #c08552;
-            --success: #4caf50;
-            --danger: #8d4b4b;
-            --danger-light: #b36b6b;
-            --text-light: #fff;
-            --text-dark: #3b2f2f;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --primary: #4a90e2;
+            --success: #2ec4b6;
+            --border: #dddddd;
         }
 
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-light);
-            overflow: hidden;
-            user-select: none;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* Device Role Selector Bar */
-        .system-nav {
-            background: #2b2222;
-            padding: 10px 16px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            border-bottom: 2px solid #1a1515;
-            z-index: 100;
-        }
-
-        .nav-brand {
-            font-weight: bold;
-            font-size: 18px;
-            color: var(--accent);
-            margin-right: auto;
-        }
-
-        .nav-btn {
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            background: var(--bg-item);
-            color: var(--text-light);
-            cursor: pointer;
-        }
-
-        .nav-btn.active {
-            background: var(--accent);
-            color: var(--text-dark);
-        }
-
-        /* View Panels Visibility Logic */
-        .view-panel {
-            display: none;
-            flex: 1;
-            height: calc(100vh - 62px);
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .view-panel.active-view {
-            display: flex;
-        }
-
-        /* --- POS MODULE STYLING --- */
-        .pos-container {
-            flex: 1;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .pos-header { font-size: 26px; font-weight: 700; }
-
-        .dashboard-button {
-            padding: 8px 16px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: none;
-            background: var(--accent-dark);
-            color: var(--text-dark);
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .product-btn {
-            background: var(--accent);
-            color: var(--text-dark);
-            border: none;
-            border-radius: 10px;
-            padding: 16px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .order-display {
-            flex: 1;
-            background: var(--bg-panel);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 12px;
-            overflow-y: auto;
-        }
-
-        .order-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-            background: var(--bg-item);
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .order-line.selected {
-            background: #e0b58a;
-            color: var(--text-dark);
-        }
-
-        .order-line small {
-            display: block;
-            color: #ccc;
-        }
-
-        .order-totals {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            padding: 0 4px;
-        }
-
-        .bottom-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 14px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        .clear-btn { background: var(--danger); color: var(--text-light); }
-        .void-btn { background: var(--danger-light); color: var(--text-light); }
-        .store-btn { background: var(--success); color: var(--text-light); }
-        .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        /* --- KVS MODULE STYLING --- */
-        .kvs-container {
-            flex: 1;
             padding: 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            background: #241c1c;
+            background-color: var(--bg-color);
+            color: var(--text-main);
         }
 
-        .kvs-title-bar {
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 16px;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid var(--bg-panel);
+        h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--border);
             padding-bottom: 10px;
         }
 
-        .kvs-grid {
-            flex: 1;
+        .container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 16px;
-            align-content: start;
-            overflow-y: auto;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .kvs-card {
-            background: var(--bg-panel);
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border-top: 6px solid var(--accent-dark);
+        /* Form/Register Side */
+        .order-form-panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: fit-content;
         }
 
-        .kvs-card-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 20px;
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
             font-weight: bold;
-            border-bottom: 1px solid #6a5353;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+            font-size: 0.9rem;
         }
 
-        .kvs-card-items {
-            flex: 1;
-            font-size: 18px;
-            line-height: 1.5;
-            white-space: pre-line;
-            color: #f5f0f0;
-            margin-bottom: 16px;
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
         }
 
-        .kvs-card-footer {
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-submit {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Screen/Display Side */
+        .display-panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .refresh-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
         }
 
-        .kvs-timer {
-            font-size: 16px;
-            font-weight: bold;
-            background: #1e1818;
-            padding: 6px 14px;
-            border-radius: 20px;
-            color: #ffb74d;
+        .btn-refresh {
+            background-color: #6c757d;
+            color: white;
+            width: auto;
+            padding: 8px 15px;
         }
 
-        .kvs-serve-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            background: var(--success);
-            color: var(--text-light);
-            cursor: pointer;
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
 
-        /* Payment Slider Panel */
-        .payment-panel {
-            position: absolute;
-            top: 0;
-            right: -100%;
-            width: 100%;
-            height: 100%;
-            background: #2f2525;
-            box-sizing: border-box;
-            padding: 16px;
+        /* Ticket Cards */
+        .ticket-card {
+            background: #fff;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            transition: transform 0.35s ease-out;
-            z-index: 10;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        .payment-panel.show { transform: translateX(-100%); }
-        .payment-header { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-        .payment-summary { margin-bottom: 10px; font-size: 18px; color: var(--accent); }
-        .payment-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 18px; }
-        
-        .quick-cash { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-        .quick-btn { flex: 1 1 30%; padding: 10px; font-size: 18px; border-radius: 8px; border: none; background: var(--accent); color: var(--text-dark); font-weight: 700; }
-        
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
-        .key-btn { padding: 14px; font-size: 20px; border-radius: 8px; border: none; background: var(--bg-item); color: var(--text-light); font-weight: 700; }
-        
-        .pay-actions { display: flex; gap: 8px; margin-top: auto; }
-        .pay-complete { flex: 1; padding: 14px; font-size: 18px; border-radius: 8px; border: none; font-weight: 700; }
-        .pay-cash { background: var(--success); color: var(--text-light); }
-        .pay-card { background: var(--accent-dark); color: var(--text-dark); }
-        .pay-complete:disabled { opacity: 0.4; cursor: not-allowed; }
-        .cancel-payment { margin-top: 8px; padding: 10px; font-size: 16px; border-radius: 8px; border: none; background: var(--danger); color: var(--text-light); }
-
-        /* Cash Drawer Slide up Overlay */
-        #drawerOverlay {
-            position: absolute;
-            bottom: -250px;
-            left: 0;
-            width: 100%;
-            height: 250px;
-            background: #111;
-            color: var(--text-light);
-            padding: 20px;
-            box-sizing: border-box;
-            border-radius: 12px 12px 0 0;
-            transition: transform 0.35s ease-out;
-            text-align: center;
-            z-index: 20;
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
         }
-        #drawerOverlay.open { transform: translateY(-250px); }
-        .drawer-title { font-size: 22px; margin-bottom: 8px; color: var(--success); font-weight: bold;}
-        .drawer-change { font-size: 32px; font-weight: 700; margin-bottom: 14px; }
-        .drawer-close-btn { padding: 10px 24px; font-size: 16px; border-radius: 8px; border: none; background: var(--accent); color: var(--text-dark); font-weight: 700; }
 
-        /* Modal Overlays */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center;
-            z-index: 500;
+        .ticket-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
         }
-        .modal-box { background: var(--bg-panel); padding: 24px; border-radius: 10px; width: 340px; box-sizing: border-box; }
-        .modal-box h3, .dash-title { font-size: 24px; margin: 0 0 16px 0; text-align: center; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: bold; }
-        .form-group select, .form-group input { width: 100%; padding: 10px; border-radius: 6px; border: none; font-size: 16px; box-sizing: border-box; }
-        .modal-btn { width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; background: var(--accent); color: var(--text-dark); font-weight: bold; margin-top: 10px; }
-        .dash-stat { font-size: 20px; margin: 10px 0; display: flex; justify-content: space-between;}
+
+        .ticket-summary {
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            background: #fafafa;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .btn-serve {
+            background-color: var(--success);
+            color: white;
+        }
     </style>
 </head>
 <body>
 
-<nav class="system-nav">
-    <div class="nav-brand">McCafé Network</div>
-    <button class="nav-btn active" id="btn-pos" onclick="switchView('pos')">POS Terminal View</button>
-    <button class="nav-btn" id="btn-kvs1" onclick="switchView('kvs1')">KVS Assembly Side 1</button>
-    <button class="nav-btn" id="btn-kvs2" onclick="switchView('kvs2')">KVS Assembly Side 2</button>
-</nav>
-
-<!-- PANEL 1: POS WORKSTATION -->
-<div class="view-panel active-view" id="panel-pos">
-    <div class="pos-container">
-        <div class="top-row">
-            <div class="pos-header">Register Checkout</div>
-            <button class="dashboard-button" onclick="openDashboard()">Dashboard</button>
-        </div>
+    <div class="container">
         
-        <div class="product-grid">
-            <button class="product-btn" data-name="Latte" data-price="4.50" onclick="addItem(this)">Latte<br>$4.50</button>
-            <button class="product-btn" data-name="Flat White" data-price="4.50" onclick="addItem(this)">Flat White<br>$4.50</button>
-            <button class="product-btn" data-name="Cappuccino" data-price="4.50" onclick="addItem(this)">Cappuccino<br>$4.50</button>
-            <button class="product-btn" data-name="Mocha" data-price="5.00" onclick="addItem(this)">Mocha<br>$5.00</button>
-            <button class="product-btn" data-name="Long Black" data-price="4.00" onclick="addItem(this)">Long Black<br>$4.00</button>
-            <button class="product-btn" data-name="Hot Chocolate" data-price="4.50" onclick="addItem(this)">Hot Chocolate<br>$4.50</button>
-        </div>
-        
-        <div class="order-display" id="orderDisplay"></div>
-        
-        <div class="order-totals">
-            <span>Items: <span id="itemCount">0</span></span>
-            <span>Total: $<span id="orderTotal">0.00</span></span>
-        </div>
-        
-        <div class="bottom-actions">
-            <button class="action-btn clear-btn" id="clearBtn" onclick="clearOrder()">CLEAR</button>
-            <button class="action-btn void-btn" id="voidBtn" onclick="voidSelected()">VOID</button>
-            <button class="action-btn store-btn" id="storeBtn" onclick="storeOrder()">STORE ORDER</button>
+        <!-- Left Column: Place Order Form -->
+        <div class="order-form-panel">
+            <h2>New Order</h2>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="custName">Customer Name</label>
+                    <input type="text" id="custName" required placeholder="John D.">
+                </div>
+                <div class="form-group">
+                    <label for="orderSide">Side / Table / Location</label>
+                    <input type="text" id="orderSide" required placeholder="Table 4 / DriveThru">
+                </div>
+                <div class="form-group">
+                    <label for="itemSummary">Items ordered (Summary String)</label>
+                    <textarea id="itemSummary" rows="4" required placeholder="1x Large Latte (Almond Milk)&#10;1x Croissant"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="orderTotal">Total Price</label>
+                    <input type="text" id="orderTotal" required placeholder="12.50">
+                </div>
+                <button type="submit" class="btn-submit">Send Order to Sheet1</button>
+            </form>
         </div>
 
-        <div class="payment-panel" id="paymentPanel">
-            <div class="payment-header">Payment Checkout</div>
-            <div class="payment-summary">Order #<span id="payOrderId">0</span> — Total: $<span id="payTotal">0.00</span></div>
-            <div class="payment-row"><span>Tendered:</span><span>$<span id="tenderedDisplay">0.00</span></span></div>
-            <div class="payment-row"><span>Change Due:</span><span>$<span id="changeDisplay">0.00</span></span></div>
-            
-            <div class="quick-cash">
-                <button class="quick-btn" onclick="addQuickCash(5)">$5</button>
-                <button class="quick-btn" onclick="addQuickCash(10)">$10</button>
-                <button class="quick-btn" onclick="addQuickCash(20)">$20</button>
-                <button class="quick-btn" onclick="addQuickCash(50)">$50</button>
-                <button class="quick-btn" onclick="addQuickCash(100)">$100</button>
+        <!-- Right Column: Kitchen Display Screen -->
+        <div class="display-panel">
+            <div class="refresh-bar">
+                <h2>Active Orders (PENDING)</h2>
+                <button class="btn-refresh" onclick="fetchActiveOrders()">🔄 Refresh Board</button>
             </div>
-            
-            <div class="keypad">
-                <button class="key-btn" onclick="pressKey('7')">7</button>
-                <button class="key-btn" onclick="pressKey('8')">8</button>
-                <button class="key-btn" onclick="pressKey('9')">9</button>
-                <button class="key-btn" onclick="pressKey('4')">4</button>
-                <button class="key-btn" onclick="pressKey('5')">5</button>
-                <button class="key-btn" onclick="pressKey('6')">6</button>
-                <button class="key-btn" onclick="pressKey('1')">1</button>
-                <button class="key-btn" onclick="pressKey('2')">2</button>
-                <button class="key-btn" onclick="pressKey('3')">3</button>
-                <button class="key-btn" onclick="pressKey('.')">.</button>
-                <button class="key-btn" onclick="pressKey('0')">0</button>
-                <button class="key-btn" onclick="pressKey('back')">←</button>
-            </div>
-            
-            <div class="pay-actions">
-                <button class="pay-complete pay-cash" id="completeCashBtn" onclick="completeCash()" disabled>COMPLETE CASH</button>
-                <button class="pay-complete pay-card" onclick="completeCard()">CARD PAYMENT</button>
-            </div>
-            <button class="cancel-payment" onclick="cancelPayment()">Cancel Payment</button>
-
-            <div id="drawerOverlay">
-                <div class="drawer-title">🟢 Cash Till Drawer Open</div>
-                <div>Dispense Change:</div>
-                <div class="drawer-change">$<span id="drawerChangeAmount">0.00</span></div>
-                <button class="drawer-close-btn" onclick="closeDrawer()">Close Till Drawer</button>
+            <div class="orders-grid" id="ordersGrid">
+                <!-- Live tickets render here -->
+                <p style="color: #888;">Loading orders from Google Sheets...</p>
             </div>
         </div>
+
     </div>
-</div>
 
-<!-- PANEL 2: KVS SIDE 1 -->
-<div class="view-panel" id="panel-kvs1">
-    <div class="kvs-container">
-        <div class="kvs-title-bar">Side 1 Assembly Queue</div>
-        <div class="kvs-grid" id="kvs1-grid"></div>
-    </div>
-</div>
+    <script>
+        // ⚠️ PASTE YOUR RE-DEPLOYED WEB APP URL HERE
+        const GOOGLE_SCRIPT_API_URL = "YOUR_NEW_APPS_SCRIPT_WEB_APP_URL_HERE";
 
-<!-- PANEL 3: KVS SIDE 2 -->
-<div class="view-panel" id="panel-kvs2">
-    <div class="kvs-container">
-        <div class="kvs-title-bar">Side 2 Assembly Queue</div>
-        <div class="kvs-grid" id="kvs2-grid"></div>
-    </div>
-</div>
-
-<!-- POPUP MODALS -->
-<div id="dashboardModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="dash-title">Dashboard Analytics</div>
-        <div class="dash-stat"><span>Total Orders:</span><span id="dashOrders">0</span></div>
-        <div class="dash-stat"><span>Gross Revenue:</span><span>$<span id="dashRevenue">0.00</span></span></div>
-        <div class="dash-stat"><span>Cash Receipts:</span><span id="dashCash">0</span></div>
-        <div class="dash-stat"><span>Card Transactions:</span><span id="dashCard">0</span></div>
-        <button class="modal-btn" onclick="closeDashboard()">Close Monitor</button>
-    </div>
-</div>
-
-<div id="modifierPopup" class="modal-overlay">
-    <div class="modal-box">
-        <h3>Drink Personalization</h3>
-        <div class="form-group">
-            <label>Milk Variety:</label>
-            <select id="modMilk">
-                <option value="">Full Cream</option>
-                <option value="Skim">Skim</option>
-                <option value="Soy">Soy Alternative</option>
-                <option value="Almond">Almond Alternative</option>
-                <option value="Oat">Oat Alternative</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Beverage Add-ons:</label>
-            <select id="modExtra">
-                <option value="">None</option>
-                <option value="Extra Shot">Extra Espresso Shot</option>
-                <option value="Vanilla Syrup">Vanilla</option>
-                <option value="Caramel Syrup">Caramel</option>
-            </select>
-        </div>
-        <button class="modal-btn" onclick="applyModifiers()">Apply To Order</button>
-    </div>
-</div>
-
-<div id="namePopup" class="modal-overlay">
-    <div class="modal-box">
-        <h3>Customer Identification</h3>
-        <div class="form-group">
-            <label>Customer Name:</label>
-            <input id="custNameInput" type="text" placeholder="e.g. Sarah">
-        </div>
-        <button class="modal-btn" onclick="saveCustomerName()">Process to Payment</button>
-    </div>
-</div>
-
-<audio id="beepAudio"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio>
-<audio id="soundAlert"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio>
-
-<script>
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwNL07D3Xx_bi5dNN6ApLBgSIxEweETHMixuZ1sVLEE6hwBdLub6ISLnz_9BDozVfZv/exec";
-
-let currentOrder = [], selectedIndex = -1, kvsOrders = [], nextOrderId = 1;
-let inPayment = false, pendingOrder = null, tendered = 0, pendingItem = null, lastOrderIds = [];
-let keypadString = "0";
-let activeSystemView = "pos";
-
-// Local tracking sets to prevent backend polling from overwriting unsaved local state
-let unconfirmedLocalIds = new Set(); 
-let locallyServedIds = new Set();
-
-function switchView(targetRole) {
-    activeSystemView = targetRole;
-    document.getElementById("btn-pos").classList.toggle("active", targetRole === 'pos');
-    document.getElementById("btn-kvs1").classList.toggle("active", targetRole === 'kvs1');
-    document.getElementById("btn-kvs2").classList.toggle("active", targetRole === 'kvs2');
-    
-    document.getElementById("panel-pos").classList.toggle("active-view", targetRole === 'pos');
-    document.getElementById("panel-kvs1").classList.toggle("active-view", targetRole === 'kvs1');
-    document.getElementById("panel-kvs2").classList.toggle("active-view", targetRole === 'kvs2');
-    
-    renderKvs();
-}
-
-function addItem(buttonElement) {
-    if (inPayment) return;
-    pendingItem = {
-        name: buttonElement.getAttribute("data-name"),
-        price: parseFloat(buttonElement.getAttribute("data-price")),
-        qty: 1,
-        modifiers: {}
-    };
-    document.getElementById("modifierPopup").style.display = "flex";
-}
-
-function applyModifiers() {
-    pendingItem.modifiers = {
-        milk: document.getElementById("modMilk").value,
-        extra: document.getElementById("modExtra").value
-    };
-    currentOrder.push(pendingItem);
-    pendingItem = null;
-    document.getElementById("modifierPopup").style.display = "none";
-    renderOrder();
-}
-
-function renderOrder() {
-    const display = document.getElementById("orderDisplay");
-    display.innerHTML = "";
-    let localTotal = 0, totalItems = 0;
-
-    currentOrder.forEach((item, idx) => {
-        localTotal += item.price * item.qty;
-        totalItems += item.qty;
-        
-        const line = document.createElement("div");
-        line.className = "order-line" + (idx === selectedIndex ? " selected" : "");
-        
-        const modifications = [item.modifiers.milk, item.modifiers.extra].filter(Boolean).join(" | ");
-
-        line.innerHTML = `
-            <div>
-                <strong>${item.name}</strong> x${item.qty}
-                ${modifications ? `<small>${modifications}</small>` : ''}
-            </div>
-            <span>$${(item.price * item.qty).toFixed(2)}</span>
-        `;
-        
-        line.onclick = () => {
-            if (inPayment) return;
-            selectedIndex = (idx === selectedIndex) ? -1 : idx;
-            renderOrder();
-        };
-        display.appendChild(line);
-    });
-
-    document.getElementById("orderTotal").textContent = localTotal.toFixed(2);
-    document.getElementById("itemCount").textContent = totalItems;
-    document.getElementById("clearBtn").disabled = currentOrder.length === 0 || inPayment;
-    document.getElementById("voidBtn").disabled = selectedIndex === -1 || inPayment;
-    document.getElementById("storeBtn").disabled = currentOrder.length === 0 || inPayment;
-}
-
-function clearOrder() {
-    if (inPayment) return;
-    currentOrder = [];
-    selectedIndex = -1;
-    renderOrder();
-}
-
-function voidSelected() {
-    if (inPayment || selectedIndex < 0 || selectedIndex >= currentOrder.length) return;
-    currentOrder.splice(selectedIndex, 1);
-    selectedIndex = -1;
-    renderOrder();
-}
-
-function storeOrder() {
-    if (inPayment || currentOrder.length === 0) return;
-    document.getElementById("custNameInput").value = "";
-    document.getElementById("namePopup").style.display = "flex";
-}
-
-function saveCustomerName() {
-    const name = document.getElementById("custNameInput").value.trim();
-    document.getElementById("namePopup").style.display = "none";
-    createOrderAfterName(name);
-}
-
-function buildItemSummaryString(items) {
-    if (!Array.isArray(items)) return "";
-    return items.map(i => {
-        let m = [];
-        if (i.modifiers && i.modifiers.milk) m.push(i.modifiers.milk);
-        if (i.modifiers && i.modifiers.extra) m.push(i.modifiers.extra);
-        return `${i.name} x${i.qty}` + (m.length > 0 ? ` (${m.join(", ")})` : "");
-    }).join(" | ");
-}
-
-function createOrderAfterName(customerName) {
-    const currentTotal = parseFloat(document.getElementById("orderTotal").textContent) || 0;
-    
-    const side1Count = kvsOrders.filter(o => o.side === 1).length;
-    const side2Count = kvsOrders.filter(o => o.side === 2).length;
-    const balancedSide = side1Count <= side2Count ? 1 : 2;
-    const assignedId = nextOrderId++;
-
-    const orderData = {
-        id: assignedId,
-        side: balancedSide,
-        timestamp: new Date().toISOString(),
-        items: currentOrder.map(i => ({ name: i.name, qty: i.qty, price: i.price, modifiers: i.modifiers })),
-        total: currentTotal,
-        paymentType: null,
-        customerName: customerName || "Walk-in"
-    };
-
-    pendingOrder = orderData;
-    
-    // Safety buffer locks out background loops until network pipeline reconciles
-    unconfirmedLocalIds.add(assignedId);
-    addToKvs(orderData);
-    playBeep();
-    
-    inPayment = true;
-    tendered = 0;
-    keypadString = "0";
-    
-    document.getElementById("payOrderId").textContent = orderData.id;
-    document.getElementById("payTotal").textContent = orderData.total.toFixed(2);
-    
-    updateTenderDisplay();
-    document.getElementById("paymentPanel").classList.add("show");
-}
-
-function addQuickCash(amount) {
-    tendered += amount;
-    keypadString = tendered.toFixed(2);
-    updateTenderDisplay();
-}
-
-function pressKey(key) {
-    if (key === "back") {
-        keypadString = keypadString.slice(0, -1);
-        if (keypadString === "" || keypadString === "-") keypadString = "0";
-    } else if (key === ".") {
-        if (!keypadString.includes(".")) keypadString += ".";
-    } else {
-        keypadString = (keypadString === "0") ? key : keypadString + key;
-    }
-    const parsing = parseFloat(keypadString);
-    tendered = isNaN(parsing) ? 0 : parsing;
-    updateTenderDisplay();
-}
-
-function updateTenderDisplay() {
-    const totalDue = pendingOrder ? pendingOrder.total : 0;
-    const residualChange = tendered - totalDue;
-    
-    document.getElementById("tenderedDisplay").textContent = tendered.toFixed(2);
-    document.getElementById("changeDisplay").textContent = (residualChange > 0) ? residualChange.toFixed(2) : "0.00";
-    document.getElementById("completeCashBtn").disabled = !(pendingOrder && tendered >= totalDue && totalDue > 0);
-}
-
-function completeCash() {
-    if (!pendingOrder) return;
-    const totalDue = pendingOrder.total;
-    if (tendered < totalDue) return;
-
-    pendingOrder.paymentType = "cash";
-    sendOrderToBackend(pendingOrder);
-    
-    const residualChange = tendered - totalDue;
-    document.getElementById("drawerChangeAmount").textContent = residualChange.toFixed(2);
-    openDrawer();
-}
-
-function completeCard() {
-    if (!pendingOrder) return;
-    pendingOrder.paymentType = "card";
-    sendOrderToBackend(pendingOrder);
-    resetAfterPayment();
-}
-
-function cancelPayment() {
-    if (pendingOrder) {
-        unconfirmedLocalIds.delete(pendingOrder.id);
-        kvsOrders = kvsOrders.filter(o => o.id !== pendingOrder.id);
-    }
-    pendingOrder = null;
-    inPayment = false;
-    tendered = 0;
-    keypadString = "0";
-    document.getElementById("paymentPanel").classList.remove("show");
-    renderOrder();
-    renderKvs();
-}
-
-function openDrawer() { document.getElementById("drawerOverlay").classList.add("open"); }
-function closeDrawer() { document.getElementById("drawerOverlay").classList.remove("open"); resetAfterPayment(); }
-
-function resetAfterPayment() {
-    pendingOrder = null;
-    inPayment = false;
-    tendered = 0;
-    keypadString = "0";
-    document.getElementById("paymentPanel").classList.remove("show");
-    currentOrder = [];
-    selectedIndex = -1;
-    renderOrder();
-}
-
-function sendOrderToBackend(orderPayload) {
-    fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "addOrder", order: orderPayload })
-    })
-    .then(() => {
-        // Safe to remove from local buffer lock now that it exists on spreadsheet backend
-        unconfirmedLocalIds.delete(orderPayload.id);
-    })
-    .catch(err => {
-        console.error("Upstream POS Save Sync Fault:", err);
-        unconfirmedLocalIds.delete(orderPayload.id); 
-    });
-}
-
-function addToKvs(orderObject) {
-    orderObject.itemSummaryString = buildItemSummaryString(orderObject.items);
-    kvsOrders.push(orderObject);
-    renderKvs();
-}
-
-function renderKvs() {
-    const grid1 = document.getElementById("kvs1-grid");
-    const grid2 = document.getElementById("kvs2-grid");
-    
-    grid1.innerHTML = "";
-    grid2.innerHTML = "";
-    
-    kvsOrders.forEach(order => {
-        if (locallyServedIds.has(order.id)) return;
-
-        const card = document.createElement("div");
-        card.className = "kvs-card";
-        
-        const displayItems = order.itemSummaryString || "";
-
-        card.innerHTML = `
-            <div class="kvs-card-header">
-                <span>#${order.id} - ${order.customerName}</span>
-            </div>
-            <div class="kvs-card-items">${displayItems.replace(/ \| /g, '\n')}</div>
-            <div class="kvs-card-footer">
-                <span class="kvs-timer" id="timer-${order.id}">0:00</span>
-                <button class="kvs-serve-btn" onclick="serveOrder(${order.id})">SERVE</button>
-            </div>
-        `;
-        
-        if (order.side === 1) {
-            grid1.appendChild(card);
-        } else if (order.side === 2) {
-            grid2.appendChild(card);
+        // Generate a simple unique short ID for the order
+        function generateShortId() {
+            return Math.floor(100000 + Math.random() * 900000);
         }
-    });
-}
 
-function serveOrder(id) {
-    locallyServedIds.add(id);
-    kvsOrders = kvsOrders.filter(o => o.id !== id);
-    renderKvs();
+        // --- SUBMIT AN ORDER ---
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button');
+            submitBtn.textContent = "Sending...";
+            submitBtn.disabled = true;
 
-    fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "serveOrder", orderId: id })
-    })
-    .catch(err => console.error("Upstream KVS Clear Fault:", err));
-}
+            const orderObject = {
+                id: generateShortId(),
+                customerName: document.getElementById('custName').value,
+                side: document.getElementById('orderSide').value,
+                itemSummaryString: document.getElementById('itemSummary').value,
+                total: document.getElementById('orderTotal').value,
+                timestamp: new Date().toLocaleString()
+            };
 
-function refreshKvsFromBackend() {
-    fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "getOrders" })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (!Array.isArray(data)) return;
+            const payload = {
+                action: "PLACE_ORDER",
+                order: orderObject
+            };
 
-        const activeIds = data.map(o => o.id);
-        let audioPlayed = false;
-
-        // Clean out ancient serve records no longer tracked by spreadsheet
-        locallyServedIds.forEach(id => {
-            if (!activeIds.includes(id)) locallyServedIds.delete(id);
-        });
-
-        activeIds.forEach(id => {
-            if (!lastOrderIds.includes(id) && !unconfirmedLocalIds.has(id)) {
-                const specOrder = data.find(o => o.id === id);
-                if (specOrder && !audioPlayed) {
-                    if ((specOrder.side === 1 && activeSystemView === "kvs1") || 
-                        (specOrder.side === 2 && activeSystemView === "kvs2")) {
-                        document.getElementById("soundAlert").play().catch(() => {});
-                        audioPlayed = true; 
-                    }
-                }
-            }
-            // Advance auto-increment tracker if remote IDs are larger
-            if (id >= nextOrderId) {
-                nextOrderId = id + 1;
-            }
-        });
-        lastOrderIds = activeIds;
-        
-        // Build fresh array balancing remote states with locally locked items
-        let remoteOrdersMapped = data
-            .filter(o => !locallyServedIds.has(o.id) && !unconfirmedLocalIds.has(o.id))
-            .map(o => {
-                o.itemSummaryString = buildItemSummaryString(o.items);
-                return o;
+            fetch(GOOGLE_SCRIPT_API_URL, {
+                method: "POST",
+                mode: "no-cors", // Bypasses local browser policy restrictions
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                alert("Order successfully written to Sheet1!");
+                document.getElementById('orderForm').reset();
+                // Fetch the updated dataset to populate the dashboard card array
+                fetchActiveOrders();
+            })
+            .catch(err => {
+                console.error("Failed to send order:", err);
+                alert("Network error updating spreadsheet.");
+            })
+            .finally(() => {
+                submitBtn.textContent = "Send Order to Sheet1";
+                submitBtn.disabled = false;
             });
+        });
 
-        let localUnconfirmedOrders = kvsOrders.filter(o => unconfirmedLocalIds.has(o.id));
+        // --- FETCH PENDING ORDERS FROM SHEET1 ---
+        function fetchActiveOrders() {
+            const grid = document.getElementById('ordersGrid');
+            
+            fetch(GOOGLE_SCRIPT_API_URL)
+            .then(res => res.json())
+            .then(orders => {
+                grid.innerHTML = "";
+                
+                if (orders.length === 0) {
+                    grid.innerHTML = '<p style="color: #888; grid-column: 1/-1;">No pending orders! All clear.</p>';
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const card = document.createElement('div');
+                    card.className = 'ticket-card';
+                    card.innerHTML = `
+                        <div>
+                            <div class="ticket-header">
+                                <span>#${order.id}</span>
+                                <span>$${order.total}</span>
+                            </div>
+                            <div class="ticket-meta">
+                                <strong>${order.customerName}</strong> &bull; ${order.side}
+                            </div>
+                            <div class="ticket-summary">${order.itemSummaryString}</div>
+                        </div>
+                        <button class="btn-serve" onclick="serveOrder(${order.id})">Done / Serve</button>
+                    `;
+                    grid.appendChild(card);
+                });
+            })
+            .catch(err => {
+                console.error("Error reading Sheet1:", err);
+                grid.innerHTML = '<p style="color: red; grid-column: 1/-1;">Failed to load active layout. Ensure your API URL configuration is active.</p>';
+            });
+        }
+
+        // --- SERVE/CLEAR AN ORDER OFF THE SCREEN ---
+        function serveOrder(orderId) {
+            if (!confirm(`Serve order #${orderId} off screen?`)) return;
+
+            const payload = {
+                action: "SERVE_ORDER",
+                id: orderId
+            };
+
+            fetch(GOOGLE_SCRIPT_API_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                // Instantly re-fetch data so it disappears locally 
+                fetchActiveOrders();
+            })
+            .catch(err => console.error("Failed to serve order off database row:", err));
+        }
+
+        // Auto-load orders when page finishes loading
+        window.onload = fetchActiveOrders;
         
-        kvsOrders = [...localUnconfirmedOrders, ...remoteOrdersMapped];
-        renderKvs();
-    })
-    .catch(() => {});
-}
-
-function openDashboard() {
-    document.getElementById("dashboardModal").style.display = "flex";
-    refreshDashboard();
-}
-function closeDashboard() { document.getElementById("dashboardModal").style.display = "none"; }
-
-function refreshDashboard() {
-    fetch(BACKEND_URL)
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("dashOrders").textContent = data.totalOrders ?? 0;
-        document.getElementById("dashRevenue").textContent = (data.totalRevenue ?? 0).toFixed(2);
-        document.getElementById("dashCash").textContent = data.cashCount ?? 0;
-        document.getElementById("dashCard").textContent = data.cardCount ?? 0;
-    })
-    .catch(err => console.error("Dashboard Analytics Pull Fault:", err));
-}
-
-function playBeep() {
-    document.getElementById("beepAudio").play().catch(() => {});
-}
-
-function formatTimer(totalSeconds) {
-    if (isNaN(totalSeconds) || totalSeconds < 0) return "0:00";
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-}
-
-setInterval(() => {
-    const now = Date.now();
-    kvsOrders.forEach(order => {
-        if (!order.timestamp) return;
-        const baselineTime = new Date(order.timestamp).getTime();
-        const deltaSeconds = Math.floor((now - baselineTime) / 1000);
-        const element = document.getElementById(`timer-${order.id}`);
-        if (element) element.textContent = formatTimer(deltaSeconds);
-    });
-}, 1000);
-
-// Initialize System
-renderOrder();
-refreshKvsFromBackend();
-setInterval(refreshKvsFromBackend, 3000);
-</script>
+        // Polling rule: Automatically check Sheet1 for new entries every 10 seconds
+        setInterval(fetchActiveOrders, 10000);
+    </script>
 </body>
 </html>
