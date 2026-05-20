@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>McCafé POS – Sheet Synchronized Version</title>
+    <title>McCafé Unified System (POS/KVS)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root {
@@ -25,27 +25,67 @@
             color: var(--text-light);
             overflow: hidden;
             user-select: none;
-        }
-
-        .app-container {
             display: flex;
+            flex-direction: column;
             height: 100vh;
         }
 
-        .pos-panel {
-            position: relative;
-            flex: 1;
-            padding: 16px;
-            border-right: 2px solid #2b2222;
+        /* Device Role Selector Bar */
+        .system-nav {
+            background: #2b2222;
+            padding: 10px 16px;
             display: flex;
-            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            border-bottom: 2px solid #1a1515;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--accent);
+            margin-right: auto;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            background: var(--bg-item);
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .nav-btn.active {
+            background: var(--accent);
+            color: var(--text-dark);
+        }
+
+        /* View Panels Visibility Logic */
+        .view-panel {
+            display: none;
+            flex: 1;
+            height: calc(100vh - 62px);
             box-sizing: border-box;
             overflow: hidden;
         }
 
-        .pos-header {
-            font-size: 26px;
-            font-weight: 700;
+        .view-panel.active-view {
+            display: flex;
+        }
+
+        /* --- POS MODULE STYLING --- */
+        .pos-container {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .top-row {
@@ -54,6 +94,8 @@
             align-items: center;
             margin-bottom: 12px;
         }
+
+        .pos-header { font-size: 26px; font-weight: 700; }
 
         .dashboard-button {
             padding: 8px 16px;
@@ -83,11 +125,6 @@
             font-weight: 700;
             cursor: pointer;
             text-align: center;
-            transition: transform 0.1s;
-        }
-
-        .product-btn:active {
-            transform: scale(0.96);
         }
 
         .order-display {
@@ -105,7 +142,7 @@
             align-items: center;
             margin-bottom: 6px;
             background: var(--bg-item);
-            padding: 8px 12px;
+            padding: 12px;
             border-radius: 6px;
             font-size: 16px;
             cursor: pointer;
@@ -120,9 +157,6 @@
             display: block;
             color: #ccc;
         }
-        .order-line.selected small {
-            color: #555;
-        }
 
         .order-totals {
             display: flex;
@@ -136,12 +170,11 @@
         .bottom-actions {
             display: flex;
             gap: 8px;
-            margin-bottom: 8px;
         }
 
         .action-btn {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             font-size: 16px;
             border-radius: 8px;
             border: none;
@@ -154,101 +187,92 @@
         .store-btn { background: var(--success); color: var(--text-light); }
         .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        #drawerBar {
-            width: 100%;
-            height: 10px;
-            background: #222;
-            border-radius: 4px;
-            margin-top: 4px;
-        }
-
-        /* KVS Panel Styling */
-        .kvs-panel {
+        /* --- KVS MODULE STYLING (Dedicated Full Screen Grid) --- */
+        .kvs-container {
             flex: 1;
-            padding: 16px;
+            padding: 20px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            background: #241c1c;
         }
 
-        .kvs-header {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 8px;
+        .kvs-title-bar {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--bg-panel);
+            padding-bottom: 10px;
         }
 
-        .kvs-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .kvs-tab {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            background: var(--bg-item);
-            color: var(--text-light);
-            font-weight: 700;
-        }
-
-        .kvs-tab.active {
-            background: var(--accent);
-            color: var(--text-dark);
-        }
-
-        .kvs-list {
+        .kvs-grid {
             flex: 1;
-            background: var(--bg-panel);
-            border-radius: 10px;
-            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            align-content: start;
             overflow-y: auto;
         }
 
-        .kvs-order {
-            background: var(--bg-item);
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 16px;
-            border-left: 5px solid var(--accent-dark);
+        .kvs-card {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border-top: 6px solid var(--accent-dark);
         }
 
-        .kvs-order-header {
+        .kvs-card-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 6px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: bold;
             border-bottom: 1px solid #6a5353;
-            padding-bottom: 4px;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
         }
 
-        .kvs-items {
-            margin-bottom: 8px;
-            line-height: 1.4;
-            white-space: pre-line; /* Allows cleaner reading of the sheet string formatting */
+        .kvs-card-items {
+            flex: 1;
+            font-size: 18px;
+            line-height: 1.5;
+            white-space: pre-line;
+            color: #f5f0f0;
+            margin-bottom: 16px;
         }
 
-        .kvs-footer {
+        .kvs-card-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .serve-btn {
-            padding: 8px 14px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
+        .kvs-timer {
+            font-size: 16px;
+            font-weight: bold;
+            background: #1e1818;
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: #ffb74d;
         }
 
-        .serve-ready { background: var(--success); color: var(--text-light); }
-        .status-pill { padding: 4px 10px; border-radius: 12px; font-size: 13px; background: #2e7d32; font-weight: bold;}
+        .kvs-serve-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background: var(--success);
+            color: var(--text-light);
+            cursor: pointer;
+        }
 
-        /* Payment Panel Slider */
+        /* Payment Slider Panel */
         .payment-panel {
             position: absolute;
             top: 0;
@@ -264,29 +288,25 @@
             z-index: 10;
         }
 
-        .payment-panel.show {
-            transform: translateX(-100%);
-        }
-
+        .payment-panel.show { transform: translateX(-100%); }
         .payment-header { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
         .payment-summary { margin-bottom: 10px; font-size: 18px; color: var(--accent); }
         .payment-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 18px; }
-        .tender-display { font-size: 20px; font-weight: 700; margin-bottom: 8px; text-align: center; color: #aaa; }
         
         .quick-cash { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-        .quick-btn { flex: 1 1 30%; padding: 10px; font-size: 18px; border-radius: 8px; border: none; cursor: pointer; background: var(--accent); color: var(--text-dark); font-weight: 700; }
+        .quick-btn { flex: 1 1 30%; padding: 10px; font-size: 18px; border-radius: 8px; border: none; background: var(--accent); color: var(--text-dark); font-weight: 700; }
         
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
-        .key-btn { padding: 14px; font-size: 20px; border-radius: 8px; border: none; cursor: pointer; background: var(--bg-item); color: var(--text-light); font-weight: 700; }
+        .key-btn { padding: 14px; font-size: 20px; border-radius: 8px; border: none; background: var(--bg-item); color: var(--text-light); font-weight: 700; }
         
         .pay-actions { display: flex; gap: 8px; margin-top: auto; }
-        .pay-complete { flex: 1; padding: 14px; font-size: 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; }
+        .pay-complete { flex: 1; padding: 14px; font-size: 18px; border-radius: 8px; border: none; font-weight: 700; }
         .pay-cash { background: var(--success); color: var(--text-light); }
         .pay-card { background: var(--accent-dark); color: var(--text-dark); }
         .pay-complete:disabled { opacity: 0.4; cursor: not-allowed; }
-        .cancel-payment { margin-top: 8px; padding: 10px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer; background: var(--danger); color: var(--text-light); }
+        .cancel-payment { margin-top: 8px; padding: 10px; font-size: 16px; border-radius: 8px; border: none; background: var(--danger); color: var(--text-light); }
 
-        /* Drawer overlay & Modal popups */
+        /* Cash Drawer Slide up Overlay */
         #drawerOverlay {
             position: absolute;
             bottom: -250px;
@@ -301,34 +321,41 @@
             text-align: center;
             z-index: 20;
         }
-
         #drawerOverlay.open { transform: translateY(-250px); }
         .drawer-title { font-size: 22px; margin-bottom: 8px; color: var(--success); font-weight: bold;}
-        .drawer-change { font-size: 32px; font-weight: 700; margin-bottom: 14px; color: #fff; }
-        .drawer-close-btn { padding: 10px 24px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer; background: var(--accent); color: var(--text-dark); font-weight: 700; }
+        .drawer-change { font-size: 32px; font-weight: 700; margin-bottom: 14px; }
+        .drawer-close-btn { padding: 10px 24px; font-size: 16px; border-radius: 8px; border: none; background: var(--accent); color: var(--text-dark); font-weight: 700; }
 
+        /* Modal Overlays */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center;
-            z-index: 100;
+            z-index: 500;
         }
         .modal-box { background: var(--bg-panel); padding: 24px; border-radius: 10px; width: 340px; box-sizing: border-box; }
         .modal-box h3, .dash-title { font-size: 24px; margin: 0 0 16px 0; text-align: center; }
-        
-        .form-group { margin-bottom: 14px; text-align: left; }
+        .form-group { margin-bottom: 14px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: bold; }
         .form-group select, .form-group input { width: 100%; padding: 10px; border-radius: 6px; border: none; font-size: 16px; box-sizing: border-box; }
-        
-        .modal-btn { width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; background: var(--accent); color: var(--text-dark); font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .modal-btn { width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; background: var(--accent); color: var(--text-dark); font-weight: bold; margin-top: 10px; }
         .dash-stat { font-size: 20px; margin: 10px 0; display: flex; justify-content: space-between;}
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="pos-panel">
+<!-- Device Management Navigation Top-Bar -->
+<nav class="system-nav">
+    <div class="nav-brand">McCafé Network</div>
+    <button class="nav-btn active" id="btn-pos" onclick="switchView('pos')">POS Terminal View</button>
+    <button class="nav-btn" id="btn-kvs1" onclick="switchView('kvs1')">KVS Assembly Side 1</button>
+    <button class="nav-btn" id="btn-kvs2" onclick="switchView('kvs2')">KVS Assembly Side 2</button>
+</nav>
+
+<!-- PANEL 1: POS WORKSTATION -->
+<div class="view-panel active-view" id="panel-pos">
+    <div class="pos-container">
         <div class="top-row">
-            <div class="pos-header">McCafé POS</div>
+            <div class="pos-header">Register Checkout</div>
             <button class="dashboard-button" onclick="openDashboard()">Dashboard</button>
         </div>
         
@@ -353,15 +380,13 @@
             <button class="action-btn void-btn" id="voidBtn" onclick="voidSelected()">VOID</button>
             <button class="action-btn store-btn" id="storeBtn" onclick="storeOrder()">STORE ORDER</button>
         </div>
-        
-        <div id="drawerBar"></div>
 
+        <!-- Sliding Register Drawer Sub-Module -->
         <div class="payment-panel" id="paymentPanel">
             <div class="payment-header">Payment Checkout</div>
             <div class="payment-summary">Order #<span id="payOrderId">0</span> — Total: $<span id="payTotal">0.00</span></div>
             <div class="payment-row"><span>Tendered:</span><span>$<span id="tenderedDisplay">0.00</span></span></div>
             <div class="payment-row"><span>Change Due:</span><span>$<span id="changeDisplay">0.00</span></span></div>
-            <div class="tender-display" id="tenderPrompt">Enter cash amount or select Card</div>
             
             <div class="quick-cash">
                 <button class="quick-btn" onclick="addQuickCash(5)">$5</button>
@@ -387,31 +412,38 @@
             </div>
             
             <div class="pay-actions">
-                <button class="pay-complete pay-cash" id="completeCashBtn" onclick="completeCash()" disabled>COMPLETE CASH SALE</button>
+                <button class="pay-complete pay-cash" id="completeCashBtn" onclick="completeCash()" disabled>COMPLETE CASH</button>
                 <button class="pay-complete pay-card" onclick="completeCard()">CARD PAYMENT</button>
             </div>
             <button class="cancel-payment" onclick="cancelPayment()">Cancel Payment</button>
 
             <div id="drawerOverlay">
-                <div class="drawer-title">🟢 Cash Drawer Open</div>
+                <div class="drawer-title">🟢 Cash Till Drawer Open</div>
                 <div>Dispense Change:</div>
                 <div class="drawer-change">$<span id="drawerChangeAmount">0.00</span></div>
                 <button class="drawer-close-btn" onclick="closeDrawer()">Close Till Drawer</button>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="kvs-panel">
-        <div class="kvs-header">Kitchen Video System (KVS)</div>
-        <div class="kvs-tabs">
-            <button class="kvs-tab active" id="kvsSide1Tab" onclick="setKvsView(1)">Side 1 Assembly</button>
-            <button class="kvs-tab" id="kvsSide2Tab" onclick="setKvsView(2)">Side 2 Assembly</button>
-        </div>
-        <div class="kvs-list" id="kvsList"></div>
+<!-- PANEL 2: KVS SIDE 1 ASSEMBLY MONITOR -->
+<div class="view-panel" id="panel-kvs1">
+    <div class="kvs-container">
+        <div class="kvs-title-bar">Side 1 Assembly Queue</div>
+        <div class="kvs-grid" id="kvs1-grid"></div>
     </div>
 </div>
 
-<!-- Modals -->
+<!-- PANEL 3: KVS SIDE 2 ASSEMBLY MONITOR -->
+<div class="view-panel" id="panel-kvs2">
+    <div class="kvs-container">
+        <div class="kvs-title-bar">Side 2 Assembly Queue</div>
+        <div class="kvs-grid" id="kvs2-grid"></div>
+    </div>
+</div>
+
+<!-- POPUP MODALS -->
 <div id="dashboardModal" class="modal-overlay">
     <div class="modal-box">
         <div class="dash-title">Dashboard Analytics</div>
@@ -427,7 +459,7 @@
     <div class="modal-box">
         <h3>Drink Personalization</h3>
         <div class="form-group">
-            <label for="modMilk">Milk Variety:</label>
+            <label>Milk Variety:</label>
             <select id="modMilk">
                 <option value="">Full Cream</option>
                 <option value="Skim">Skim</option>
@@ -437,12 +469,12 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="modExtra">Beverage Add-ons:</label>
+            <label>Beverage Add-ons:</label>
             <select id="modExtra">
-                <option value="">None / Standard</option>
+                <option value="">None</option>
                 <option value="Extra Shot">Extra Espresso Shot</option>
-                <option value="Vanilla Syrup">Vanilla Infusion</option>
-                <option value="Caramel Syrup">Caramel Infusion</option>
+                <option value="Vanilla Syrup">Vanilla</option>
+                <option value="Caramel Syrup">Caramel</option>
             </select>
         </div>
         <button class="modal-btn" onclick="applyModifiers()">Apply To Order</button>
@@ -453,25 +485,42 @@
     <div class="modal-box">
         <h3>Customer Identification</h3>
         <div class="form-group">
-            <label for="custNameInput">Customer Name / Order Identifier:</label>
-            <input id="custNameInput" type="text" placeholder="e.g. John S.">
+            <label>Customer Name:</label>
+            <input id="custNameInput" type="text" placeholder="e.g. Sarah">
         </div>
         <button class="modal-btn" onclick="saveCustomerName()">Process to Payment</button>
     </div>
 </div>
 
-<!-- Audio -->
+<!-- Network Audio Triggers -->
 <audio id="beepAudio"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio>
-<audio id="soundSide1"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio>
-<audio id="soundSide2"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio>
+<audio id="soundAlert"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg"></audio>
 
 <script>
-// REPLACE WITH YOUR GOOGLE WEB APP URL EXACTLY
-const BACKEND_URL = "https://script.google.com/macros/s/YOUR_GENERATED_WEB_APP_ID/exec";
+// Target backend explicitly bound to your Google Sheets pipeline 
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec";
 
-let currentOrder = [], selectedIndex = -1, kvsOrders = [], kvsSideView = 1, nextOrderId = 1;
+let currentOrder = [], selectedIndex = -1, kvsOrders = [], nextOrderId = 1;
 let inPayment = false, pendingOrder = null, tendered = 0, pendingItem = null, lastOrderIds = [];
 let keypadString = "0";
+let activeSystemView = "pos";
+
+// Hardware Configuration Navigation Switch
+function switchView(targetRole) {
+    activeSystemView = targetRole;
+    
+    // Toggle Tab Buttons
+    document.getElementById("btn-pos").classList.toggle("active", targetRole === 'pos');
+    document.getElementById("btn-kvs1").classList.toggle("active", targetRole === 'kvs1');
+    document.getElementById("btn-kvs2").classList.toggle("active", targetRole === 'kvs2');
+    
+    // Toggle Fullscreen Views
+    document.getElementById("panel-pos").classList.toggle("active-view", targetRole === 'pos');
+    document.getElementById("panel-kvs1").classList.toggle("active-view", targetRole === 'kvs1');
+    document.getElementById("panel-kvs2").classList.toggle("active-view", targetRole === 'kvs2');
+    
+    renderKvs();
+}
 
 function addItem(buttonElement) {
     if (inPayment) return;
@@ -507,9 +556,7 @@ function renderOrder() {
         const line = document.createElement("div");
         line.className = "order-line" + (idx === selectedIndex ? " selected" : "");
         
-        const modMilkString = item.modifiers.milk ? `${item.modifiers.milk}` : "";
-        const modExtraString = item.modifiers.extra ? `${item.modifiers.extra}` : "";
-        const modifications = [modMilkString, modExtraString].filter(Boolean).join(" | ");
+        const modifications = [item.modifiers.milk, item.modifiers.extra].filter(Boolean).join(" | ");
 
         line.innerHTML = `
             <div>
@@ -562,18 +609,19 @@ function saveCustomerName() {
 
 function createOrderAfterName(customerName) {
     const currentTotal = parseFloat(document.getElementById("orderTotal").textContent) || 0;
+    
+    // Balanced production side assignment engine
     const side1Count = kvsOrders.filter(o => o.side === 1).length;
     const side2Count = kvsOrders.filter(o => o.side === 2).length;
     const balancedSide = side1Count <= side2Count ? 1 : 2;
     const assignedId = nextOrderId++;
 
-    // Structured to mirror your Google Sheet layout keys directly
     const orderData = {
         id: assignedId,
         side: balancedSide,
-        timestamp: new Date().toISOString(), // maps to CreatedAt
+        timestamp: new Date().toISOString(),
         items: currentOrder.map(i => ({ name: i.name, qty: i.qty, price: i.price, modifiers: i.modifiers })),
-        total: currentTotal, // maps to ExactTotal
+        total: currentTotal,
         paymentType: null,
         customerName: customerName || "Walk-in"
     };
@@ -619,13 +667,7 @@ function updateTenderDisplay() {
     
     document.getElementById("tenderedDisplay").textContent = tendered.toFixed(2);
     document.getElementById("changeDisplay").textContent = (residualChange > 0) ? residualChange.toFixed(2) : "0.00";
-    
-    const cashBtn = document.getElementById("completeCashBtn");
-    if (pendingOrder && tendered >= totalDue && totalDue > 0) {
-        cashBtn.disabled = false;
-    } else {
-        cashBtn.disabled = true;
-    }
+    document.getElementById("completeCashBtn").disabled = !(pendingOrder && tendered >= totalDue && totalDue > 0);
 }
 
 function completeCash() {
@@ -676,11 +718,10 @@ function sendOrderToBackend(orderPayload) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "addOrder", order: orderPayload })
-    }).catch(err => console.error("Network communication failure logging transactions upstream:", err));
+    }).catch(err => console.error("Upstream POS Save Sync Fault:", err));
 }
 
 function addToKvs(orderObject) {
-    // Standardizes local additions to match the string formatting coming back from the Sheet
     if (Array.isArray(orderObject.items)) {
         orderObject.itemSummaryString = orderObject.items.map(i => {
             let m = [];
@@ -693,37 +734,35 @@ function addToKvs(orderObject) {
     renderKvs();
 }
 
-function setKvsView(sideNumber) {
-    kvsSideView = sideNumber;
-    document.getElementById("kvsSide1Tab").classList.toggle("active", sideNumber === 1);
-    document.getElementById("kvsSide2Tab").classList.toggle("active", sideNumber === 2);
-    renderKvs();
-}
-
 function renderKvs() {
-    const container = document.getElementById("kvsList");
-    container.innerHTML = "";
+    const grid1 = document.getElementById("kvs1-grid");
+    const grid2 = document.getElementById("kvs2-grid");
     
-    const elementsFiltered = kvsOrders.filter(o => o.side === kvsSideView);
-    elementsFiltered.forEach(order => {
-        const itemLineElement = document.createElement("div");
-        itemLineElement.className = "kvs-order";
+    grid1.innerHTML = "";
+    grid2.innerHTML = "";
+    
+    kvsOrders.forEach(order => {
+        const card = document.createElement("div");
+        card.className = "kvs-card";
         
-        // Displays the plain text description cell layout compiled by your script backend seamlessly
         const displayItems = order.itemSummaryString || (order.items && order.items[0] ? order.items[0].name : "");
 
-        itemLineElement.innerHTML = `
-            <div class="kvs-order-header">
-                <span>${order.customerName}</span>
-                <span>$${order.total.toFixed(2)}</span>
+        card.innerHTML = `
+            <div class="kvs-card-header">
+                <span>#${order.id} - ${order.customerName}</span>
             </div>
-            <div class="kvs-items">${displayItems.replace(/ \| /g, '\n')}</div>
-            <div class="kvs-footer">
-                <span class="status-pill" id="timer-${order.id}">0:00</span>
-                <button class="serve-btn serve-ready" onclick="serveOrder(${order.id})">SERVE</button>
+            <div class="kvs-card-items">${displayItems.replace(/ \| /g, '\n')}</div>
+            <div class="kvs-card-footer">
+                <span class="kvs-timer" id="timer-${order.id}">0:00</span>
+                <button class="kvs-serve-btn" onclick="serveOrder(${order.id})">SERVE</button>
             </div>
         `;
-        container.appendChild(itemLineElement);
+        
+        if (order.side === 1) {
+            grid1.appendChild(card);
+        } else if (order.side === 2) {
+            grid2.appendChild(card);
+        }
     });
 }
 
@@ -735,7 +774,7 @@ function serveOrder(id) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "serveOrder", orderId: id })
-    }).catch(err => console.error("Error executing status updates upstream:", err));
+    }).catch(err => console.error("Upstream KVS Clear Fault:", err));
 }
 
 function refreshKvsFromBackend() {
@@ -747,25 +786,25 @@ function refreshKvsFromBackend() {
     .then(res => res.json())
     .then(data => {
         const activeIds = data.map(o => o.id);
+        let audioPlayed = false;
+
         activeIds.forEach(id => {
             if (!lastOrderIds.includes(id)) {
-                const specificOrder = data.find(o => o.id === id);
-                if (specificOrder) {
-                    if (specificOrder.side === 1) {
-                        document.getElementById("soundSide1").play().catch(() => {});
-                    } else {
-                        document.getElementById("soundSide2").play().catch(() => {});
+                const specOrder = data.find(o => o.id === id);
+                if (specOrder && !audioPlayed) {
+                    // Sounds only trigger if this device is monitoring the targeted assembly track
+                    if ((specOrder.side === 1 && activeSystemView === "kvs1") || 
+                        (specOrder.side === 2 && activeSystemView === "kvs2")) {
+                        document.getElementById("soundAlert").play().catch(() => {});
+                        audioPlayed = true; 
                     }
                 }
             }
         });
         lastOrderIds = activeIds;
         
-        // Formats received sheet row strings back into display values safely
         kvsOrders = data.map(o => {
-            if (o.items && o.items[0]) {
-                o.itemSummaryString = o.items[0].name;
-            }
+            if (o.items && o.items[0]) o.itemSummaryString = o.items[0].name;
             return o;
         });
         
@@ -789,13 +828,11 @@ function refreshDashboard() {
         document.getElementById("dashCash").textContent = data.cashCount ?? 0;
         document.getElementById("dashCard").textContent = data.cardCount ?? 0;
     })
-    .catch(err => console.error("Analytics monitoring failure:", err));
+    .catch(err => console.error("Dashboard Analytics Pull Fault:", err));
 }
 
 function playBeep() {
-    const audio = document.getElementById("beepAudio");
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
+    document.getElementById("beepAudio").play().catch(() => {});
 }
 
 function formatTimer(totalSeconds) {
@@ -812,15 +849,14 @@ setInterval(() => {
         const baselineTime = new Date(order.timestamp).getTime();
         const deltaSeconds = Math.floor((now - baselineTime) / 1000);
         const element = document.getElementById(`timer-${order.id}`);
-        if (element) {
-            element.textContent = formatTimer(deltaSeconds);
-        }
+        if (element) element.textContent = formatTimer(deltaSeconds);
     });
 }, 1000);
 
+// Initialize System
 renderOrder();
 refreshKvsFromBackend();
-setInterval(refreshKvsFromBackend, 3000);
+setInterval(refreshKvsFromBackend, 3000); // Polling synchronization loop
 </script>
 </body>
 </html>
