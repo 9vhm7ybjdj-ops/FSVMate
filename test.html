@@ -19,20 +19,39 @@
         height: 100vh;
     }
 
-    /* POS SIDE */
+    /* POS PANEL */
     .pos-panel {
+        position: relative;
         flex: 1;
         padding: 16px;
         border-right: 2px solid #2b2222;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
+        overflow: hidden;
     }
 
     .pos-header {
         font-size: 26px;
         font-weight: bold;
         margin-bottom: 8px;
+    }
+
+    .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+
+    .dashboard-button {
+        padding: 8px 12px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        background: #c08552;
+        color: #3b2f2f;
+        cursor: pointer;
     }
 
     .product-grid {
@@ -75,6 +94,12 @@
         padding: 6px 8px;
         border-radius: 6px;
         font-size: 16px;
+        cursor: pointer;
+    }
+
+    .order-line.selected {
+        background: #e0b58a;
+        color: #3b2f2f;
     }
 
     .order-totals {
@@ -84,105 +109,41 @@
         font-size: 18px;
     }
 
-    .tender-row {
+    .bottom-actions {
         display: flex;
         gap: 8px;
         margin-bottom: 8px;
-        align-items: center;
     }
 
-    .tender-row input {
-        padding: 6px;
-        font-size: 18px;
-        border-radius: 6px;
-        border: none;
-        width: 120px;
-    }
-
-    .tender-label {
-        font-size: 18px;
-    }
-
-    .payment-buttons {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 8px;
-    }
-
-    .pay-btn {
+    .action-btn {
         flex: 1;
-        padding: 14px;
-        font-size: 20px;
-        border-radius: 10px;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
         border: none;
         cursor: pointer;
         font-weight: bold;
     }
 
-    .cash { background: #d4a373; color: #3b2f2f; }
-    .card { background: #c08552; color: #3b2f2f; }
+    .clear-btn { background: #8d4b4b; color: #fff; }
+    .void-btn  { background: #b36b6b; color: #fff; }
+    .store-btn { background: #4caf50; color: #fff; }
 
-    .pay-btn:disabled {
+    .action-btn:disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
 
-    #drawer {
+    #drawerBar {
         width: 100%;
         height: 40px;
         background: #222;
         border-radius: 8px;
         overflow: hidden;
+        position: relative;
     }
 
-    #drawer.open {
-        animation: drawerOpen 0.4s forwards;
-    }
-
-    @keyframes drawerOpen {
-        from { height: 40px; }
-        to { height: 140px; }
-    }
-
-    .top-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 6px;
-    }
-
-    .side-toggle {
-        display: flex;
-        gap: 6px;
-    }
-
-    .side-btn {
-        padding: 6px 10px;
-        border-radius: 999px;
-        border: none;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: bold;
-        background: #5a4646;
-        color: #fff;
-    }
-
-    .side-btn.active {
-        background: #d4a373;
-        color: #3b2f2f;
-    }
-
-    .dashboard-button {
-        padding: 8px 12px;
-        font-size: 16px;
-        border-radius: 8px;
-        border: none;
-        background: #c08552;
-        color: #3b2f2f;
-        cursor: pointer;
-    }
-
-    /* KVS SIDE */
+    /* KVS PANEL */
     .kvs-panel {
         flex: 1;
         padding: 16px;
@@ -268,6 +229,163 @@
         background: #2e7d32;
     }
 
+    /* PAYMENT PANEL (SLIDE-IN) */
+    .payment-panel {
+        position: absolute;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100%;
+        background: #2f2525;
+        box-sizing: border-box;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.35s ease-out;
+        transform: translateX(0);
+    }
+
+    .payment-panel.show {
+        transform: translateX(-100%);
+    }
+
+    .payment-header {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .payment-summary {
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+
+    .payment-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 18px;
+    }
+
+    .tender-display {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .quick-cash {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .quick-btn {
+        flex: 1 1 30%;
+        padding: 10px;
+        font-size: 18px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: #d4a373;
+        color: #3b2f2f;
+        font-weight: bold;
+    }
+
+    .keypad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .key-btn {
+        padding: 14px;
+        font-size: 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: #5a4646;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .pay-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+    }
+
+    .pay-complete {
+        flex: 1;
+        padding: 12px;
+        font-size: 18px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .pay-cash { background: #4caf50; color: #fff; }
+    .pay-card { background: #c08552; color: #3b2f2f; }
+
+    .pay-complete:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .cancel-payment {
+        margin-top: 8px;
+        padding: 8px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: #8d4b4b;
+        color: #fff;
+    }
+
+    /* DRAWER OVERLAY */
+    #drawerOverlay {
+        position: absolute;
+        bottom: -200px;
+        left: 0;
+        width: 100%;
+        background: #111;
+        color: #fff;
+        padding: 16px;
+        box-sizing: border-box;
+        border-radius: 12px 12px 0 0;
+        transition: transform 0.35s ease-out;
+        transform: translateY(0);
+    }
+
+    #drawerOverlay.open {
+        transform: translateY(-200px);
+    }
+
+    .drawer-title {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+
+    .drawer-change {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .drawer-close-btn {
+        padding: 10px 16px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: #d4a373;
+        color: #3b2f2f;
+        font-weight: bold;
+    }
+
     /* DASHBOARD MODAL */
     #dashboardModal {
         position: fixed;
@@ -317,9 +435,7 @@
     <div class="pos-panel">
         <div class="top-row">
             <div class="pos-header">McCafé POS</div>
-            <div>
-                <button class="dashboard-button" onclick="openDashboard()">Dashboard</button>
-            </div>
+            <button class="dashboard-button" onclick="openDashboard()">Dashboard</button>
         </div>
 
         <div class="product-grid">
@@ -338,26 +454,69 @@
             <span>Total: $<span id="orderTotal">0.00</span></span>
         </div>
 
-        <div class="tender-row">
-            <span class="tender-label">Cash received:</span>
-            <input type="number" id="cashReceived" step="0.05" oninput="updateChange()">
-            <span class="tender-label">Change: $<span id="changeDue">0.00</span></span>
+        <div class="bottom-actions">
+            <button class="action-btn clear-btn" id="clearBtn" onclick="clearOrder()">CLEAR</button>
+            <button class="action-btn void-btn" id="voidBtn" onclick="voidSelected()">VOID</button>
+            <button class="action-btn store-btn" id="storeBtn" onclick="storeOrder()">STORE ORDER</button>
         </div>
 
-        <div class="tender-row">
-            <span class="tender-label">Side:</span>
-            <div class="side-toggle">
-                <button class="side-btn active" id="side1Btn" onclick="setSide(1)">Side 1</button>
-                <button class="side-btn" id="side2Btn" onclick="setSide(2)">Side 2</button>
+        <div id="drawerBar"></div>
+
+        <!-- PAYMENT PANEL (SLIDE-IN) -->
+        <div class="payment-panel" id="paymentPanel">
+            <div class="payment-header">Payment</div>
+            <div class="payment-summary">
+                Order #<span id="payOrderId">0</span> — Total: $<span id="payTotal">0.00</span>
+            </div>
+            <div class="payment-row">
+                <span>Tendered:</span>
+                <span>$<span id="tenderedDisplay">0.00</span></span>
+            </div>
+            <div class="payment-row">
+                <span>Change:</span>
+                <span>$<span id="changeDisplay">0.00</span></span>
+            </div>
+
+            <div class="tender-display">Enter cash or choose card</div>
+
+            <div class="quick-cash">
+                <button class="quick-btn" onclick="addQuickCash(5)">$5</button>
+                <button class="quick-btn" onclick="addQuickCash(10)">$10</button>
+                <button class="quick-btn" onclick="addQuickCash(20)">$20</button>
+                <button class="quick-btn" onclick="addQuickCash(50)">$50</button>
+                <button class="quick-btn" onclick="addQuickCash(100)">$100</button>
+            </div>
+
+            <div class="keypad">
+                <button class="key-btn" onclick="pressKey('7')">7</button>
+                <button class="key-btn" onclick="pressKey('8')">8</button>
+                <button class="key-btn" onclick="pressKey('9')">9</button>
+                <button class="key-btn" onclick="pressKey('4')">4</button>
+                <button class="key-btn" onclick="pressKey('5')">5</button>
+                <button class="key-btn" onclick="pressKey('6')">6</button>
+                <button class="key-btn" onclick="pressKey('1')">1</button>
+                <button class="key-btn" onclick="pressKey('2')">2</button>
+                <button class="key-btn" onclick="pressKey('3')">3</button>
+                <button class="key-btn" onclick="pressKey('.')">.</button>
+                <button class="key-btn" onclick="pressKey('0')">0</button>
+                <button class="key-btn" onclick="pressKey('back')">←</button>
+            </div>
+
+            <div class="pay-actions">
+                <button class="pay-complete pay-cash" id="completeCashBtn" onclick="completeCash()" disabled>COMPLETE CASH SALE</button>
+                <button class="pay-complete pay-card" onclick="completeCard()">CARD PAYMENT</button>
+            </div>
+
+            <button class="cancel-payment" onclick="cancelPayment()">Cancel Payment</button>
+
+            <!-- Drawer overlay inside POS panel -->
+            <div id="drawerOverlay">
+                <div class="drawer-title">Cash Drawer Open</div>
+                <div>Give change:</div>
+                <div class="drawer-change">$<span id="drawerChangeAmount">0.00</span></div>
+                <button class="drawer-close-btn" onclick="closeDrawer()">Close Drawer</button>
             </div>
         </div>
-
-        <div class="payment-buttons">
-            <button class="pay-btn cash" id="cashBtn" onclick="proceedPayment('cash')" disabled>CASH</button>
-            <button class="pay-btn card" onclick="proceedPayment('card')">CARD</button>
-        </div>
-
-        <div id="drawer"></div>
     </div>
 
     <!-- KVS -->
@@ -392,14 +551,20 @@
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycby0g4LVr4EnH7xa0Wk7_7inmmohdTze3ywl3HMyeGrLgC3P5alUPDzjG54bXgXmwo7OLA/exec";
 
 let currentOrder = [];
-let currentSide = 1;
-let kvsSideView = 1;
+let selectedIndex = -1;
 let kvsOrders = [];
+let kvsSideView = 1;
 let nextOrderId = 1;
+
+let inPayment = false;
+let pendingOrder = null;
+let tendered = 0;
 
 /* POS LOGIC */
 
 function addItem(btn) {
+    if (inPayment) return;
+
     const name = btn.getAttribute("data-name");
     const price = parseFloat(btn.getAttribute("data-price"));
 
@@ -409,6 +574,7 @@ function addItem(btn) {
     } else {
         currentOrder.push({ name, price, qty: 1 });
     }
+    selectedIndex = -1;
     renderOrder();
 }
 
@@ -419,72 +585,175 @@ function renderOrder() {
     let total = 0;
     let count = 0;
 
-    currentOrder.forEach(item => {
+    currentOrder.forEach((item, idx) => {
         total += item.price * item.qty;
         count += item.qty;
 
         const line = document.createElement("div");
-        line.className = "order-line";
+        line.className = "order-line" + (idx === selectedIndex ? " selected" : "");
         line.innerHTML = `
             <span>${item.name} x${item.qty}</span>
             <span>$${(item.price * item.qty).toFixed(2)}</span>
         `;
+        line.onclick = () => {
+            if (inPayment) return;
+            selectedIndex = idx === selectedIndex ? -1 : idx;
+            renderOrder();
+        };
         container.appendChild(line);
     });
 
     document.getElementById("orderTotal").textContent = total.toFixed(2);
     document.getElementById("itemCount").textContent = count;
 
-    updateChange();
+    document.getElementById("clearBtn").disabled = currentOrder.length === 0 || inPayment;
+    document.getElementById("voidBtn").disabled = selectedIndex === -1 || inPayment;
+    document.getElementById("storeBtn").disabled = currentOrder.length === 0 || inPayment;
 }
 
-function updateChange() {
+function clearOrder() {
+    if (inPayment) return;
+    currentOrder = [];
+    selectedIndex = -1;
+    renderOrder();
+}
+
+function voidSelected() {
+    if (inPayment) return;
+    if (selectedIndex < 0 || selectedIndex >= currentOrder.length) return;
+    currentOrder.splice(selectedIndex, 1);
+    selectedIndex = -1;
+    renderOrder();
+}
+
+function storeOrder() {
+    if (inPayment) return;
+    if (currentOrder.length === 0) return;
+
     const total = parseFloat(document.getElementById("orderTotal").textContent) || 0;
-    const cash = parseFloat(document.getElementById("cashReceived").value) || 0;
-    const change = cash - total;
+    if (total <= 0) return;
 
-    document.getElementById("changeDue").textContent = (change > 0 ? change : 0).toFixed(2);
-
-    const cashBtn = document.getElementById("cashBtn");
-    if (cash >= total && total > 0) {
-        cashBtn.disabled = false;
-    } else {
-        cashBtn.disabled = true;
-    }
-}
-
-function setSide(side) {
-    currentSide = side;
-    document.getElementById("side1Btn").classList.toggle("active", side === 1);
-    document.getElementById("side2Btn").classList.toggle("active", side === 2);
-}
-
-function proceedPayment(type) {
-    const total = parseFloat(document.getElementById("orderTotal").textContent) || 0;
-    if (total <= 0 || currentOrder.length === 0) return;
-
-    if (type === "cash") {
-        const cash = parseFloat(document.getElementById("cashReceived").value) || 0;
-        if (cash < total) return;
-        triggerDrawer();
-    }
+    // Decide side based on load
+    const side1Count = kvsOrders.filter(o => o.side === 1).length;
+    const side2Count = kvsOrders.filter(o => o.side === 2).length;
+    const side = side1Count <= side2Count ? 1 : 2;
 
     const orderId = nextOrderId++;
     const order = {
         id: orderId,
-        side: currentSide,
+        side: side,
         items: currentOrder.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
         total: total,
-        paymentType: type
+        paymentType: null // decided later
     };
 
-    sendOrderToBackend(order);
+    pendingOrder = order;
     addToKvs(order);
+    playBeep();
 
-    // reset order
+    // Lock POS and open payment
+    inPayment = true;
+    document.getElementById("payOrderId").textContent = order.id;
+    document.getElementById("payTotal").textContent = order.total.toFixed(2);
+    tendered = 0;
+    updateTenderDisplay();
+    document.getElementById("paymentPanel").classList.add("show");
+    document.getElementById("completeCashBtn").disabled = true;
+    renderOrder();
+}
+
+/* PAYMENT LOGIC */
+
+function addQuickCash(amount) {
+    tendered += amount;
+    updateTenderDisplay();
+}
+
+function pressKey(key) {
+    let str = tendered.toString();
+
+    if (key === 'back') {
+        str = str.slice(0, -1);
+        if (str === "" || str === "-") str = "0";
+    } else if (key === '.') {
+        if (!str.includes('.')) {
+            str += '.';
+        }
+    } else {
+        if (str === "0") str = key;
+        else str += key;
+    }
+
+    const val = parseFloat(str);
+    tendered = isNaN(val) ? 0 : val;
+    updateTenderDisplay();
+}
+
+function updateTenderDisplay() {
+    const total = pendingOrder ? pendingOrder.total : 0;
+    const change = tendered - total;
+
+    document.getElementById("tenderedDisplay").textContent = tendered.toFixed(2);
+    document.getElementById("changeDisplay").textContent = (change > 0 ? change : 0).toFixed(2);
+
+    const btn = document.getElementById("completeCashBtn");
+    if (pendingOrder && tendered >= total && total > 0) {
+        btn.disabled = false;
+    } else {
+        btn.disabled = true;
+    }
+}
+
+function completeCash() {
+    if (!pendingOrder) return;
+    const total = pendingOrder.total;
+    if (tendered < total) return;
+
+    pendingOrder.paymentType = "cash";
+    sendOrderToBackend(pendingOrder);
+
+    const change = tendered - total;
+    document.getElementById("drawerChangeAmount").textContent = change.toFixed(2);
+    openDrawer();
+}
+
+function completeCard() {
+    if (!pendingOrder) return;
+    pendingOrder.paymentType = "card";
+    sendOrderToBackend(pendingOrder);
+    resetAfterPayment();
+}
+
+function cancelPayment() {
+    // Cancel payment but keep order on KVS (like parked)
+    pendingOrder = null;
+    inPayment = false;
+    tendered = 0;
+    document.getElementById("paymentPanel").classList.remove("show");
+    updateTenderDisplay();
+    renderOrder();
+}
+
+/* DRAWER */
+
+function openDrawer() {
+    const overlay = document.getElementById("drawerOverlay");
+    overlay.classList.add("open");
+}
+
+function closeDrawer() {
+    const overlay = document.getElementById("drawerOverlay");
+    overlay.classList.remove("open");
+    resetAfterPayment();
+}
+
+function resetAfterPayment() {
+    pendingOrder = null;
+    inPayment = false;
+    tendered = 0;
+    document.getElementById("paymentPanel").classList.remove("show");
     currentOrder = [];
-    document.getElementById("cashReceived").value = "";
-    document.getElementById("changeDue").textContent = "0.00";
+    selectedIndex = -1;
     renderOrder();
 }
 
@@ -502,7 +771,6 @@ function sendOrderToBackend(order) {
 
 function addToKvs(order) {
     kvsOrders.push(order);
-    playBeep();
     renderKvs();
 }
 
@@ -532,7 +800,7 @@ function renderKvs() {
                 </div>
                 <div class="kvs-items">${itemsHtml}</div>
                 <div class="kvs-footer">
-                    <span class="status-pill">PAID</span>
+                    <span class="status-pill">IN QUEUE</span>
                     <button class="serve-btn serve-ready" onclick="serveOrder(${order.id})">SERVE</button>
                 </div>
             `;
@@ -575,23 +843,19 @@ function refreshDashboard() {
         .catch(() => {});
 }
 
-/* DRAWER + AUDIO */
-
-function triggerDrawer() {
-    const drawer = document.getElementById("drawer");
-    drawer.classList.remove("open");
-    void drawer.offsetWidth;
-    drawer.classList.add("open");
-}
+/* AUDIO */
 
 function playBeep() {
     const audio = document.getElementById("beepAudio");
     audio.currentTime = 0;
     audio.play().catch(() => {});
 }
+
+/* INIT */
+
+renderOrder();
+renderKvs();
 </script>
 
 </body>
 </html>
-
-
